@@ -1,0 +1,47 @@
+name: Deploy Apps Script
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install clasp
+        run: npm install -g @google/clasp
+
+      - name: Write clasp credentials
+        run: |
+          echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
+          cat <<'EOF' > .clasp.json
+          {
+            "scriptId": "1oqQNNv3AEZFzDhJ-36BYvNDQXq-1T6A0jIvqqR3lo-xlQSpFtXg8sb7M",
+            "rootDir": "."
+          }
+          EOF
+
+      - name: Push source
+        run: clasp push --force
+
+      - name: Create version
+        id: create_version
+        shell: bash
+        run: |
+          OUTPUT=$(clasp version "GitHub ${GITHUB_SHA::7}")
+          echo "$OUTPUT"
+          VERSION=$(echo "$OUTPUT" | grep -oE '[0-9]+' | tail -1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Redeploy web app
+        run: clasp redeploy "AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F" "${{ steps.create_version.outputs.version }}" "GitHub ${GITHUB_SHA::7}"
