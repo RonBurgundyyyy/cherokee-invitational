@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('styles'); ?>
+  </head>
+
+  <body>
+
+    <!-- BANNER -->
+    <header class="banner">
+      <img 
+        src="https://i.imgur.com/GVJiEI2.png"
+        alt="Cherokee Invitational Banner">
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="nav">
+      <button onclick="showPage('home')">Events</button>
+      <button onclick="showPage('register')">Register</button>
+      <button onclick="showPage('chat')">Chat</button>
+      <button onclick="showPage('leaderboard')">Leaderboard</button>
+    </nav>
+
+    <!-- CHANNEL DRAWER OVERLAY (ONLY USED IN CHAT) -->
+    <div class="channel-drawer-backdrop" id="channel-backdrop" onclick="closeChannelDrawer(event)">
+      <div class="channel-drawer" onclick="event.stopPropagation()">
+        <div class="drawer-title">Channels</div>
+        <div class="channel-list" id="channel-list"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+
+      <!-- HOME PAGE -->
+      <section id="home" class="page">
+        <section class="hero">
+          <h1>3rd Annual — 2026</h1>
+          <p>Where championship golf collides with casino-night energy.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Announcements</h2>
+          <p>Welcome Back! Let's keep making this event bigger and bigger!</p>
+        </section>
+      </section>
+
+      <!-- REGISTER PAGE -->
+      <section id="register" class="page" style="display:none;">
+        <div class="panel">
+          <h2>Register / Check In</h2>
+          <?!= include('client'); ?>
+        </div>
+      </section>
+
+      <!-- CHAT PAGE -->
+      <section id="chat" class="page chat-page" style="display:none;">
+        <div class="chat-shell">
+
+          <!-- CHAT HEADER -->
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <button onclick="openChannelDrawer()">Channels</button>
+              <div>
+                <div class="chat-channel-name" id="chat-channel-name">Practice Round</div>
+                <div class="chat-header-sub">Cherokee Invitational Chat</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NAME SELECTOR -->
+          <div class="chat-name-select">
+            <input id="chat-name" type="text" placeholder="Start typing your name…">
+            <div id="name-suggestions" class="suggestions"></div>
+          </div>
+
+          <!-- MESSAGES -->
+          <div id="chat-messages" class="chat-messages"></div>
+
+          <!-- INPUT BAR -->
+          <div class="chat-input-bar">
+            <input id="chat-text" type="text" placeholder="Message #Practice Round">
+            <button onclick="sendMessage()">Send</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- LEADERBOARD PAGE -->
+      <section id="leaderboard" class="page" style="display:none;">
+        <div class="panel">
+          <h2>Leaderboard</h2>
+          <p>Leaderboard module coming soon.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- SCRIPT -->
+    <script>
+      const CHANNELS = [
+        "Practice Round",
+        "Tournament",
+        "Sportsbook",
+        "Casino",
+        "Ruth's Chris",
+        "Hotel",
+        "Driving",
+        "Shit Talk"
+      ];
+
+      let replyTo = null;
+      let selectedUser = null;
+      let currentChannel = CHANNELS[0];
+      let lastSeen = {};
+
+      /* PAGE SWITCHING */
+      function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.getElementById(page).style.display = 'block';
+
+        const backdrop = document.getElementById('channel-backdrop');
+        if (page !== 'chat') {
+          backdrop.classList.remove('open');
+        }
+      }
+
+      /* DRAWER */
+      function openChannelDrawer() {
+        document.getElementById('channel-backdrop').classList.add('open');
+      }
+
+      function closeChannelDrawer(e) {
+        document.getElementById('channel-backdrop').classList.remove('open');
+      }
+
+      /* BUILD CHANNEL LIST */
+      function buildChannelDrawer() {
+        const list = document.getElementById("channel-list");
+        list.innerHTML = "";
+        CHANNELS.forEach(ch => {
+          const div = document.createElement("div");
+          div.className = "channel-item" + (ch === currentChannel ? " channel-active" : "");
+          div.dataset.channel = ch;
+          div.onclick = () => {
+            switchChannel(ch);
+            closeChannelDrawer();
+          };
+          div.innerHTML = `
+            <span>${ch}</span>
+            <span id="badge-${ch.replace(/\s+/g,'')}"></span>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      /* SWITCH CHANNEL */
+      function switchChannel(ch) {
+        currentChannel = ch;
+        replyTo = null;
+
+        document.getElementById('chat-channel-name').textContent = ch;
+        document.getElementById('chat-text').placeholder = "Message #" + ch;
+
+        document.querySelectorAll('.channel-item').forEach(el => {
+          el.classList.toggle('channel-active', el.dataset.channel === ch);
+        });
+
+        loadChat();
+        clearBadge(ch);
+      }
+
+      function clearBadge(ch) {
+        const key = ch.replace(/\s+/g,'');
+        const badge = document.getElementById("badge-" + key);
+        if (badge) badge.innerHTML = "";
+        if (!lastSeen[ch]) lastSeen[ch] = new Date().toISOString();
+        localStorage.setItem("ci_lastSeen", JSON.stringify(lastSeen));
+      }
+
+      /* NAME AUTOCOMPLETE */
+      function loadNames() {
+        google.script.run.withSuccessHandler(names => {
+          window.entryNames = names || [];
+        }).getEntryNames();
+      }
+
+      document.addEventListener("input", e => {
+        if (e.target.id !== "chat-name") return;
+
+        const val = e.target.value.toLowerCase();
+        const box = document.getElementById("name-suggestions");
+        box.innerHTML = "";
+
+        if (!val || !window.entryNames) return;
+
+        const matches = window.entryNames.filter(n => n.toLowerCase().includes(val));
+
+        matches.forEach(name => {
+          const div = document.createElement("div");
+          div.className = "suggestion";
+          div.textContent = name;
+          div.onclick = () => {
+            selectedUser = name;
+            document.getElementById("chat-name").value = name;
+            box.innerHTML = "";
+          };
+          box.appendChild(div);
+        });
+      });
+
+      /* SEND MESSAGE */
+      function sendMessage() {
+        const text = document.getElementById('chat-text').value.trim();
+        if (!selectedUser) {
+          alert("Select your name first.");
+          return;
+        }
+        if (!text) return;
+
+        google.script.run
+          .withSuccessHandler(() => {
+            document.getElementById('chat-text').value = "";
+            replyTo = null;
+            loadChat();
+          })
+          .saveChatMessage(selectedUser, currentChannel, text, replyTo);
+      }
+
+      /* LOAD CHAT */
+      function loadChat() {
+        google.script.run
+          .withSuccessHandler(renderChat)
+          .getChatMessages(currentChannel);
+      }
+
+      /* RENDER CHAT */
+      function renderChat(messages) {
+        const container = document.getElementById('chat-messages');
+        container.innerHTML = "";
+
+        const threads = messages.filter(m => !m.parent);
+
+        threads.forEach(thread => {
+          const msgDiv = document.createElement('div');
+          msgDiv.className = "chat-message";
+
+          const bubble = document.createElement('div');
+          bubble.className = "chat-bubble";
+          bubble.innerHTML = `
+            <div class="chat-user">${thread.user}</div>
+            <div class="chat-text">${thread.text}</div>
+            <div class="chat-meta">${formatTime(thread.time)} · <span class="chat-reply-button" onclick="setReply('${thread.id}')">Reply</span></div>
+          `;
+          msgDiv.appendChild(bubble);
+
+          const replies = messages.filter(m => m.parent === thread.id);
+          if (replies.length) {
+            const replyBlock = document.createElement('div');
+            replyBlock.className = "chat-reply-block";
+
+            replies.forEach(r => {
+              const rb = document.createElement('div');
+              rb.className = "chat-reply-bubble";
+              rb.innerHTML = `
+                <div class="chat-reply-user">${r.user}</div>
+                <div class="chat-reply-text">${r.text}</div>
+                <div class="chat-reply-meta">${formatTime(r.time)}</div>
+              `;
+              replyBlock.appendChild(rb);
+            });
+
+            msgDiv.appendChild(replyBlock);
+          }
+
+          container.appendChild(msgDiv);
+        });
+
+        container.scrollTop = container.scrollHeight;
+
+        updateLastSeenForCurrent(messages);
+        updateUnreadForAll();
+      }
+
+      function setReply(id) {
+        replyTo = id;
+        const input = document.getElementById('chat-text');
+        input.placeholder = "Replying in #" + currentChannel;
+        input.focus();
+      }
+
+      function formatTime(t) {
+        try {
+          const d = new Date(t);
+          return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function updateLastSeenForCurrent(messages) {
+        if (!messages.length) return;
+        const latest = messages[messages.length - 1].time;
+        lastSeen[currentChannel] = latest;
+        localStorage.setItem("ci_lastSeen", JSON.stringify(lastSeen));
+      }
+
+      function updateUnreadForAll() {
+        CHANNELS.forEach(ch => {
+          google.script.run.withSuccessHandler(msgs => {
+            const stored = JSON.parse(localStorage.getItem("ci_lastSeen") || "{}");
+            lastSeen = stored;
+            const last = stored[ch] ? new Date(stored[ch]) : new Date(0);
+            const unread = msgs.filter(m => new Date(m.time) > last).length;
+            const key = ch.replace(/\s+/g,'');
+            const badge = document.getElementById("badge-" + key);
+            if (!badge) return;
+            if (unread > 0 && ch !== currentChannel) {
+              badge.innerHTML = `<span class="unread-badge">${unread}</span>`;
+              showToast(`New message in ${ch}`);
+            } else if (ch === currentChannel) {
+              badge.innerHTML = "";
+            }
+          }).getChatMessages(ch);
+        });
+      }
+
+      function showToast(text) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = text;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      function initState() {
+        const stored = localStorage.getItem("ci_lastSeen");
+        if (stored) {
+          lastSeen = JSON.parse(stored);
+        } else {
+          lastSeen = {};
+        }
+      }
+
+      /* INIT */
+      initState();
+      buildChannelDrawer();
+      loadNames();
+      loadChat();
+      setInterval(loadChat, 5000);
+    </script>
+
+  </body>
+</html>

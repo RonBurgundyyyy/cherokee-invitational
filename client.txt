@@ -1,0 +1,82 @@
+<div class="entry-form">
+
+  <div class="form-row">
+    <label>Name</label>
+    <input id="entry-name" type="text" placeholder="Your name">
+  </div>
+
+  <div class="form-row">
+    <label>Email</label>
+    <input id="entry-email" type="email" placeholder="you@example.com">
+  </div>
+
+  <div class="form-row">
+    <label>Handicap (optional)</label>
+    <input id="entry-handicap" type="number" placeholder="e.g., 12">
+  </div>
+
+  <div class="form-section-title">Event Participation</div>
+
+  <div class="checkbox-grid">
+    <label class="checkbox-item">
+      <input id="entry-practice" type="checkbox" checked>
+      <span>Practice Round 9/25</span>
+    </label>
+
+    <label class="checkbox-item">
+      <input id="entry-tournament" type="checkbox" checked>
+      <span>Tournament 9/26</span>
+    </label>
+
+    <label class="checkbox-item">
+      <input id="entry-sportsbook" type="checkbox" checked>
+      <span>SportsBook 9/26</span>
+    </label>
+  </div>
+
+  <button class="submit-btn" onclick="submitEntry()">Enter Tournament</button>
+
+  <div id="entry-status"></div>
+
+</div>
+
+<script>
+  function submitEntry() {
+    const name = document.getElementById('entry-name').value.trim();
+    const email = document.getElementById('entry-email').value.trim();
+    const handicap = document.getElementById('entry-handicap').value.trim();
+
+    const practice = document.getElementById('entry-practice').checked ? "Yes" : "No";
+    const tournament = document.getElementById('entry-tournament').checked ? "Yes" : "No";
+    const sportsbook = document.getElementById('entry-sportsbook').checked ? "Yes" : "No";
+
+    const status = document.getElementById('entry-status');
+
+    if (!name || !email) {
+      status.textContent = "Name and email are required.";
+      status.style.color = "#ff6666";
+      return;
+    }
+
+    status.textContent = "Submitting...";
+    status.style.color = "#ffd700";
+
+    google.script.run
+      .withSuccessHandler(() => {
+        status.textContent = "You're in!";
+        status.style.color = "#00ff66";
+
+        document.getElementById('entry-name').value = "";
+        document.getElementById('entry-email').value = "";
+        document.getElementById('entry-handicap').value = "";
+        document.getElementById('entry-practice').checked = true;
+        document.getElementById('entry-tournament').checked = true;
+        document.getElementById('entry-sportsbook').checked = true;
+      })
+      .withFailureHandler(err => {
+        status.textContent = "Error: " + err.message;
+        status.style.color = "#ff6666";
+      })
+      .saveEntry(name, email, handicap, practice, tournament, sportsbook);
+  }
+</script>
