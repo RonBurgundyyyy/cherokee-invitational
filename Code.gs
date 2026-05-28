@@ -1,8 +1,7 @@
 function doGet() {
   return HtmlService.createTemplateFromFile('index')
     .evaluate()
-    .setTitle('Cherokee Invitational')
-    .setFaviconUrl('favicon-32.png');
+    .setTitle('Cherokee Invitational');
 }
 
 function include(filename) {
