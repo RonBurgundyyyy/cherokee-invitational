@@ -38,6 +38,16 @@ const CHAT_HEADERS = [
   "ParentID"
 ];
 
+const ITINERARY_HEADERS = [
+  "date",
+  "time",
+  "title",
+  "location",
+  "notes",
+  "type",
+  "image"
+];
+
 function saveEntry(name, email, handicap, practice, tournament, sportsbook) {
   const sheet = getSheet_("Entries", ENTRY_HEADERS);
   const entryName = cleanText_(name, 80);
@@ -65,6 +75,25 @@ function getEntryNames() {
   const values = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
   const unique = new Set(values.flat().map(n => cleanText_(n, 80)).filter(Boolean));
   return Array.from(unique).sort();
+}
+
+function getItineraryEvents() {
+  const sheet = getSheet_("Itinerary", ITINERARY_HEADERS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  return sheet.getRange(2, 1, lastRow - 1, ITINERARY_HEADERS.length)
+    .getValues()
+    .map(row => ({
+      date: formatDateValue_(row[0]),
+      time: cleanText_(row[1], 40),
+      title: cleanText_(row[2], 120),
+      location: cleanText_(row[3], 180),
+      notes: cleanText_(row[4], 260),
+      type: cleanText_(row[5], 60),
+      image: cleanText_(row[6], 500)
+    }))
+    .filter(event => event.title);
 }
 
 // Chat sheet columns:
@@ -195,4 +224,11 @@ function formatTimeValue_(value) {
     return value.toISOString();
   }
   return cleanText_(value, 80);
+}
+
+function formatDateValue_(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), "M/d/yyyy");
+  }
+  return cleanText_(value, 40);
 }
