@@ -247,10 +247,14 @@
 
       /* LOAD CHAT */
       function loadChat(markSeen) {
+        const requestedChannel = currentChannel;
         google.script.run
-          .withSuccessHandler(snapshot => renderChat(snapshot, markSeen))
+          .withSuccessHandler(snapshot => {
+            if (requestedChannel !== currentChannel) return;
+            renderChat(snapshot, markSeen);
+          })
           .withFailureHandler(err => showChatError(err.message || "Could not load chat."))
-          .getChatSnapshot(currentChannel, lastSeen);
+          .getChatSnapshot(requestedChannel, lastSeen);
       }
 
       /* RENDER CHAT */
@@ -269,13 +273,14 @@
         }
 
         const threads = messages.filter(m => !m.parent);
+        const visibleThreads = threads.length ? threads : messages;
 
-        threads.forEach(thread => {
+        visibleThreads.forEach(thread => {
           const msgDiv = document.createElement('div');
           msgDiv.className = "chat-message";
           msgDiv.appendChild(createBubble(thread, false));
 
-          const replies = messages.filter(m => m.parent === thread.id);
+          const replies = threads.length ? messages.filter(m => m.parent === thread.id) : [];
           if (replies.length) {
             const replyBlock = document.createElement('div');
             replyBlock.className = "chat-reply-block";
