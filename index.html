@@ -58,31 +58,35 @@
       <section id="chat" class="page chat-page" style="display:none;">
         <div class="chat-shell">
 
-          <!-- CHAT HEADER -->
-          <div class="chat-header">
-            <div class="chat-header-left">
-              <button onclick="openChannelDrawer()">Channels</button>
-              <div>
-                <div class="chat-channel-name" id="chat-channel-name">Practice Round</div>
-                <div class="chat-header-sub">Cherokee Invitational Chat</div>
+          <aside class="chat-sidebar">
+            <div class="chat-workspace">Cherokee</div>
+            <div class="chat-sidebar-label">Channels</div>
+            <div class="chat-sidebar-list" id="desktop-channel-list"></div>
+          </aside>
+
+          <section class="chat-main">
+            <div class="chat-header">
+              <div class="chat-header-left">
+                <button class="channel-toggle" onclick="openChannelDrawer()">Channels</button>
+                <div>
+                  <div class="chat-channel-name" id="chat-channel-name">Practice Round</div>
+                  <div class="chat-header-sub">Cherokee Invitational Chat</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- NAME SELECTOR -->
-          <div class="chat-name-select">
-            <input id="chat-name" type="text" placeholder="Start typing your name...">
-            <div id="name-suggestions" class="suggestions"></div>
-          </div>
+            <div class="chat-name-select">
+              <input id="chat-name" type="text" placeholder="Start typing your name...">
+              <div id="name-suggestions" class="suggestions"></div>
+            </div>
 
-          <!-- MESSAGES -->
-          <div id="chat-messages" class="chat-messages"></div>
+            <div id="chat-messages" class="chat-messages"></div>
 
-          <!-- INPUT BAR -->
-          <div class="chat-input-bar">
-            <input id="chat-text" type="text" placeholder="Message #Practice Round">
-            <button onclick="sendMessage()">Send</button>
-          </div>
+            <div class="chat-input-bar">
+              <input id="chat-text" type="text" placeholder="Message #Practice Round">
+              <button onclick="sendMessage()">Send</button>
+            </div>
+          </section>
 
         </div>
       </section>
@@ -140,27 +144,31 @@
 
       /* BUILD CHANNEL LIST */
       function buildChannelDrawer() {
-        const list = document.getElementById("channel-list");
-        list.innerHTML = "";
+        renderChannelList(document.getElementById("channel-list"));
+        renderChannelList(document.getElementById("desktop-channel-list"));
+      }
 
+      function renderChannelList(list) {
+        if (!list) return;
+        list.innerHTML = "";
         CHANNELS.forEach(ch => {
-          const div = document.createElement("div");
-          div.className = "channel-item" + (ch === currentChannel ? " channel-active" : "");
-          div.dataset.channel = ch;
-          div.onclick = () => {
+          const button = document.createElement("button");
+          button.className = "channel-item" + (ch === currentChannel ? " channel-active" : "");
+          button.dataset.channel = ch;
+          button.onclick = () => {
             switchChannel(ch);
             closeChannelDrawer();
           };
 
           const label = document.createElement("span");
-          label.textContent = ch;
+          label.textContent = "# " + ch;
 
           const badge = document.createElement("span");
           badge.id = "badge-" + badgeKey(ch);
 
-          div.appendChild(label);
-          div.appendChild(badge);
-          list.appendChild(div);
+          button.appendChild(label);
+          button.appendChild(badge);
+          list.appendChild(button);
         });
       }
 
@@ -176,7 +184,7 @@
           el.classList.toggle('channel-active', el.dataset.channel === ch);
         });
 
-        loadChat(isChatVisible());
+        loadChat();
         clearBadge(ch);
       }
 
@@ -224,6 +232,13 @@
         });
       });
 
+      document.addEventListener("keydown", e => {
+        if (e.target.id === "chat-text" && e.key === "Enter") {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
       /* SEND MESSAGE */
       function sendMessage() {
         const text = document.getElementById('chat-text').value.trim();
@@ -239,30 +254,33 @@
           .withSuccessHandler(() => {
             document.getElementById('chat-text').value = "";
             replyTo = null;
-            loadChat(true);
+            loadChat();
           })
           .withFailureHandler(err => showToast(err.message || "Message could not be sent."))
           .saveChatMessage(user, currentChannel, text, replyTo);
       }
 
       /* LOAD CHAT */
-      function loadChat(markSeen) {
+      function loadChat() {
         const requestedChannel = currentChannel;
+        renderLoading();
+
         google.script.run
-          .withSuccessHandler(snapshot => {
+          .withSuccessHandler(data => {
             if (requestedChannel !== currentChannel) return;
-            renderChat(snapshot, markSeen);
+            renderChat(data);
           })
           .withFailureHandler(err => showChatError(err.message || "Could not load chat."))
-          .getChatSnapshot(requestedChannel, lastSeen);
+          .getChatData(requestedChannel);
       }
 
       /* RENDER CHAT */
-      function renderChat(snapshot, markSeen) {
-        const snapshotMessages = Array.isArray(snapshot)
-          ? snapshot
-          : (snapshot && Array.isArray(snapshot.messages) ? snapshot.messages : []);
-        const unreadCounts = snapshot && !Array.isArray(snapshot) && snapshot.unread ? snapshot.unread : {};
+      function renderChat(data) {
+        if (data && Array.isArray(data.names)) {
+          window.entryNames = data.names;
+        }
+
+        const snapshotMessages = data && Array.isArray(data.messages) ? data.messages : [];
         const messages = snapshotMessages.filter(Boolean);
         const container = document.getElementById('chat-messages');
         container.innerHTML = "";
@@ -272,7 +290,6 @@
           empty.className = "chat-empty";
           empty.textContent = "No messages in this channel yet.";
           container.appendChild(empty);
-          updateUnreadBadges(unreadCounts);
           return;
         }
 
@@ -300,43 +317,53 @@
         });
 
         container.scrollTop = container.scrollHeight;
-
-        if (markSeen && isChatVisible()) {
-          updateLastSeenForCurrent(messages);
-        }
-        updateUnreadBadges(unreadCounts);
       }
 
       function createBubble(message, isReply) {
+        const row = document.createElement('div');
+        row.className = isReply ? "chat-reply-row" : "chat-message-row";
+
+        const avatar = document.createElement('div');
+        avatar.className = "chat-avatar";
+        avatar.textContent = initials(message.user);
+
         const bubble = document.createElement('div');
         bubble.className = isReply ? "chat-reply-bubble" : "chat-bubble";
 
-        const user = document.createElement('div');
+        const header = document.createElement('div');
+        header.className = "chat-message-header";
+
+        const user = document.createElement('span');
         user.className = isReply ? "chat-reply-user" : "chat-user";
-        user.textContent = message.user;
+        user.textContent = message.user || "Guest";
 
-        const text = document.createElement('div');
-        text.className = isReply ? "chat-reply-text" : "chat-text";
-        text.textContent = message.text;
-
-        const meta = document.createElement('div');
+        const meta = document.createElement('span');
         meta.className = isReply ? "chat-reply-meta" : "chat-meta";
         meta.textContent = formatTime(message.time);
 
+        const text = document.createElement('div');
+        text.className = isReply ? "chat-reply-text" : "chat-text";
+        text.textContent = message.text || "";
+
         if (!isReply) {
-          meta.appendChild(document.createTextNode(" / "));
           const reply = document.createElement('span');
           reply.className = "chat-reply-button";
           reply.textContent = "Reply";
           reply.onclick = () => setReply(message.id);
-          meta.appendChild(reply);
+          header.appendChild(user);
+          header.appendChild(meta);
+          header.appendChild(reply);
+        } else {
+          header.appendChild(user);
+          header.appendChild(meta);
         }
 
-        bubble.appendChild(user);
+        bubble.appendChild(header);
         bubble.appendChild(text);
-        bubble.appendChild(meta);
+        row.appendChild(avatar);
+        row.appendChild(bubble);
 
-        return bubble;
+        return row;
       }
 
       function setReply(id) {
@@ -353,29 +380,6 @@
         } catch (e) {
           return "";
         }
-      }
-
-      function updateLastSeenForCurrent(messages) {
-        if (!messages.length) return;
-        const latest = messages[messages.length - 1].time;
-        lastSeen[currentChannel] = latest;
-        localStorage.setItem("ci_lastSeen", JSON.stringify(lastSeen));
-      }
-
-      function updateUnreadBadges(unreadCounts) {
-        CHANNELS.forEach(ch => {
-          const badge = document.getElementById("badge-" + badgeKey(ch));
-          if (!badge) return;
-          badge.innerHTML = "";
-
-          const unread = unreadCounts[ch] || 0;
-          if (unread > 0 && ch !== currentChannel) {
-            const pill = document.createElement("span");
-            pill.className = "unread-badge";
-            pill.textContent = unread;
-            badge.appendChild(pill);
-          }
-        });
       }
 
       function showToast(text) {
@@ -396,6 +400,16 @@
         container.appendChild(error);
 
         showToast(text);
+      }
+
+      function renderLoading() {
+        const container = document.getElementById('chat-messages');
+        container.innerHTML = "";
+
+        const loading = document.createElement("div");
+        loading.className = "chat-empty";
+        loading.textContent = "Loading messages...";
+        container.appendChild(loading);
       }
 
       function initState() {
@@ -421,12 +435,23 @@
         return ch.replace(/\s+/g, "");
       }
 
+      function initials(name) {
+        return String(name || "?")
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(part => part[0].toUpperCase())
+          .join("");
+      }
+
       /* INIT */
       initState();
       buildChannelDrawer();
       loadNames();
-      loadChat(false);
-      setInterval(() => loadChat(isChatVisible()), 8000);
+      loadChat();
+      setInterval(() => {
+        if (isChatVisible()) loadChat();
+      }, 8000);
     </script>
 
   </body>

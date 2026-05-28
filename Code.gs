@@ -123,6 +123,19 @@ function getChatSnapshot(channel, lastSeen) {
   };
 }
 
+function getChatData(channel) {
+  const cleanChannel = validateChannel_(channel);
+
+  return {
+    channel: cleanChannel,
+    channels: CHANNELS,
+    names: getEntryNames(),
+    messages: getChatRows_()
+      .filter(row => row.channel === cleanChannel)
+      .map(row => row.message)
+  };
+}
+
 function getChatRows_() {
   const sheet = getSheet_("Chat", CHAT_HEADERS);
   const lastRow = sheet.getLastRow();
