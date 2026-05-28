@@ -34,8 +34,13 @@
     </label>
 
     <label class="checkbox-item">
-      <input id="entry-hotel" type="checkbox">
+      <input id="entry-hotel" type="checkbox" checked>
       <span>I will be staying at the hotel for 2 nights minimum</span>
+    </label>
+
+    <label class="checkbox-item">
+      <input id="entry-own-room" type="checkbox">
+      <span>I would like my own room</span>
     </label>
   </div>
 
@@ -55,6 +60,7 @@
     const tournament = document.getElementById('entry-tournament').checked ? "Yes" : "No";
     const sportsbook = document.getElementById('entry-sportsbook').checked ? "Yes" : "No";
     const hotel = document.getElementById('entry-hotel').checked ? "Yes" : "No";
+    const ownRoom = document.getElementById('entry-own-room').checked ? "Yes" : "No";
 
     const status = document.getElementById('entry-status');
 
@@ -78,7 +84,8 @@
         document.getElementById('entry-practice').checked = true;
         document.getElementById('entry-tournament').checked = true;
         document.getElementById('entry-sportsbook').checked = true;
-        document.getElementById('entry-hotel').checked = false;
+        document.getElementById('entry-hotel').checked = true;
+        document.getElementById('entry-own-room').checked = false;
 
         if (typeof loadNames === "function") {
           loadNames();
@@ -88,6 +95,6 @@
         status.textContent = "Error: " + err.message;
         status.style.color = "#ff6666";
       })
-      .saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel);
+      .saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom);
   }
 </script>

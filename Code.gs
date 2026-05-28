@@ -27,7 +27,8 @@ const ENTRY_HEADERS = [
   "Practice",
   "Tournament",
   "Sportsbook",
-  "Hotel 2 Nights Minimum"
+  "Hotel 2 Nights Minimum",
+  "Own Room"
 ];
 
 const CHAT_HEADERS = [
@@ -49,7 +50,7 @@ const ITINERARY_HEADERS = [
   "image"
 ];
 
-function saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel) {
+function saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom) {
   const sheet = getSheet_("Entries", ENTRY_HEADERS);
   const entryName = cleanText_(name, 80);
   const entryEmail = cleanText_(email, 120);
@@ -66,7 +67,8 @@ function saveEntry(name, email, handicap, practice, tournament, sportsbook, hote
     yesNo_(practice),
     yesNo_(tournament),
     yesNo_(sportsbook),
-    yesNo_(hotel)
+    yesNo_(hotel),
+    yesNo_(ownRoom)
   ]);
 }
 
