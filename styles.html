@@ -35,6 +35,20 @@
     padding: clamp(16px, 3vw, 32px);
   }
 
+  .content:has(#chat:not([style*="display:none"])) {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: calc(100vh - 420px);
+    padding-bottom: 0;
+  }
+
+  body.chat-active .content {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: calc(100vh - 420px);
+    padding-bottom: 0;
+  }
+
   .hero {
     margin: 1.5rem 0;
     text-align: center;
@@ -183,6 +197,9 @@
   }
 
   .chat-page {
+    box-sizing: border-box;
+    display: flex;
+    min-height: calc(100vh - 420px);
     padding: 0;
   }
 
@@ -193,9 +210,9 @@
     display: grid;
     font-size: 16px;
     grid-template-columns: 240px minmax(0, 1fr);
-    height: min(72vh, 720px);
-    min-height: 520px;
+    min-height: calc(100vh - 420px);
     overflow: hidden;
+    width: 100%;
   }
 
   .chat-sidebar {
@@ -546,7 +563,18 @@
     }
 
     .content {
+      box-sizing: border-box;
       padding: 12px;
+    }
+
+    .content:has(#chat:not([style*="display:none"])) {
+      min-height: calc(100vh - 286px);
+      padding-bottom: 0;
+    }
+
+    body.chat-active .content {
+      min-height: calc(100vh - 286px);
+      padding-bottom: 0;
     }
 
     .nav button {
@@ -556,8 +584,7 @@
 
     .chat-shell {
       grid-template-columns: 1fr;
-      height: 64vh;
-      min-height: 430px;
+      min-height: calc(100vh - 286px);
     }
 
     .chat-sidebar {

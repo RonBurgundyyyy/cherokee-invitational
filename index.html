@@ -124,6 +124,7 @@
       function showPage(page) {
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
         document.getElementById(page).style.display = 'block';
+        document.body.classList.toggle("chat-active", page === "chat");
 
         const backdrop = document.getElementById('channel-backdrop');
         if (page !== 'chat') {
