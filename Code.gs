@@ -26,7 +26,8 @@ const ENTRY_HEADERS = [
   "Handicap",
   "Practice",
   "Tournament",
-  "Sportsbook"
+  "Sportsbook",
+  "Hotel 2 Nights Minimum"
 ];
 
 const CHAT_HEADERS = [
@@ -48,7 +49,7 @@ const ITINERARY_HEADERS = [
   "image"
 ];
 
-function saveEntry(name, email, handicap, practice, tournament, sportsbook) {
+function saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel) {
   const sheet = getSheet_("Entries", ENTRY_HEADERS);
   const entryName = cleanText_(name, 80);
   const entryEmail = cleanText_(email, 120);
@@ -64,7 +65,8 @@ function saveEntry(name, email, handicap, practice, tournament, sportsbook) {
     cleanText_(handicap, 20),
     yesNo_(practice),
     yesNo_(tournament),
-    yesNo_(sportsbook)
+    yesNo_(sportsbook),
+    yesNo_(hotel)
   ]);
 }
 
@@ -198,6 +200,13 @@ function getSheet_(name, headers) {
 
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
+  } else {
+    const existingHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+    headers.forEach((header, index) => {
+      if (!existingHeaders[index]) {
+        sheet.getRange(1, index + 1).setValue(header);
+      }
+    });
   }
 
   return sheet;

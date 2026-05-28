@@ -32,6 +32,11 @@
       <input id="entry-sportsbook" type="checkbox" checked>
       <span>SportsBook 9/26</span>
     </label>
+
+    <label class="checkbox-item">
+      <input id="entry-hotel" type="checkbox">
+      <span>I will be staying at the hotel for 2 nights minimum</span>
+    </label>
   </div>
 
   <button class="submit-btn" onclick="submitEntry()">Enter Tournament</button>
@@ -49,6 +54,7 @@
     const practice = document.getElementById('entry-practice').checked ? "Yes" : "No";
     const tournament = document.getElementById('entry-tournament').checked ? "Yes" : "No";
     const sportsbook = document.getElementById('entry-sportsbook').checked ? "Yes" : "No";
+    const hotel = document.getElementById('entry-hotel').checked ? "Yes" : "No";
 
     const status = document.getElementById('entry-status');
 
@@ -72,6 +78,7 @@
         document.getElementById('entry-practice').checked = true;
         document.getElementById('entry-tournament').checked = true;
         document.getElementById('entry-sportsbook').checked = true;
+        document.getElementById('entry-hotel').checked = false;
 
         if (typeof loadNames === "function") {
           loadNames();
@@ -81,6 +88,6 @@
         status.textContent = "Error: " + err.message;
         status.style.color = "#ff6666";
       })
-      .saveEntry(name, email, handicap, practice, tournament, sportsbook);
+      .saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel);
   }
 </script>
