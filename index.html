@@ -58,7 +58,7 @@
       <section id="chat" class="page chat-page" style="display:none;">
         <div class="chat-shell">
 
-          <aside class="chat-sidebar">
+          <aside class="chat-sidebar open" id="chat-sidebar">
             <div class="chat-workspace">Cherokee</div>
             <div class="chat-sidebar-label">Channels</div>
             <div class="chat-sidebar-list" id="desktop-channel-list"></div>
@@ -137,10 +137,14 @@
       /* DRAWER */
       function openChannelDrawer() {
         document.getElementById('channel-backdrop').classList.add('open');
+        document.getElementById('chat-sidebar').classList.add('open');
       }
 
       function closeChannelDrawer(e) {
         document.getElementById('channel-backdrop').classList.remove('open');
+        if (isNarrowScreen()) {
+          document.getElementById('chat-sidebar').classList.remove('open');
+        }
       }
 
       /* BUILD CHANNEL LIST */
@@ -430,6 +434,10 @@
 
       function isChatVisible() {
         return document.getElementById("chat").style.display !== "none";
+      }
+
+      function isNarrowScreen() {
+        return window.matchMedia("(max-width: 900px)").matches;
       }
 
       function badgeKey(ch) {

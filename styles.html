@@ -13,7 +13,7 @@
     background: #000;
     color: #fff;
     font-family: "Segoe UI", sans-serif;
-    font-size: 18px;
+    font-size: 20px;
   }
 
   body {
@@ -209,7 +209,7 @@
     border-radius: 8px;
     display: grid;
     font-size: 16px;
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 260px minmax(0, 1fr);
     min-height: calc(100vh - 420px);
     overflow: hidden;
     width: 100%;
@@ -222,6 +222,11 @@
     flex-direction: column;
     min-width: 0;
     padding: 14px 10px;
+    transition: margin-left 0.2s ease;
+  }
+
+  .chat-sidebar:not(.open) {
+    margin-left: -260px;
   }
 
   .chat-workspace {
@@ -282,7 +287,7 @@
   }
 
   .channel-toggle {
-    display: none;
+    display: inline-flex;
   }
 
   .chat-header button {
@@ -553,13 +558,13 @@
     100% { opacity: 0; transform: translateY(20px); }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     html {
-      font-size: 16px;
+      font-size: 18px;
     }
 
     .banner img {
-      max-height: 160px;
+      max-height: 150px;
     }
 
     .content {
@@ -578,17 +583,29 @@
     }
 
     .nav button {
-      font-size: 0.88rem;
+      font-size: 1rem;
       padding: 0.35rem 0.45rem;
     }
 
     .chat-shell {
       grid-template-columns: 1fr;
       min-height: calc(100vh - 286px);
+      position: relative;
     }
 
     .chat-sidebar {
-      display: none;
+      bottom: 0;
+      box-shadow: 12px 0 24px rgba(0, 0, 0, 0.5);
+      display: flex;
+      left: 0;
+      position: absolute;
+      top: 0;
+      width: min(78vw, 280px);
+      z-index: 5;
+    }
+
+    .chat-sidebar:not(.open) {
+      margin-left: -280px;
     }
 
     .channel-toggle {
@@ -596,16 +613,16 @@
     }
 
     .chat-header {
-      min-height: 58px;
-      padding: 8px 12px;
+      min-height: 64px;
+      padding: 10px 12px;
     }
 
     .chat-channel-name {
-      font-size: 16px;
+      font-size: 20px;
     }
 
     .chat-header-sub {
-      font-size: 12px;
+      font-size: 13px;
     }
 
     .chat-name-select,
@@ -624,7 +641,7 @@
     }
 
     .chat-input-bar button {
-      font-size: 14px;
+      font-size: 16px;
       padding: 12px 14px;
     }
   }
