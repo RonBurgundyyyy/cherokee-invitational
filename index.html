@@ -249,7 +249,7 @@
       function loadChat(markSeen) {
         google.script.run
           .withSuccessHandler(snapshot => renderChat(snapshot, markSeen))
-          .withFailureHandler(err => showToast(err.message || "Could not load chat."))
+          .withFailureHandler(err => showChatError(err.message || "Could not load chat."))
           .getChatSnapshot(currentChannel, lastSeen);
       }
 
@@ -258,6 +258,15 @@
         const messages = (snapshot && snapshot.messages) || [];
         const container = document.getElementById('chat-messages');
         container.innerHTML = "";
+
+        if (!messages.length) {
+          const empty = document.createElement("div");
+          empty.className = "chat-empty";
+          empty.textContent = "No messages in this channel yet.";
+          container.appendChild(empty);
+          updateUnreadBadges((snapshot && snapshot.unread) || {});
+          return;
+        }
 
         const threads = messages.filter(m => !m.parent);
 
@@ -366,6 +375,18 @@
         toast.textContent = text;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
+      }
+
+      function showChatError(text) {
+        const container = document.getElementById('chat-messages');
+        container.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "chat-empty";
+        error.textContent = text;
+        container.appendChild(error);
+
+        showToast(text);
       }
 
       function initState() {
