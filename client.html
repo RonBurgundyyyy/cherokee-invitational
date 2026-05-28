@@ -72,6 +72,10 @@
         document.getElementById('entry-practice').checked = true;
         document.getElementById('entry-tournament').checked = true;
         document.getElementById('entry-sportsbook').checked = true;
+
+        if (typeof loadNames === "function") {
+          loadNames();
+        }
       })
       .withFailureHandler(err => {
         status.textContent = "Error: " + err.message;

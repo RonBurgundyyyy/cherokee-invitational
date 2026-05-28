@@ -9,7 +9,7 @@
 
     <!-- BANNER -->
     <header class="banner">
-      <img 
+      <img
         src="https://i.imgur.com/GVJiEI2.png"
         alt="Cherokee Invitational Banner">
     </header>
@@ -36,7 +36,7 @@
       <!-- HOME PAGE -->
       <section id="home" class="page">
         <section class="hero">
-          <h1>3rd Annual — 2026</h1>
+          <h1>3rd Annual - 2026</h1>
           <p>Where championship golf collides with casino-night energy.</p>
         </section>
 
@@ -71,7 +71,7 @@
 
           <!-- NAME SELECTOR -->
           <div class="chat-name-select">
-            <input id="chat-name" type="text" placeholder="Start typing your name…">
+            <input id="chat-name" type="text" placeholder="Start typing your name...">
             <div id="name-suggestions" class="suggestions"></div>
           </div>
 
@@ -114,6 +114,7 @@
       let selectedUser = null;
       let currentChannel = CHANNELS[0];
       let lastSeen = {};
+      window.entryNames = [];
 
       /* PAGE SWITCHING */
       function showPage(page) {
@@ -123,6 +124,8 @@
         const backdrop = document.getElementById('channel-backdrop');
         if (page !== 'chat') {
           backdrop.classList.remove('open');
+        } else {
+          loadChat(true);
         }
       }
 
@@ -139,6 +142,7 @@
       function buildChannelDrawer() {
         const list = document.getElementById("channel-list");
         list.innerHTML = "";
+
         CHANNELS.forEach(ch => {
           const div = document.createElement("div");
           div.className = "channel-item" + (ch === currentChannel ? " channel-active" : "");
@@ -147,10 +151,15 @@
             switchChannel(ch);
             closeChannelDrawer();
           };
-          div.innerHTML = `
-            <span>${ch}</span>
-            <span id="badge-${ch.replace(/\s+/g,'')}"></span>
-          `;
+
+          const label = document.createElement("span");
+          label.textContent = ch;
+
+          const badge = document.createElement("span");
+          badge.id = "badge-" + badgeKey(ch);
+
+          div.appendChild(label);
+          div.appendChild(badge);
           list.appendChild(div);
         });
       }
@@ -167,23 +176,25 @@
           el.classList.toggle('channel-active', el.dataset.channel === ch);
         });
 
-        loadChat();
+        loadChat(isChatVisible());
         clearBadge(ch);
       }
 
       function clearBadge(ch) {
-        const key = ch.replace(/\s+/g,'');
-        const badge = document.getElementById("badge-" + key);
-        if (badge) badge.innerHTML = "";
-        if (!lastSeen[ch]) lastSeen[ch] = new Date().toISOString();
+        const badge = document.getElementById("badge-" + badgeKey(ch));
+        if (badge) badge.textContent = "";
+        lastSeen[ch] = new Date().toISOString();
         localStorage.setItem("ci_lastSeen", JSON.stringify(lastSeen));
       }
 
       /* NAME AUTOCOMPLETE */
       function loadNames() {
-        google.script.run.withSuccessHandler(names => {
-          window.entryNames = names || [];
-        }).getEntryNames();
+        google.script.run
+          .withSuccessHandler(names => {
+            window.entryNames = names || [];
+          })
+          .withFailureHandler(err => showToast(err.message || "Could not load registered names."))
+          .getEntryNames();
       }
 
       document.addEventListener("input", e => {
@@ -192,10 +203,13 @@
         const val = e.target.value.toLowerCase();
         const box = document.getElementById("name-suggestions");
         box.innerHTML = "";
+        selectedUser = findRegisteredName(e.target.value);
 
         if (!val || !window.entryNames) return;
 
-        const matches = window.entryNames.filter(n => n.toLowerCase().includes(val));
+        const matches = window.entryNames
+          .filter(n => n.toLowerCase().includes(val))
+          .slice(0, 8);
 
         matches.forEach(name => {
           const div = document.createElement("div");
@@ -213,8 +227,10 @@
       /* SEND MESSAGE */
       function sendMessage() {
         const text = document.getElementById('chat-text').value.trim();
-        if (!selectedUser) {
-          alert("Select your name first.");
+        const user = selectedUser || findRegisteredName(document.getElementById("chat-name").value);
+
+        if (!user) {
+          alert("Select a registered name first.");
           return;
         }
         if (!text) return;
@@ -223,20 +239,23 @@
           .withSuccessHandler(() => {
             document.getElementById('chat-text').value = "";
             replyTo = null;
-            loadChat();
+            loadChat(true);
           })
-          .saveChatMessage(selectedUser, currentChannel, text, replyTo);
+          .withFailureHandler(err => showToast(err.message || "Message could not be sent."))
+          .saveChatMessage(user, currentChannel, text, replyTo);
       }
 
       /* LOAD CHAT */
-      function loadChat() {
+      function loadChat(markSeen) {
         google.script.run
-          .withSuccessHandler(renderChat)
-          .getChatMessages(currentChannel);
+          .withSuccessHandler(snapshot => renderChat(snapshot, markSeen))
+          .withFailureHandler(err => showToast(err.message || "Could not load chat."))
+          .getChatSnapshot(currentChannel, lastSeen);
       }
 
       /* RENDER CHAT */
-      function renderChat(messages) {
+      function renderChat(snapshot, markSeen) {
+        const messages = (snapshot && snapshot.messages) || [];
         const container = document.getElementById('chat-messages');
         container.innerHTML = "";
 
@@ -245,15 +264,7 @@
         threads.forEach(thread => {
           const msgDiv = document.createElement('div');
           msgDiv.className = "chat-message";
-
-          const bubble = document.createElement('div');
-          bubble.className = "chat-bubble";
-          bubble.innerHTML = `
-            <div class="chat-user">${thread.user}</div>
-            <div class="chat-text">${thread.text}</div>
-            <div class="chat-meta">${formatTime(thread.time)} · <span class="chat-reply-button" onclick="setReply('${thread.id}')">Reply</span></div>
-          `;
-          msgDiv.appendChild(bubble);
+          msgDiv.appendChild(createBubble(thread, false));
 
           const replies = messages.filter(m => m.parent === thread.id);
           if (replies.length) {
@@ -261,14 +272,7 @@
             replyBlock.className = "chat-reply-block";
 
             replies.forEach(r => {
-              const rb = document.createElement('div');
-              rb.className = "chat-reply-bubble";
-              rb.innerHTML = `
-                <div class="chat-reply-user">${r.user}</div>
-                <div class="chat-reply-text">${r.text}</div>
-                <div class="chat-reply-meta">${formatTime(r.time)}</div>
-              `;
-              replyBlock.appendChild(rb);
+              replyBlock.appendChild(createBubble(r, true));
             });
 
             msgDiv.appendChild(replyBlock);
@@ -279,8 +283,42 @@
 
         container.scrollTop = container.scrollHeight;
 
-        updateLastSeenForCurrent(messages);
-        updateUnreadForAll();
+        if (markSeen && isChatVisible()) {
+          updateLastSeenForCurrent(messages);
+        }
+        updateUnreadBadges((snapshot && snapshot.unread) || {});
+      }
+
+      function createBubble(message, isReply) {
+        const bubble = document.createElement('div');
+        bubble.className = isReply ? "chat-reply-bubble" : "chat-bubble";
+
+        const user = document.createElement('div');
+        user.className = isReply ? "chat-reply-user" : "chat-user";
+        user.textContent = message.user;
+
+        const text = document.createElement('div');
+        text.className = isReply ? "chat-reply-text" : "chat-text";
+        text.textContent = message.text;
+
+        const meta = document.createElement('div');
+        meta.className = isReply ? "chat-reply-meta" : "chat-meta";
+        meta.textContent = formatTime(message.time);
+
+        if (!isReply) {
+          meta.appendChild(document.createTextNode(" / "));
+          const reply = document.createElement('span');
+          reply.className = "chat-reply-button";
+          reply.textContent = "Reply";
+          reply.onclick = () => setReply(message.id);
+          meta.appendChild(reply);
+        }
+
+        bubble.appendChild(user);
+        bubble.appendChild(text);
+        bubble.appendChild(meta);
+
+        return bubble;
       }
 
       function setReply(id) {
@@ -306,23 +344,19 @@
         localStorage.setItem("ci_lastSeen", JSON.stringify(lastSeen));
       }
 
-      function updateUnreadForAll() {
+      function updateUnreadBadges(unreadCounts) {
         CHANNELS.forEach(ch => {
-          google.script.run.withSuccessHandler(msgs => {
-            const stored = JSON.parse(localStorage.getItem("ci_lastSeen") || "{}");
-            lastSeen = stored;
-            const last = stored[ch] ? new Date(stored[ch]) : new Date(0);
-            const unread = msgs.filter(m => new Date(m.time) > last).length;
-            const key = ch.replace(/\s+/g,'');
-            const badge = document.getElementById("badge-" + key);
-            if (!badge) return;
-            if (unread > 0 && ch !== currentChannel) {
-              badge.innerHTML = `<span class="unread-badge">${unread}</span>`;
-              showToast(`New message in ${ch}`);
-            } else if (ch === currentChannel) {
-              badge.innerHTML = "";
-            }
-          }).getChatMessages(ch);
+          const badge = document.getElementById("badge-" + badgeKey(ch));
+          if (!badge) return;
+          badge.innerHTML = "";
+
+          const unread = unreadCounts[ch] || 0;
+          if (unread > 0 && ch !== currentChannel) {
+            const pill = document.createElement("span");
+            pill.className = "unread-badge";
+            pill.textContent = unread;
+            badge.appendChild(pill);
+          }
         });
       }
 
@@ -336,19 +370,33 @@
 
       function initState() {
         const stored = localStorage.getItem("ci_lastSeen");
-        if (stored) {
-          lastSeen = JSON.parse(stored);
-        } else {
+        try {
+          lastSeen = stored ? JSON.parse(stored) : {};
+        } catch (e) {
           lastSeen = {};
         }
+      }
+
+      function findRegisteredName(value) {
+        const typed = value.trim().toLowerCase();
+        if (!typed || !window.entryNames) return null;
+        return window.entryNames.find(name => name.toLowerCase() === typed) || null;
+      }
+
+      function isChatVisible() {
+        return document.getElementById("chat").style.display !== "none";
+      }
+
+      function badgeKey(ch) {
+        return ch.replace(/\s+/g, "");
       }
 
       /* INIT */
       initState();
       buildChannelDrawer();
       loadNames();
-      loadChat();
-      setInterval(loadChat, 5000);
+      loadChat(false);
+      setInterval(() => loadChat(isChatVisible()), 8000);
     </script>
 
   </body>
