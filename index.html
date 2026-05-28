@@ -130,6 +130,9 @@
         if (page !== 'chat') {
           backdrop.classList.remove('open');
         } else {
+          if (isNarrowScreen()) {
+            document.getElementById('chat-sidebar').classList.remove('open');
+          }
           loadChat(true);
         }
       }
@@ -268,7 +271,7 @@
       /* LOAD CHAT */
       function loadChat() {
         const requestedChannel = currentChannel;
-        renderLoading();
+        renderLoading(false);
 
         google.script.run
           .withSuccessHandler(data => {
@@ -407,8 +410,9 @@
         showToast(text);
       }
 
-      function renderLoading() {
+      function renderLoading(force) {
         const container = document.getElementById('chat-messages');
+        if (!force && container.childElementCount) return;
         container.innerHTML = "";
 
         const loading = document.createElement("div");
