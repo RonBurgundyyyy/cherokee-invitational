@@ -239,7 +239,7 @@
           return;
         }
 
-        events.forEach(event => {
+        events.forEach((event, index) => {
           const card = document.createElement("article");
           card.className = "event-card";
 
@@ -278,15 +278,142 @@
           type.className = "event-type";
           type.textContent = event.type || "event";
 
+          const actions = document.createElement("div");
+          actions.className = "event-actions";
+
+          const calendarLink = document.createElement("a");
+          calendarLink.className = "calendar-button";
+          calendarLink.href = buildCalendarDataUrl(event, index);
+          calendarLink.download = calendarFileName(event);
+          calendarLink.textContent = "Add to Calendar";
+          calendarLink.setAttribute("aria-label", "Add " + (event.title || "event") + " to calendar");
+
+          actions.appendChild(calendarLink);
+
           body.appendChild(meta);
           body.appendChild(title);
           body.appendChild(location);
           body.appendChild(notes);
           body.appendChild(type);
+          body.appendChild(actions);
           card.appendChild(imageWrap);
           card.appendChild(body);
           grid.appendChild(card);
         });
+      }
+
+      function buildCalendarDataUrl(event, index) {
+        const ics = buildIcsEvent(event, index);
+        return "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+      }
+
+      function buildIcsEvent(event, index) {
+        const dateInfo = parseEventDate(event.date);
+        const timeInfo = parseEventTime(event.time);
+        const uid = "cherokee-invitational-" + index + "-" + slugify(event.title || "event") + "@cherokee-invitational";
+        const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+        const lines = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//Cherokee Invitational//Events//EN",
+          "CALSCALE:GREGORIAN",
+          "METHOD:PUBLISH",
+          "BEGIN:VEVENT",
+          "UID:" + uid,
+          "DTSTAMP:" + now,
+          "SUMMARY:" + escapeIcs(event.title || "Cherokee Invitational Event"),
+          "LOCATION:" + escapeIcs(event.location || ""),
+          "DESCRIPTION:" + escapeIcs(event.notes || "")
+        ];
+
+        if (dateInfo && timeInfo) {
+          const start = new Date(dateInfo.year, dateInfo.month - 1, dateInfo.day, timeInfo.hour, timeInfo.minute);
+          const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+          lines.push("DTSTART:" + formatIcsDateTime(start));
+          lines.push("DTEND:" + formatIcsDateTime(end));
+        } else if (dateInfo) {
+          lines.push("DTSTART;VALUE=DATE:" + formatIcsDate(dateInfo));
+          lines.push("DTEND;VALUE=DATE:" + formatIcsDate(addDays(dateInfo, 1)));
+        }
+
+        lines.push("END:VEVENT");
+        lines.push("END:VCALENDAR");
+        return lines.join("\r\n");
+      }
+
+      function parseEventDate(value) {
+        const match = String(value || "").match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (!match) return null;
+        return {
+          month: Number(match[1]),
+          day: Number(match[2]),
+          year: Number(match[3])
+        };
+      }
+
+      function parseEventTime(value) {
+        const text = String(value || "").trim();
+        if (!text || /^tbd$/i.test(text)) return null;
+
+        const firstTime = text.split(/\s*(-|to|until)\s*/i)[0].trim();
+        const match = firstTime.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+        if (!match) return null;
+
+        let hour = Number(match[1]);
+        const minute = Number(match[2] || 0);
+        const meridiem = (match[3] || "").toUpperCase();
+
+        if (meridiem === "PM" && hour < 12) hour += 12;
+        if (meridiem === "AM" && hour === 12) hour = 0;
+
+        return { hour, minute };
+      }
+
+      function formatIcsDate(dateInfo) {
+        return String(dateInfo.year) + pad2(dateInfo.month) + pad2(dateInfo.day);
+      }
+
+      function formatIcsDateTime(date) {
+        return date.getFullYear()
+          + pad2(date.getMonth() + 1)
+          + pad2(date.getDate())
+          + "T"
+          + pad2(date.getHours())
+          + pad2(date.getMinutes())
+          + "00";
+      }
+
+      function addDays(dateInfo, days) {
+        const date = new Date(dateInfo.year, dateInfo.month - 1, dateInfo.day + days);
+        return {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          day: date.getDate()
+        };
+      }
+
+      function escapeIcs(value) {
+        return String(value || "")
+          .replace(/\\/g, "\\\\")
+          .replace(/\n/g, "\\n")
+          .replace(/,/g, "\\,")
+          .replace(/;/g, "\\;");
+      }
+
+      function calendarFileName(event) {
+        return slugify(event.title || "cherokee-event") + ".ics";
+      }
+
+      function slugify(value) {
+        return String(value || "event")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 60) || "event";
+      }
+
+      function pad2(value) {
+        return String(value).padStart(2, "0");
       }
 
       document.addEventListener("input", e => {

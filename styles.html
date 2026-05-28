@@ -163,6 +163,31 @@
     text-transform: uppercase;
   }
 
+  .event-actions {
+    margin-top: 18px;
+  }
+
+  .calendar-button {
+    align-items: center;
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border-radius: 8px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.45);
+    color: #000;
+    display: flex;
+    font-size: 22px;
+    font-weight: 900;
+    justify-content: center;
+    padding: 14px 16px;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .calendar-button:active,
+  .calendar-button:hover {
+    filter: brightness(1.08);
+  }
+
   .panel {
     background: #0a0a0a;
     border: 1px solid rgba(255, 215, 0, 0.3);
@@ -719,6 +744,11 @@
     .event-card p,
     .event-location {
       font-size: 20px;
+    }
+
+    .calendar-button {
+      font-size: 24px;
+      padding: 16px;
     }
 
     .chat-shell {
