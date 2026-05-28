@@ -188,6 +188,201 @@
     filter: brightness(1.08);
   }
 
+  .rules-layout {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1fr;
+  }
+
+  .rules-card {
+    background:
+      linear-gradient(135deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.04)),
+      #101010;
+    border: 1px solid rgba(255, 215, 0, 0.26);
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.14);
+    overflow: hidden;
+    padding: 22px;
+  }
+
+  .rules-kicker {
+    color: var(--neon);
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .rules-card h2 {
+    color: #fff;
+    font-size: 34px;
+    line-height: 1.1;
+    margin: 8px 0 10px;
+  }
+
+  .rules-card p,
+  .rules-list {
+    color: #e8e8e8;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .rules-pot h2 {
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+
+  .bonus-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .bonus-item {
+    align-items: start;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 68px minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .bonus-item > span {
+    align-items: center;
+    border-radius: 999px;
+    color: #061006;
+    display: flex;
+    font-size: 24px;
+    font-weight: 950;
+    height: 58px;
+    justify-content: center;
+    width: 58px;
+  }
+
+  .bonus-item strong {
+    color: #fff;
+    display: block;
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .bonus-item p {
+    color: var(--chat-muted);
+    font-size: 20px;
+    margin-top: 4px;
+  }
+
+  .bonus-blue > span,
+  .legend-dot.bonus-blue {
+    background: #38d9ff;
+  }
+
+  .bonus-green > span,
+  .legend-dot.bonus-green,
+  .scorecard .ctp-hole {
+    background: #00ff66;
+    color: #001f0d;
+  }
+
+  .bonus-purple > span,
+  .legend-dot.bonus-purple,
+  .scorecard .long-drive-hole {
+    background: #9b5cff;
+    color: #fff;
+  }
+
+  .bonus-yellow > span,
+  .legend-dot.bonus-yellow,
+  .scorecard .happy-hole {
+    background: #ffd700;
+    color: #181300;
+  }
+
+  .bonus-red > span,
+  .legend-dot.bonus-red,
+  .scorecard .fireball-hole {
+    background: #ff3030;
+    color: #fff;
+  }
+
+  .rules-list {
+    padding-left: 1.1rem;
+  }
+
+  .rules-list li + li {
+    margin-top: 12px;
+  }
+
+  .scorecard-card {
+    margin-top: 18px;
+    padding: 0;
+  }
+
+  .scorecard-header {
+    align-items: start;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .scorecard-legend {
+    color: #ddd;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 18px;
+    font-weight: 800;
+    gap: 10px 14px;
+  }
+
+  .legend-dot {
+    border-radius: 999px;
+    display: inline-block;
+    height: 18px;
+    margin-right: -8px;
+    width: 18px;
+  }
+
+  .scorecard-scroll {
+    overflow-x: auto;
+    padding: 0 0 18px;
+  }
+
+  .scorecard {
+    border-collapse: collapse;
+    min-width: 980px;
+    width: 100%;
+  }
+
+  .scorecard th,
+  .scorecard td {
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    font-size: 19px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+
+  .scorecard th {
+    background: rgba(255, 215, 0, 0.12);
+    color: var(--gold);
+    font-weight: 900;
+  }
+
+  .scorecard tbody th {
+    color: #fff;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+
+  .scorecard td {
+    background: rgba(0, 0, 0, 0.35);
+    color: #eee;
+  }
+
   .panel {
     background: #0a0a0a;
     border: 1px solid rgba(255, 215, 0, 0.3);
@@ -212,6 +407,7 @@
     border-bottom: 1px solid rgba(255, 215, 0, 0.25);
     box-shadow: 0 0 12px rgba(0, 255, 102, 0.2);
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-around;
     padding: 0.6rem 0;
   }
@@ -749,6 +945,41 @@
     .calendar-button {
       font-size: 24px;
       padding: 16px;
+    }
+
+    .rules-card {
+      padding: 18px;
+    }
+
+    .rules-card h2 {
+      font-size: 34px;
+    }
+
+    .rules-card p,
+    .rules-list {
+      font-size: 22px;
+    }
+
+    .bonus-item {
+      grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    .bonus-item strong {
+      font-size: 24px;
+    }
+
+    .bonus-item p {
+      font-size: 20px;
+    }
+
+    .scorecard-header {
+      padding: 18px;
+    }
+
+    .scorecard th,
+    .scorecard td {
+      font-size: 20px;
+      padding: 13px 10px;
     }
 
     .chat-shell {
