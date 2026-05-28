@@ -44,4 +44,4 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Redeploy web app
-        run: clasp redeploy "AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F" "${{ steps.create_version.outputs.version }}" "GitHub ${GITHUB_SHA::7}"
+        run: clasp redeploy "AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F" -V "${{ steps.create_version.outputs.version }}" -d "GitHub ${GITHUB_SHA::7}"
