@@ -13,7 +13,7 @@
     background: #000;
     color: #fff;
     font-family: "Segoe UI", sans-serif;
-    font-size: 20px;
+    font-size: 24px;
   }
 
   body {
@@ -33,10 +33,11 @@
   }
 
   .content {
-    margin: 0 auto;
-    max-width: 980px;
-    padding: 18px;
-    width: auto;
+    box-sizing: border-box;
+    margin: 0;
+    max-width: 100%;
+    padding: 16px;
+    width: 100%;
   }
 
   .content:has(#chat:not([style*="display:none"])) {
@@ -60,12 +61,14 @@
 
   .hero h1 {
     color: var(--gold);
+    font-size: 38px;
     margin: 0;
     text-shadow: 0 0 12px var(--gold);
   }
 
   .hero p {
     color: var(--neon);
+    font-size: 18px;
     margin: 0.4rem 0 0;
     text-shadow: 0 0 10px var(--neon);
   }
@@ -88,8 +91,9 @@
     border-radius: 8px;
     box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
     display: grid;
-    grid-template-columns: minmax(220px, 38%) minmax(0, 1fr);
+    grid-template-columns: 1fr;
     overflow: hidden;
+    width: 100%;
   }
 
   .event-image-wrap {
@@ -112,12 +116,12 @@
   }
 
   .event-card-body {
-    padding: 16px;
+    padding: 18px;
   }
 
   .event-meta {
     color: var(--neon);
-    font-size: 0.85rem;
+    font-size: 18px;
     font-weight: 800;
     margin-bottom: 8px;
     text-transform: uppercase;
@@ -125,21 +129,21 @@
 
   .event-card h2 {
     color: #fff;
-    font-size: 1.45rem;
+    font-size: 30px;
     line-height: 1.15;
     margin: 0 0 8px;
   }
 
   .event-location {
     color: var(--gold);
-    font-size: 0.95rem;
+    font-size: 20px;
     font-weight: 700;
     margin-bottom: 10px;
   }
 
   .event-card p {
     color: #ddd;
-    font-size: 0.95rem;
+    font-size: 20px;
     line-height: 1.35;
     margin: 0 0 14px;
   }
@@ -150,7 +154,7 @@
     border-radius: 999px;
     color: var(--gold);
     display: inline-flex;
-    font-size: 0.8rem;
+    font-size: 16px;
     font-weight: 800;
     padding: 4px 10px;
     text-transform: uppercase;
@@ -298,7 +302,7 @@
     border: 1px solid #242424;
     border-radius: 8px;
     display: grid;
-    font-size: 18px;
+    font-size: 22px;
     grid-template-columns: minmax(0, 1fr);
     min-height: calc(100vh - 360px);
     overflow: hidden;
@@ -329,14 +333,14 @@
 
   .chat-workspace {
     color: #fff;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 800;
     padding: 4px 8px 14px;
   }
 
   .chat-sidebar-label {
     color: #ad9fad;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     padding: 8px;
     text-transform: uppercase;
@@ -362,8 +366,8 @@
     border-bottom: 1px solid #242424;
     display: flex;
     justify-content: space-between;
-    min-height: 70px;
-    padding: 12px 18px;
+    min-height: 82px;
+    padding: 16px 18px;
   }
 
   .chat-header-left {
@@ -374,14 +378,14 @@
   }
 
   .chat-channel-name {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 800;
     line-height: 1.2;
   }
 
   .chat-header-sub {
     color: var(--chat-muted);
-    font-size: 14px;
+    font-size: 17px;
   }
 
   .channel-toggle {
@@ -395,8 +399,8 @@
     box-shadow: none;
     color: #fff;
     cursor: pointer;
-    font-size: 15px;
-    padding: 10px 13px;
+    font-size: 18px;
+    padding: 12px 14px;
     width: auto;
   }
 
@@ -412,8 +416,8 @@
     border-radius: 8px;
     box-sizing: border-box;
     color: #fff;
-    font-size: 18px;
-    padding: 12px 14px;
+    font-size: 22px;
+    padding: 15px 16px;
     width: 100%;
   }
 
@@ -432,7 +436,7 @@
 
   .suggestion {
     cursor: pointer;
-    font-size: 16px;
+    font-size: 20px;
     padding: 8px 12px;
   }
 
@@ -452,16 +456,16 @@
 
   .chat-empty {
     color: var(--chat-muted);
-    font-size: 16px;
+    font-size: 20px;
     padding: 12px 4px;
   }
 
   .chat-message-row,
   .chat-reply-row {
     display: grid;
-    gap: 10px;
-    grid-template-columns: 42px minmax(0, 1fr);
-    margin-bottom: 12px;
+    gap: 12px;
+    grid-template-columns: 50px minmax(0, 1fr);
+    margin-bottom: 16px;
   }
 
   .chat-reply-row {
@@ -474,11 +478,11 @@
     border-radius: 6px;
     color: #061006;
     display: flex;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
-    height: 40px;
+    height: 48px;
     justify-content: center;
-    width: 40px;
+    width: 48px;
   }
 
   .chat-bubble,
@@ -496,14 +500,14 @@
   .chat-user,
   .chat-reply-user {
     color: #fff;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 800;
   }
 
   .chat-text,
   .chat-reply-text {
     color: var(--chat-text);
-    font-size: 17px;
+    font-size: 21px;
     line-height: 1.35;
     overflow-wrap: anywhere;
   }
@@ -511,12 +515,12 @@
   .chat-meta,
   .chat-reply-meta {
     color: var(--chat-muted);
-    font-size: 13px;
+    font-size: 16px;
   }
 
   .chat-reply-block {
     border-left: 2px solid #333;
-    margin-left: 52px;
+    margin-left: 62px;
     margin-top: 6px;
     padding-left: 10px;
   }
@@ -524,7 +528,7 @@
   .chat-reply-button {
     color: var(--chat-muted);
     cursor: pointer;
-    font-size: 13px;
+    font-size: 16px;
   }
 
   .chat-reply-button:hover {
@@ -546,9 +550,9 @@
     border-radius: 8px;
     color: #fff;
     flex: 1;
-    font-size: 18px;
+    font-size: 22px;
     min-width: 0;
-    padding: 12px 14px;
+    padding: 15px 16px;
   }
 
   .chat-input-bar button {
@@ -558,8 +562,8 @@
     box-shadow: 0 0 10px var(--gold);
     color: #000;
     cursor: pointer;
-    font-size: 18px;
-    padding: 12px 16px;
+    font-size: 22px;
+    padding: 15px 18px;
     width: auto;
   }
 
@@ -608,9 +612,9 @@
     color: #ddd;
     cursor: pointer;
     display: flex;
-    font-size: 14px;
+    font-size: 20px;
     justify-content: space-between;
-    padding: 8px 10px;
+    padding: 11px 12px;
     text-align: left;
     width: 100%;
   }
@@ -656,9 +660,9 @@
     100% { opacity: 0; transform: translateY(20px); }
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1199px) {
     html {
-      font-size: 22px;
+      font-size: 24px;
     }
 
     .banner img {
@@ -706,12 +710,12 @@
     }
 
     .event-card h2 {
-      font-size: 1.35rem;
+      font-size: 30px;
     }
 
     .event-card p,
     .event-location {
-      font-size: 1rem;
+      font-size: 20px;
     }
 
     .chat-shell {
@@ -746,16 +750,16 @@
     }
 
     .chat-channel-name {
-      font-size: 1.35rem;
+      font-size: 30px;
     }
 
     .chat-header-sub {
-      font-size: 0.72rem;
+      font-size: 16px;
     }
 
     .chat-header button {
-      font-size: 0.9rem;
-      padding: 8px 10px;
+      font-size: 18px;
+      padding: 12px 14px;
     }
 
     .chat-name-select,
@@ -768,7 +772,7 @@
     .chat-name-select input,
     .chat-input-bar input,
     .chat-input-bar button {
-      font-size: 1.05rem;
+      font-size: 22px;
     }
 
     .chat-input-bar {
@@ -795,13 +799,13 @@
     .chat-reply-user,
     .chat-text,
     .chat-reply-text {
-      font-size: 1.05rem;
+      font-size: 21px;
     }
 
     .chat-meta,
     .chat-reply-meta,
     .chat-reply-button {
-      font-size: 0.82rem;
+      font-size: 16px;
     }
 
     .chat-reply-block {
@@ -809,7 +813,7 @@
     }
   }
 
-  @media (min-width: 901px) {
+  @media (min-width: 1200px) {
     .chat-shell {
       grid-template-columns: 260px minmax(0, 1fr);
     }
