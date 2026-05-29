@@ -51,6 +51,15 @@ const ITINERARY_HEADERS = [
   "image"
 ];
 
+const LEADERBOARD_HEADERS = [
+  "Team #",
+  "Total",
+  "Thru",
+  "Strokes",
+  "Base Score",
+  "Badges Owned"
+];
+
 function saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom) {
   const sheet = getSheet_("Entries", ENTRY_HEADERS);
   const entryName = cleanText_(name, 80);
@@ -99,6 +108,24 @@ function getItineraryEvents() {
       image: cleanText_(row[6], 500)
     }))
     .filter(event => event.title);
+}
+
+function getLeaderboardRows() {
+  const sheet = getSheet_("Leaderboard", LEADERBOARD_HEADERS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  return sheet.getRange(2, 1, lastRow - 1, LEADERBOARD_HEADERS.length)
+    .getValues()
+    .map(row => ({
+      team: cleanText_(row[0], 80),
+      total: cleanText_(row[1], 20),
+      thru: cleanText_(row[2], 20),
+      strokes: cleanText_(row[3], 20),
+      baseScore: cleanText_(row[4], 20),
+      badgesOwned: cleanText_(row[5], 200)
+    }))
+    .filter(row => row.team || row.total || row.thru || row.strokes || row.baseScore || row.badgesOwned);
 }
 
 // Chat sheet columns:

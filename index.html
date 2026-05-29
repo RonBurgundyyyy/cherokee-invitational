@@ -284,10 +284,43 @@
 
       <!-- LEADERBOARD PAGE -->
       <section id="leaderboard" class="page" style="display:none;">
-        <div class="panel">
-          <h2>Leaderboard</h2>
-          <p>Leaderboard module coming soon.</p>
-        </div>
+        <section class="hero leaderboard-hero">
+          <h1>Leaderboard</h1>
+          <p>Live tournament board with score, thru, strokes, and earned badges.</p>
+        </section>
+
+        <section class="leaderboard-broadcast" aria-live="polite">
+          <div class="leaderboard-topbar">
+            <div>
+              <span class="broadcast-label">Cherokee Invitational</span>
+              <strong>Team Standings</strong>
+            </div>
+            <div class="broadcast-live">Live</div>
+          </div>
+
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Team</th>
+                  <th>Total</th>
+                  <th>Thru</th>
+                  <th>Strokes</th>
+                  <th>Base</th>
+                  <th>Badges</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                <tr>
+                  <td colspan="7">Loading leaderboard...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="leaderboard-mobile" id="leaderboard-mobile"></div>
+        </section>
       </section>
 
     </main>
@@ -325,6 +358,10 @@
             document.getElementById('chat-sidebar').classList.remove('open');
           }
           loadChat(true);
+        }
+
+        if (page === 'leaderboard') {
+          loadLeaderboard();
         }
       }
 
@@ -607,6 +644,170 @@
         return String(value).padStart(2, "0");
       }
 
+      function loadLeaderboard() {
+        google.script.run
+          .withSuccessHandler(renderLeaderboard)
+          .withFailureHandler(err => showToast(err.message || "Could not load leaderboard."))
+          .getLeaderboardRows();
+      }
+
+      function renderLeaderboard(rows) {
+        const sortedRows = (rows || []).slice().sort(compareLeaderboardRows);
+        const tableBody = document.getElementById("leaderboard-body");
+        const mobileList = document.getElementById("leaderboard-mobile");
+        tableBody.innerHTML = "";
+        mobileList.innerHTML = "";
+
+        if (!sortedRows.length) {
+          const emptyRow = document.createElement("tr");
+          const emptyCell = document.createElement("td");
+          emptyCell.colSpan = 7;
+          emptyCell.textContent = "No leaderboard scores entered yet.";
+          emptyRow.appendChild(emptyCell);
+          tableBody.appendChild(emptyRow);
+
+          const emptyCard = document.createElement("div");
+          emptyCard.className = "leaderboard-empty";
+          emptyCard.textContent = "No leaderboard scores entered yet.";
+          mobileList.appendChild(emptyCard);
+          return;
+        }
+
+        sortedRows.forEach((row, index) => {
+          const position = index + 1;
+          const tr = document.createElement("tr");
+          if (index === 0) tr.className = "leader-row";
+
+          appendLeaderboardCell(tr, "pos", position === 1 ? "1" : String(position));
+          appendLeaderboardCell(tr, "team", row.team || "Team " + position);
+          appendLeaderboardCell(tr, "total", formatLeaderboardTotal(row.total));
+          appendLeaderboardCell(tr, "thru", row.thru || "-");
+          appendLeaderboardCell(tr, "strokes", row.strokes || "-");
+          appendLeaderboardCell(tr, "base", row.baseScore || "-");
+
+          const badgesCell = document.createElement("td");
+          badgesCell.className = "badges-cell";
+          badgesCell.appendChild(createBadgeRail(row.badgesOwned));
+          tr.appendChild(badgesCell);
+          tableBody.appendChild(tr);
+
+          mobileList.appendChild(createLeaderboardCard(row, position));
+        });
+      }
+
+      function appendLeaderboardCell(rowEl, className, text) {
+        const cell = document.createElement("td");
+        cell.className = className;
+        cell.textContent = text;
+        rowEl.appendChild(cell);
+      }
+
+      function createLeaderboardCard(row, position) {
+        const card = document.createElement("article");
+        card.className = "leaderboard-card" + (position === 1 ? " leader-card" : "");
+
+        const top = document.createElement("div");
+        top.className = "leaderboard-card-top";
+
+        const pos = document.createElement("div");
+        pos.className = "leaderboard-position";
+        pos.textContent = position;
+
+        const team = document.createElement("div");
+        team.className = "leaderboard-team";
+        team.textContent = row.team || "Team " + position;
+
+        const total = document.createElement("div");
+        total.className = "leaderboard-total";
+        total.textContent = formatLeaderboardTotal(row.total);
+
+        top.appendChild(pos);
+        top.appendChild(team);
+        top.appendChild(total);
+
+        const stats = document.createElement("div");
+        stats.className = "leaderboard-stats";
+        stats.appendChild(createStat("Thru", row.thru || "-"));
+        stats.appendChild(createStat("Strokes", row.strokes || "-"));
+        stats.appendChild(createStat("Base", row.baseScore || "-"));
+
+        const badges = document.createElement("div");
+        badges.className = "leaderboard-card-badges";
+        badges.appendChild(createBadgeRail(row.badgesOwned));
+
+        card.appendChild(top);
+        card.appendChild(stats);
+        card.appendChild(badges);
+        return card;
+      }
+
+      function createStat(label, value) {
+        const stat = document.createElement("div");
+        stat.className = "leaderboard-stat";
+
+        const statLabel = document.createElement("span");
+        statLabel.textContent = label;
+
+        const statValue = document.createElement("strong");
+        statValue.textContent = value;
+
+        stat.appendChild(statLabel);
+        stat.appendChild(statValue);
+        return stat;
+      }
+
+      function createBadgeRail(value) {
+        const rail = document.createElement("div");
+        rail.className = "badge-rail";
+        const badges = String(value || "")
+          .split(/[,|]/)
+          .map(part => part.trim())
+          .filter(Boolean);
+
+        if (!badges.length) {
+          const empty = document.createElement("span");
+          empty.className = "badge-pill empty-badge";
+          empty.textContent = "No badges";
+          rail.appendChild(empty);
+          return rail;
+        }
+
+        badges.forEach(badge => {
+          const pill = document.createElement("span");
+          pill.className = "badge-pill";
+          pill.textContent = badge;
+          rail.appendChild(pill);
+        });
+
+        return rail;
+      }
+
+      function compareLeaderboardRows(a, b) {
+        const aScore = leaderboardSortValue(a.total);
+        const bScore = leaderboardSortValue(b.total);
+        if (aScore !== bScore) return aScore - bScore;
+        return String(a.team || "").localeCompare(String(b.team || ""));
+      }
+
+      function leaderboardSortValue(value) {
+        const text = String(value || "").trim().toUpperCase();
+        if (!text) return 999;
+        if (text === "E" || text === "EVEN") return 0;
+        const numeric = Number(text.replace("+", ""));
+        return Number.isNaN(numeric) ? 999 : numeric;
+      }
+
+      function formatLeaderboardTotal(value) {
+        const text = String(value || "").trim();
+        if (!text) return "-";
+        if (/^even$/i.test(text)) return "E";
+        if (/^-/.test(text) || /^\+/.test(text) || /^e$/i.test(text)) return text.toUpperCase();
+        const numeric = Number(text);
+        if (Number.isNaN(numeric)) return text;
+        if (numeric === 0) return "E";
+        return numeric > 0 ? "+" + numeric : String(numeric);
+      }
+
       document.addEventListener("input", e => {
         if (e.target.id !== "chat-name") return;
 
@@ -857,9 +1058,13 @@
       loadEvents();
       loadNames();
       loadChat();
+      loadLeaderboard();
       setInterval(() => {
         if (isChatVisible()) loadChat();
       }, 8000);
+      setInterval(() => {
+        if (document.getElementById("leaderboard").style.display !== "none") loadLeaderboard();
+      }, 15000);
     </script>
 
   </body>
