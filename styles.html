@@ -845,12 +845,14 @@
     display: flex;
     gap: 12px;
     min-width: 0;
+    width: 100%;
   }
 
   .chat-channel-name {
     font-size: 34px;
     font-weight: 800;
     line-height: 1.2;
+    overflow-wrap: anywhere;
   }
 
   .chat-header-sub {
@@ -1130,7 +1132,7 @@
     100% { opacity: 0; transform: translateY(20px); }
   }
 
-  @media (max-width: 1199px) {
+  @media (max-width: 1599px) {
     html {
       font-size: 24px;
     }
@@ -1278,11 +1280,12 @@
     }
 
     .chat-header-left {
+      align-items: flex-start;
       gap: 10px;
     }
 
     .chat-channel-name {
-      font-size: 34px;
+      font-size: clamp(28px, 7vw, 34px);
     }
 
     .chat-header-sub {
@@ -1312,6 +1315,7 @@
     }
 
     .chat-input-bar button {
+      flex: 0 0 auto;
       padding-left: 14px;
       padding-right: 14px;
     }
@@ -1345,7 +1349,7 @@
     }
   }
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1600px) {
     .chat-shell {
       grid-template-columns: 260px minmax(0, 1fr);
     }
