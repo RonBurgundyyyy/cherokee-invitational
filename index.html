@@ -344,6 +344,15 @@
       let lastSeen = {};
       window.entryNames = [];
 
+      const DEFAULT_LEADERBOARD_ROWS = Array.from({ length: 8 }, (_, index) => ({
+        team: "Team " + (index + 1),
+        total: "",
+        thru: "",
+        strokes: "",
+        baseScore: "",
+        badgesOwned: ""
+      }));
+
       /* PAGE SWITCHING */
       function showPage(page) {
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
@@ -652,26 +661,12 @@
       }
 
       function renderLeaderboard(rows) {
-        const sortedRows = (rows || []).slice().sort(compareLeaderboardRows);
+        const sourceRows = rows && rows.length ? rows : DEFAULT_LEADERBOARD_ROWS;
+        const sortedRows = sourceRows.slice().sort(compareLeaderboardRows);
         const tableBody = document.getElementById("leaderboard-body");
         const mobileList = document.getElementById("leaderboard-mobile");
         tableBody.innerHTML = "";
         mobileList.innerHTML = "";
-
-        if (!sortedRows.length) {
-          const emptyRow = document.createElement("tr");
-          const emptyCell = document.createElement("td");
-          emptyCell.colSpan = 7;
-          emptyCell.textContent = "No leaderboard scores entered yet.";
-          emptyRow.appendChild(emptyCell);
-          tableBody.appendChild(emptyRow);
-
-          const emptyCard = document.createElement("div");
-          emptyCard.className = "leaderboard-empty";
-          emptyCard.textContent = "No leaderboard scores entered yet.";
-          mobileList.appendChild(emptyCard);
-          return;
-        }
 
         sortedRows.forEach((row, index) => {
           const position = index + 1;
