@@ -66,16 +66,18 @@ const LEADERBOARD_HEADERS = [
 ];
 
 const BONUS_BADGES = [
-  { key: "fireball3", label: "Fireball 3", hole: 3 },
-  { key: "fireball5", label: "Fireball 5", hole: 5 },
-  { key: "fireball7", label: "Fireball 7", hole: 7 },
-  { key: "ctp9", label: "9 CTP", hole: 9, detailHeader: "9 CTP Yardage" },
-  { key: "fireball10", label: "Fireball 10", hole: 10 },
-  { key: "fireball12", label: "Fireball 12", hole: 12 },
-  { key: "longDrive14", label: "14 Long Drive", hole: 14, detailHeader: "14 Long Drive Yardage" },
-  { key: "fireball16", label: "Fireball 16", hole: 16 },
-  { key: "happy18", label: "18 Happy", hole: 18, detailHeader: "18 Happy Yardage" }
+  { key: "fireball3", label: "Fireball 3", hole: 3, bonus: 1 },
+  { key: "fireball5", label: "Fireball 5", hole: 5, bonus: 1 },
+  { key: "fireball7", label: "Fireball 7", hole: 7, bonus: 1 },
+  { key: "ctp9", label: "9 CTP", hole: 9, bonus: 3, detailHeader: "9 CTP Yardage" },
+  { key: "fireball10", label: "Fireball 10", hole: 10, bonus: 1 },
+  { key: "fireball12", label: "Fireball 12", hole: 12, bonus: 1 },
+  { key: "longDrive14", label: "14 Long Drive", hole: 14, bonus: 3, detailHeader: "14 Long Drive Yardage" },
+  { key: "fireball16", label: "Fireball 16", hole: 16, bonus: 1 },
+  { key: "happy18", label: "18 Happy", hole: 18, bonus: 3, detailHeader: "18 Happy Yardage" }
 ];
+
+const LOWEST_CARDED_SCORE_BONUS = 5;
 
 const TEAM_SCORE_HEADERS = [
   "Timestamp",
@@ -265,7 +267,6 @@ function saveTeamScore(teamNumber, scores, updatedBy, badges) {
   const cleanUpdatedBy = cleanText_(updatedBy, 80);
   const cleanScores = normalizeScores_(scores);
   const cleanBadges = normalizeBadges_(badges);
-  const badgesOwned = badgeLabels_(cleanBadges).join(", ");
   const thru = cleanScores.filter(score => score !== "").length;
   const strokes = cleanScores.reduce((sum, score) => sum + (score === "" ? 0 : Number(score)), 0);
   const lock = LockService.getDocumentLock();
@@ -291,7 +292,7 @@ function saveTeamScore(teamNumber, scores, updatedBy, badges) {
       scoreSheet.appendRow(scoreRow);
     }
 
-    updateLeaderboardScore_(cleanTeamNumber, thru, strokes, badgesOwned);
+    recalculateLeaderboardScores_();
   } finally {
     lock.releaseLock();
   }
@@ -639,13 +640,19 @@ function readBadgeValues_(row) {
   }, {});
 }
 
-function badgeLabels_(badges) {
-  return BONUS_BADGES
+function badgeLabels_(badges, hasLowestCardedScoreBonus) {
+  const labels = BONUS_BADGES
     .filter(badge => badges[badge.key] && badges[badge.key].earned)
     .map(badge => {
       const yardage = badges[badge.key].yardage;
       return yardage ? badge.label + " (" + yardage + " yds)" : badge.label;
     });
+
+  if (hasLowestCardedScoreBonus) {
+    labels.push("Lowest Carded Score");
+  }
+
+  return labels;
 }
 
 function findTeamScoreRow_(sheet, teamNumber) {
@@ -657,7 +664,50 @@ function findTeamScoreRow_(sheet, teamNumber) {
   return index === -1 ? 0 : index + 2;
 }
 
-function updateLeaderboardScore_(teamNumber, thru, strokes, badgesOwned) {
+function recalculateLeaderboardScores_() {
+  const scoreSheet = getSheet_("Team Scores", TEAM_SCORE_HEADERS);
+  const lastRow = scoreSheet.getLastRow();
+  if (lastRow < 2) return;
+
+  const rows = scoreSheet.getRange(2, 1, lastRow - 1, TEAM_SCORE_HEADERS.length).getDisplayValues();
+  const teamScores = rows
+    .map(row => {
+      const teamNumber = cleanTeamNumber_(row[1]);
+      const thru = Number(row[21] || 0);
+      const strokes = Number(row[22] || 0);
+      const badges = readBadgeValues_(row);
+
+      return {
+        teamNumber: teamNumber,
+        thru: Number.isFinite(thru) ? thru : 0,
+        strokes: Number.isFinite(strokes) ? strokes : 0,
+        badges: badges
+      };
+    })
+    .filter(row => row.teamNumber);
+
+  const completedScores = teamScores
+    .filter(row => row.thru === 18)
+    .map(row => row.strokes);
+  const lowestCompletedScore = completedScores.length ? Math.min(...completedScores) : null;
+
+  teamScores.forEach(row => {
+    const hasLowestCardedScoreBonus = lowestCompletedScore !== null && row.thru === 18 && row.strokes === lowestCompletedScore;
+    const bonusStrokes = badgeBonusStrokes_(row.badges) + (hasLowestCardedScoreBonus ? LOWEST_CARDED_SCORE_BONUS : 0);
+    const adjustedScore = row.strokes > 0 ? row.strokes - bonusStrokes : "";
+    const badgesOwned = badgeLabels_(row.badges, hasLowestCardedScoreBonus).join(", ");
+
+    updateLeaderboardScore_(row.teamNumber, adjustedScore, row.thru, row.strokes, badgesOwned);
+  });
+}
+
+function badgeBonusStrokes_(badges) {
+  return BONUS_BADGES.reduce((sum, badge) => {
+    return sum + (badges[badge.key] && badges[badge.key].earned ? badge.bonus : 0);
+  }, 0);
+}
+
+function updateLeaderboardScore_(teamNumber, adjustedScore, thru, strokes, badgesOwned) {
   const sheet = getSheet_("Leaderboard", LEADERBOARD_HEADERS);
   const lastRow = sheet.getLastRow();
   let targetRow = 0;
@@ -669,10 +719,11 @@ function updateLeaderboardScore_(teamNumber, thru, strokes, badgesOwned) {
   }
 
   if (!targetRow) {
-    sheet.appendRow(["Team " + teamNumber, "", thru, strokes, strokes, badgesOwned]);
+    sheet.appendRow(["Team " + teamNumber, adjustedScore, thru, strokes, strokes, badgesOwned]);
     return;
   }
 
+  sheet.getRange(targetRow, 2).setValue(adjustedScore);
   sheet.getRange(targetRow, 3).setValue(thru);
   sheet.getRange(targetRow, 4).setValue(strokes);
   sheet.getRange(targetRow, 5).setValue(strokes);

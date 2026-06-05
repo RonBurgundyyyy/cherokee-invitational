@@ -1033,7 +1033,7 @@
         const numeric = Number(text);
         if (Number.isNaN(numeric)) return text;
         if (numeric === 0) return "E";
-        return numeric > 0 ? "+" + numeric : String(numeric);
+        return String(numeric);
       }
 
       function loadBookingProgress() {
