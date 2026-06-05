@@ -474,6 +474,9 @@
       let currentChannel = CHANNELS[0];
       let lastSeen = {};
       let currentScoringTeam = "";
+      let teamScoreAutosaveTimer = null;
+      let teamScoreSaveInFlight = false;
+      let teamScoreSavePending = false;
       window.entryNames = [];
       const INITIAL_TEAM_NUMBER = "<?= initialTeamNumber ?>";
 
@@ -1467,7 +1470,10 @@
           input.max = "20";
           input.inputMode = "numeric";
           input.id = "team-hole-" + hole;
-          input.addEventListener("input", updateTeamScoreSummary);
+          input.addEventListener("input", () => {
+            updateTeamScoreSummary();
+            scheduleTeamScoreAutosave();
+          });
 
           field.appendChild(label);
           field.appendChild(input);
@@ -1520,23 +1526,60 @@
       }
 
       function saveCurrentTeamScore() {
+        clearTeamScoreAutosave();
+        persistTeamScore(false);
+      }
+
+      function scheduleTeamScoreAutosave() {
+        if (!currentScoringTeam) return;
+        clearTeamScoreAutosave();
+        showTeamScoreStatus("Unsaved changes...", false);
+        teamScoreAutosaveTimer = setTimeout(() => persistTeamScore(true), 900);
+      }
+
+      function clearTeamScoreAutosave() {
+        if (teamScoreAutosaveTimer) {
+          clearTimeout(teamScoreAutosaveTimer);
+          teamScoreAutosaveTimer = null;
+        }
+      }
+
+      function persistTeamScore(isAutosave) {
         if (!currentScoringTeam) {
           showTeamScoreStatus("No team number found.", true);
+          return;
+        }
+
+        if (teamScoreSaveInFlight) {
+          teamScoreSavePending = true;
           return;
         }
 
         const scores = getTeamScoreInputValues();
         const badges = getTeamBadgeValues();
         const updatedBy = document.getElementById("team-score-updated-by").value.trim();
-        showTeamScoreStatus("Saving...", false);
+        teamScoreSaveInFlight = true;
+        showTeamScoreStatus(isAutosave ? "Autosaving..." : "Saving...", false);
 
         google.script.run
           .withSuccessHandler(data => {
-            renderTeamScore(data);
+            teamScoreSaveInFlight = false;
+            document.getElementById("team-score-updated").textContent = "Just now";
             loadLeaderboard();
-            showTeamScoreStatus("Saved. Leaderboard updated.", false);
+            showTeamScoreStatus(isAutosave ? "Autosaved." : "Saved. Leaderboard updated.", false);
+            if (teamScoreSavePending) {
+              teamScoreSavePending = false;
+              teamScoreAutosaveTimer = setTimeout(() => persistTeamScore(true), 300);
+            }
           })
-          .withFailureHandler(err => showTeamScoreStatus(err.message || "Could not save score.", true))
+          .withFailureHandler(err => {
+            teamScoreSaveInFlight = false;
+            showTeamScoreStatus(err.message || "Could not save score.", true);
+            if (teamScoreSavePending) {
+              teamScoreSavePending = false;
+              scheduleTeamScoreAutosave();
+            }
+          })
           .saveTeamScore(currentScoringTeam, scores, updatedBy, badges);
       }
 
@@ -1565,6 +1608,7 @@
         const isEarned = button.classList.toggle("earned");
         button.setAttribute("aria-pressed", isEarned ? "true" : "false");
         button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel;
+        scheduleTeamScoreAutosave();
       }
 
       function setTeamBadgeValues(badges) {
