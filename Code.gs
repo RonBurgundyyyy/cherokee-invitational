@@ -69,12 +69,12 @@ const BONUS_BADGES = [
   { key: "fireball3", label: "Fireball 3", hole: 3 },
   { key: "fireball5", label: "Fireball 5", hole: 5 },
   { key: "fireball7", label: "Fireball 7", hole: 7 },
-  { key: "ctp9", label: "9 CTP", hole: 9 },
+  { key: "ctp9", label: "9 CTP", hole: 9, detailHeader: "9 CTP Yardage" },
   { key: "fireball10", label: "Fireball 10", hole: 10 },
   { key: "fireball12", label: "Fireball 12", hole: 12 },
-  { key: "longDrive14", label: "14 Long Drive", hole: 14 },
+  { key: "longDrive14", label: "14 Long Drive", hole: 14, detailHeader: "14 Long Drive Yardage" },
   { key: "fireball16", label: "Fireball 16", hole: 16 },
-  { key: "happy18", label: "18 Happy", hole: 18 }
+  { key: "happy18", label: "18 Happy", hole: 18, detailHeader: "18 Happy Yardage" }
 ];
 
 const TEAM_SCORE_HEADERS = [
@@ -101,7 +101,8 @@ const TEAM_SCORE_HEADERS = [
   "Hole 18",
   "Thru",
   "Strokes",
-  ...BONUS_BADGES.map(badge => badge.label)
+  ...BONUS_BADGES.map(badge => badge.label),
+  ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => badge.detailHeader)
 ];
 
 const BOOKING_HEADERS = [
@@ -279,7 +280,8 @@ function saveTeamScore(teamNumber, scores, updatedBy, badges) {
       ...cleanScores,
       thru,
       strokes,
-      ...BONUS_BADGES.map(badge => cleanBadges[badge.key] ? "Yes" : "")
+      ...BONUS_BADGES.map(badge => cleanBadges[badge.key].earned ? "Yes" : ""),
+      ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => cleanBadges[badge.key].yardage)
     ];
     const rowIndex = findTeamScoreRow_(scoreSheet, cleanTeamNumber);
 
@@ -599,25 +601,51 @@ function normalizeScores_(scores) {
   });
 }
 
+function cleanYardage_(value) {
+  const text = String(value || "").trim().replace(/yards?|yds?\.?/i, "").trim();
+  if (!text) return "";
+
+  const numeric = Number(text);
+  if (!Number.isFinite(numeric) || numeric < 0 || numeric > 700) {
+    throw new Error("Badge yardage must be a number from 0 to 700.");
+  }
+
+  return String(Math.round(numeric * 10) / 10);
+}
+
 function normalizeBadges_(badges) {
   const source = badges && typeof badges === "object" ? badges : {};
   return BONUS_BADGES.reduce((result, badge) => {
-    result[badge.key] = source[badge.key] === true || source[badge.key] === "true" || source[badge.key] === "Yes";
+    const value = source[badge.key];
+    const valueObject = value && typeof value === "object" ? value : {};
+    const earned = value === true || value === "true" || value === "Yes" || valueObject.earned === true || valueObject.earned === "true";
+    result[badge.key] = {
+      earned: earned,
+      yardage: badge.detailHeader && earned ? cleanYardage_(valueObject.yardage) : ""
+    };
     return result;
   }, {});
 }
 
 function readBadgeValues_(row) {
+  const detailBadges = BONUS_BADGES.filter(badge => badge.detailHeader);
   return BONUS_BADGES.reduce((result, badge, index) => {
-    result[badge.key] = isYes_(row[23 + index]);
+    const detailIndex = detailBadges.findIndex(detailBadge => detailBadge.key === badge.key);
+    result[badge.key] = {
+      earned: isYes_(row[23 + index]),
+      yardage: detailIndex === -1 ? "" : cleanText_(row[23 + BONUS_BADGES.length + detailIndex], 20)
+    };
     return result;
   }, {});
 }
 
 function badgeLabels_(badges) {
   return BONUS_BADGES
-    .filter(badge => badges[badge.key])
-    .map(badge => badge.label);
+    .filter(badge => badges[badge.key] && badges[badge.key].earned)
+    .map(badge => {
+      const yardage = badges[badge.key].yardage;
+      return yardage ? badge.label + " (" + yardage + " yds)" : badge.label;
+    });
 }
 
 function findTeamScoreRow_(sheet, teamNumber) {

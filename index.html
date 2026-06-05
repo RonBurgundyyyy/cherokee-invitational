@@ -505,12 +505,12 @@
         { key: "fireball3", label: "Fireball 3", hole: 3 },
         { key: "fireball5", label: "Fireball 5", hole: 5 },
         { key: "fireball7", label: "Fireball 7", hole: 7 },
-        { key: "ctp9", label: "9 CTP", hole: 9 },
+        { key: "ctp9", label: "9 CTP", hole: 9, yardagePrompt: "Enter closest-to-pin yardage for Hole 9:" },
         { key: "fireball10", label: "Fireball 10", hole: 10 },
         { key: "fireball12", label: "Fireball 12", hole: 12 },
-        { key: "longDrive14", label: "14 Long Drive", hole: 14 },
+        { key: "longDrive14", label: "14 Long Drive", hole: 14, yardagePrompt: "Enter Long Drive yardage from the tee box for Hole 14:" },
         { key: "fireball16", label: "Fireball 16", hole: 16 },
-        { key: "happy18", label: "18 Happy", hole: 18 }
+        { key: "happy18", label: "18 Happy", hole: 18, yardagePrompt: "Enter Happy Hole drive yardage from the tee box for Hole 18:" }
       ];
 
       /* PAGE SWITCHING */
@@ -1487,6 +1487,8 @@
             badgeButton.className = "team-badge-toggle";
             badgeButton.dataset.badgeKey = badge.key;
             badgeButton.dataset.badgeLabel = badge.label;
+            badgeButton.dataset.yardagePrompt = badge.yardagePrompt || "";
+            badgeButton.dataset.yardage = "";
             badgeButton.textContent = "Badge: " + badge.label;
             badgeButton.onclick = () => toggleTeamBadge(badgeButton);
             field.appendChild(badgeButton);
@@ -1605,27 +1607,62 @@
       }
 
       function toggleTeamBadge(button) {
-        const isEarned = button.classList.toggle("earned");
-        button.setAttribute("aria-pressed", isEarned ? "true" : "false");
-        button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel;
+        const willEarn = !button.classList.contains("earned");
+        let yardage = button.dataset.yardage || "";
+
+        if (willEarn && button.dataset.yardagePrompt) {
+          const entered = prompt(button.dataset.yardagePrompt, yardage);
+          if (entered === null) return;
+
+          yardage = normalizeYardageInput(entered);
+          if (!yardage) {
+            showTeamScoreStatus("Enter a valid yardage for " + button.dataset.badgeLabel + ".", true);
+            return;
+          }
+        }
+
+        button.dataset.yardage = willEarn ? yardage : "";
+        setTeamBadgeButtonState(button, willEarn);
         scheduleTeamScoreAutosave();
       }
 
       function setTeamBadgeValues(badges) {
         document.querySelectorAll(".team-badge-toggle").forEach(button => {
-          const isEarned = Boolean(badges[button.dataset.badgeKey]);
-          button.classList.toggle("earned", isEarned);
-          button.setAttribute("aria-pressed", isEarned ? "true" : "false");
-          button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel;
+          const value = badges[button.dataset.badgeKey];
+          const valueObject = value && typeof value === "object" ? value : {};
+          const isEarned = value === true || valueObject.earned === true;
+          button.dataset.yardage = valueObject.yardage || "";
+          setTeamBadgeButtonState(button, isEarned);
         });
       }
 
       function getTeamBadgeValues() {
         const badges = {};
         document.querySelectorAll(".team-badge-toggle").forEach(button => {
-          badges[button.dataset.badgeKey] = button.classList.contains("earned");
+          badges[button.dataset.badgeKey] = {
+            earned: button.classList.contains("earned"),
+            yardage: button.dataset.yardage || ""
+          };
         });
         return badges;
+      }
+
+      function setTeamBadgeButtonState(button, isEarned) {
+        button.classList.toggle("earned", isEarned);
+        button.setAttribute("aria-pressed", isEarned ? "true" : "false");
+
+        const yardage = button.dataset.yardage || "";
+        const suffix = isEarned && yardage ? " (" + yardage + " yds)" : "";
+        button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel + suffix;
+      }
+
+      function normalizeYardageInput(value) {
+        const text = String(value || "").trim().replace(/yards?|yds?\.?/i, "").trim();
+        if (!text) return "";
+
+        const numeric = Number(text);
+        if (!Number.isFinite(numeric) || numeric < 0 || numeric > 700) return "";
+        return String(Math.round(numeric * 10) / 10);
       }
 
       function showTeamScoreStatus(text, isError) {
