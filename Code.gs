@@ -1,5 +1,7 @@
-function doGet() {
-  return HtmlService.createTemplateFromFile('index')
+function doGet(e) {
+  const template = HtmlService.createTemplateFromFile('index');
+  template.initialTeamNumber = cleanTeamNumber_(e && e.parameter ? e.parameter.team : "");
+  return template
     .evaluate()
     .setTitle('Cherokee Invitational')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -29,7 +31,10 @@ const ENTRY_HEADERS = [
   "Tournament",
   "Sportsbook",
   "Hotel 2 Nights Minimum",
-  "Own Room"
+  "Own Room",
+  "Team #",
+  "Sequoyah Tee Time",
+  "Tourney Tee Time"
 ];
 
 const CHAT_HEADERS = [
@@ -60,6 +65,60 @@ const LEADERBOARD_HEADERS = [
   "Badges Owned"
 ];
 
+const TEAM_SCORE_HEADERS = [
+  "Timestamp",
+  "Team #",
+  "Updated By",
+  "Hole 1",
+  "Hole 2",
+  "Hole 3",
+  "Hole 4",
+  "Hole 5",
+  "Hole 6",
+  "Hole 7",
+  "Hole 8",
+  "Hole 9",
+  "Hole 10",
+  "Hole 11",
+  "Hole 12",
+  "Hole 13",
+  "Hole 14",
+  "Hole 15",
+  "Hole 16",
+  "Hole 17",
+  "Hole 18",
+  "Thru",
+  "Strokes"
+];
+
+const BOOKING_HEADERS = [
+  "ITEM",
+  "LATEST UPDATE",
+  "PRICE/PP",
+  "Made Contact",
+  "Confirmed Availability",
+  "Secured",
+  "Contract?",
+  "Deposit?",
+  "CANCEL BY DATE?",
+  "TOTAL LIAB",
+  "Contract"
+];
+
+const GALLERY_HEADERS = [
+  "Timestamp",
+  "Year",
+  "Uploaded By",
+  "Caption",
+  "Image URL",
+  "File ID",
+  "Source"
+];
+
+const GALLERY_FOLDER_PROPERTY = "GALLERY_FOLDER_ID";
+const GALLERY_FOLDER_NAME = "Cherokee Invitational Gallery Uploads";
+const MAX_GALLERY_UPLOAD_BYTES = 8 * 1024 * 1024;
+
 function saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom) {
   const sheet = getSheet_("Entries", ENTRY_HEADERS);
   const entryName = cleanText_(name, 80);
@@ -89,6 +148,29 @@ function getEntryNames() {
   const values = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
   const unique = new Set(values.flat().map(n => cleanText_(n, 80)).filter(Boolean));
   return Array.from(unique).sort();
+}
+
+function getGolfersRows() {
+  const sheet = getSheet_("Entries", ENTRY_HEADERS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  return sheet.getRange(2, 1, lastRow - 1, ENTRY_HEADERS.length)
+    .getDisplayValues()
+    .map(row => {
+      const commitments = [];
+      if (isYes_(row[4])) commitments.push("Practice Round");
+      if (isYes_(row[5])) commitments.push("Tournament");
+      if (isYes_(row[6])) commitments.push("SportsBook");
+      if (isYes_(row[7])) commitments.push("Hotel");
+
+      return {
+        name: cleanText_(row[1], 80),
+        handicap: cleanText_(row[3], 20),
+        commitments: commitments
+      };
+    })
+    .filter(row => row.name);
 }
 
 function getItineraryEvents() {
@@ -126,6 +208,215 @@ function getLeaderboardRows() {
       badgesOwned: cleanText_(row[5], 200)
     }))
     .filter(row => row.team || row.total || row.thru || row.strokes || row.baseScore || row.badgesOwned);
+}
+
+function getTeamScore(teamNumber) {
+  const cleanTeamNumber = cleanTeamNumber_(teamNumber);
+  if (!cleanTeamNumber) {
+    throw new Error("Unknown team number.");
+  }
+
+  const sheet = getSheet_("Team Scores", TEAM_SCORE_HEADERS);
+  const rowIndex = findTeamScoreRow_(sheet, cleanTeamNumber);
+  if (!rowIndex) {
+    return {
+      teamNumber: cleanTeamNumber,
+      updatedBy: "",
+      scores: Array(18).fill(""),
+      thru: "0",
+      strokes: "0",
+      updatedAt: ""
+    };
+  }
+
+  const row = sheet.getRange(rowIndex, 1, 1, TEAM_SCORE_HEADERS.length).getDisplayValues()[0];
+  return {
+    teamNumber: cleanTeamNumber,
+    updatedBy: cleanText_(row[2], 80),
+    scores: row.slice(3, 21).map(value => cleanText_(value, 4)),
+    thru: cleanText_(row[21], 10) || "0",
+    strokes: cleanText_(row[22], 10) || "0",
+    updatedAt: cleanText_(row[0], 80)
+  };
+}
+
+function saveTeamScore(teamNumber, scores, updatedBy) {
+  const cleanTeamNumber = cleanTeamNumber_(teamNumber);
+  if (!cleanTeamNumber) {
+    throw new Error("Unknown team number.");
+  }
+
+  const cleanUpdatedBy = cleanText_(updatedBy, 80);
+  const cleanScores = normalizeScores_(scores);
+  const thru = cleanScores.filter(score => score !== "").length;
+  const strokes = cleanScores.reduce((sum, score) => sum + (score === "" ? 0 : Number(score)), 0);
+  const lock = LockService.getDocumentLock();
+
+  lock.waitLock(10000);
+  try {
+    const scoreSheet = getSheet_("Team Scores", TEAM_SCORE_HEADERS);
+    const scoreRow = [
+      new Date(),
+      cleanTeamNumber,
+      cleanUpdatedBy,
+      ...cleanScores,
+      thru,
+      strokes
+    ];
+    const rowIndex = findTeamScoreRow_(scoreSheet, cleanTeamNumber);
+
+    if (rowIndex) {
+      scoreSheet.getRange(rowIndex, 1, 1, TEAM_SCORE_HEADERS.length).setValues([scoreRow]);
+    } else {
+      scoreSheet.appendRow(scoreRow);
+    }
+
+    updateLeaderboardScore_(cleanTeamNumber, thru, strokes);
+  } finally {
+    lock.releaseLock();
+  }
+
+  return {
+    teamNumber: cleanTeamNumber,
+    updatedBy: cleanUpdatedBy,
+    scores: cleanScores,
+    thru: String(thru),
+    strokes: String(strokes)
+  };
+}
+
+function getBookingRows() {
+  const sheet = getSheet_("BOOKING", BOOKING_HEADERS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { rows: [], summary: {} };
+
+  const rowCount = lastRow - 1;
+  const rawValues = sheet.getRange(2, 1, rowCount, BOOKING_HEADERS.length).getValues();
+  const displayValues = sheet.getRange(2, 1, rowCount, BOOKING_HEADERS.length).getDisplayValues();
+  const contractLinks = sheet.getRange(2, 11, rowCount, 1).getRichTextValues();
+  let summary = {};
+
+  const rows = displayValues
+    .map((displayRow, index) => {
+      const rawRow = rawValues[index];
+      const contractRichText = contractLinks[index][0];
+      const item = cleanText_(displayRow[0], 120);
+      const row = {
+        item: item,
+        latestUpdate: cleanText_(displayRow[1], 500),
+        pricePerPerson: cleanText_(displayRow[2], 40),
+        madeContact: isChecked_(rawRow[3]),
+        confirmedAvailability: isChecked_(rawRow[4]),
+        secured: isChecked_(rawRow[5]),
+        contractSigned: isChecked_(rawRow[6]),
+        depositPaid: isChecked_(rawRow[7]),
+        cancelBy: cleanText_(displayRow[8], 120),
+        totalLiability: cleanText_(displayRow[9], 60),
+        contractUrl: cleanText_(contractRichText.getLinkUrl() || displayRow[10], 500)
+      };
+
+      if (item.toUpperCase() === "TOTAL") {
+        summary = {
+          pricePerPerson: row.pricePerPerson,
+          madeContact: cleanText_(displayRow[3], 20),
+          confirmedAvailability: cleanText_(displayRow[4], 20),
+          secured: cleanText_(displayRow[5], 20),
+          contractSigned: cleanText_(displayRow[6], 20),
+          depositPaid: cleanText_(displayRow[7], 20),
+          totalLiability: row.totalLiability
+        };
+        return null;
+      }
+
+      return row;
+    })
+    .filter(row => row && row.item);
+
+  return {
+    rows: rows,
+    summary: summary
+  };
+}
+
+function getGalleryPhotos() {
+  const sheet = getSheet_("Gallery", GALLERY_HEADERS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  return sheet.getRange(2, 1, lastRow - 1, GALLERY_HEADERS.length)
+    .getDisplayValues()
+    .map(row => {
+      const fileId = cleanText_(row[5], 120);
+      return {
+        timestamp: cleanText_(row[0], 80),
+        year: cleanText_(row[1], 20),
+        uploadedBy: cleanText_(row[2], 80),
+        caption: cleanText_(row[3], 160),
+        imageUrl: cleanText_(row[4], 500) || galleryImageUrl_(fileId),
+        fileId: fileId,
+        source: cleanText_(row[6], 40)
+      };
+    })
+    .filter(photo => photo.imageUrl)
+    .reverse();
+}
+
+function uploadGalleryPhoto(payload) {
+  const data = payload || {};
+  const uploadedBy = cleanText_(data.uploadedBy, 80);
+  const year = cleanText_(data.year, 20) || "2026";
+  const caption = cleanText_(data.caption, 160);
+  const dataUrl = String(data.dataUrl || "");
+  const match = dataUrl.match(/^data:(image\/(?:jpeg|jpg|png|gif|webp));base64,(.+)$/i);
+
+  if (!uploadedBy) {
+    throw new Error("Add your name before uploading a photo.");
+  }
+  if (!match) {
+    throw new Error("Upload a JPG, PNG, GIF, or WebP image.");
+  }
+
+  const mimeType = match[1].toLowerCase() === "image/jpg" ? "image/jpeg" : match[1].toLowerCase();
+  const base64 = match[2];
+  const estimatedBytes = Math.ceil(base64.length * 0.75);
+  if (estimatedBytes > MAX_GALLERY_UPLOAD_BYTES) {
+    throw new Error("Photo is too large. Please upload an image under 8 MB.");
+  }
+
+  const extension = imageExtension_(mimeType);
+  const bytes = Utilities.base64Decode(base64);
+  const filename = [
+    "cherokee",
+    year.replace(/[^0-9a-z-]/gi, ""),
+    uploadedBy.replace(/[^0-9a-z-]/gi, "-").replace(/-+/g, "-"),
+    Utilities.getUuid().slice(0, 8)
+  ].filter(Boolean).join("-") + "." + extension;
+
+  const folder = getGalleryFolder_();
+  const file = folder.createFile(Utilities.newBlob(bytes, mimeType, filename));
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  const fileId = file.getId();
+  const imageUrl = galleryImageUrl_(fileId);
+  const sheet = getSheet_("Gallery", GALLERY_HEADERS);
+  sheet.appendRow([
+    new Date(),
+    year,
+    uploadedBy,
+    caption,
+    imageUrl,
+    fileId,
+    "Upload"
+  ]);
+
+  return {
+    year: year,
+    uploadedBy: uploadedBy,
+    caption: caption,
+    imageUrl: imageUrl,
+    fileId: fileId,
+    source: "Upload"
+  };
 }
 
 // Chat sheet columns:
@@ -256,6 +547,103 @@ function cleanText_(value, maxLength) {
 
 function yesNo_(value) {
   return value === "Yes" ? "Yes" : "No";
+}
+
+function isChecked_(value) {
+  return value === true || String(value).toUpperCase() === "TRUE" || String(value).trim() === "1";
+}
+
+function isYes_(value) {
+  return String(value || "").trim().toUpperCase() === "YES";
+}
+
+function cleanTeamNumber_(value) {
+  const text = String(value || "").trim();
+  const match = text.match(/^\d{1,2}$/);
+  if (!match) return "";
+  const numeric = Number(text);
+  return numeric >= 1 && numeric <= 99 ? String(numeric) : "";
+}
+
+function normalizeScores_(scores) {
+  const source = Array.isArray(scores) ? scores : [];
+  return Array.from({ length: 18 }, (_, index) => {
+    const value = String(source[index] || "").trim();
+    if (!value) return "";
+
+    const numeric = Number(value);
+    if (!Number.isInteger(numeric) || numeric < 1 || numeric > 20) {
+      throw new Error("Hole " + (index + 1) + " must be a whole number from 1 to 20.");
+    }
+
+    return numeric;
+  });
+}
+
+function findTeamScoreRow_(sheet, teamNumber) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 0;
+
+  const values = sheet.getRange(2, 2, lastRow - 1, 1).getDisplayValues();
+  const index = values.findIndex(row => cleanTeamNumber_(row[0]) === teamNumber);
+  return index === -1 ? 0 : index + 2;
+}
+
+function updateLeaderboardScore_(teamNumber, thru, strokes) {
+  const sheet = getSheet_("Leaderboard", LEADERBOARD_HEADERS);
+  const lastRow = sheet.getLastRow();
+  let targetRow = 0;
+
+  if (lastRow >= 2) {
+    const teams = sheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues();
+    const index = teams.findIndex(row => cleanLeaderboardTeamNumber_(row[0]) === teamNumber);
+    targetRow = index === -1 ? 0 : index + 2;
+  }
+
+  if (!targetRow) {
+    sheet.appendRow(["Team " + teamNumber, "", thru, strokes, strokes, ""]);
+    return;
+  }
+
+  sheet.getRange(targetRow, 3).setValue(thru);
+  sheet.getRange(targetRow, 4).setValue(strokes);
+  sheet.getRange(targetRow, 5).setValue(strokes);
+}
+
+function cleanLeaderboardTeamNumber_(value) {
+  const text = String(value || "").trim();
+  const match = text.match(/\d{1,2}/);
+  return match ? cleanTeamNumber_(match[0]) : "";
+}
+
+function getGalleryFolder_() {
+  const properties = PropertiesService.getScriptProperties();
+  const existingId = properties.getProperty(GALLERY_FOLDER_PROPERTY);
+  if (existingId) {
+    try {
+      return DriveApp.getFolderById(existingId);
+    } catch (e) {
+      properties.deleteProperty(GALLERY_FOLDER_PROPERTY);
+    }
+  }
+
+  const folder = DriveApp.createFolder(GALLERY_FOLDER_NAME);
+  folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  properties.setProperty(GALLERY_FOLDER_PROPERTY, folder.getId());
+  return folder;
+}
+
+function galleryImageUrl_(fileId) {
+  const cleanFileId = cleanText_(fileId, 120);
+  return cleanFileId ? "https://drive.google.com/thumbnail?id=" + encodeURIComponent(cleanFileId) + "&sz=w1400" : "";
+}
+
+function imageExtension_(mimeType) {
+  const cleanMimeType = String(mimeType || "").toLowerCase();
+  if (cleanMimeType === "image/png") return "png";
+  if (cleanMimeType === "image/gif") return "gif";
+  if (cleanMimeType === "image/webp") return "webp";
+  return "jpg";
 }
 
 function formatTimeValue_(value) {

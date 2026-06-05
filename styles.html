@@ -4,7 +4,7 @@
     --neon: #00ff66;
     --chat-bg: #101010;
     --chat-panel: #151515;
-    --chat-sidebar: #1d111d;
+    --chat-sidebar: #07140b;
     --chat-text: #ffffff;
     --chat-muted: #a8a8a8;
   }
@@ -162,6 +162,14 @@
 
   .event-actions {
     margin-top: 18px;
+  }
+
+  .trip-calendar-actions {
+    margin: 22px 0 6px;
+  }
+
+  .trip-calendar-button {
+    text-transform: uppercase;
   }
 
   .calendar-button {
@@ -629,6 +637,575 @@
     padding-top: 12px;
   }
 
+  .booking-hero {
+    margin-bottom: 1rem;
+  }
+
+  .booking-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    margin-bottom: 18px;
+  }
+
+  .booking-stat {
+    background:
+      linear-gradient(135deg, rgba(0, 255, 102, 0.13), rgba(255, 215, 0, 0.08)),
+      #0a0f0b;
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    padding: 16px;
+  }
+
+  .booking-stat span,
+  .booking-meta span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .booking-stat strong {
+    color: var(--gold);
+    display: block;
+    font-size: 30px;
+    line-height: 1.1;
+    margin-top: 6px;
+  }
+
+  .booking-stat small {
+    color: var(--neon);
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+
+  .booking-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .booking-card {
+    background:
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(0, 255, 102, 0.06), rgba(255, 215, 0, 0.03)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    overflow: hidden;
+    padding: 18px;
+  }
+
+  .booking-card-secured {
+    border-color: rgba(0, 255, 102, 0.55);
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.18);
+  }
+
+  .booking-card-header {
+    align-items: start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .booking-card h2 {
+    color: #fff;
+    font-size: 26px;
+    line-height: 1.1;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .booking-meter-label {
+    background: var(--gold);
+    border-radius: 999px;
+    color: #061006;
+    flex: 0 0 auto;
+    font-size: 16px;
+    font-weight: 950;
+    padding: 6px 10px;
+  }
+
+  .booking-progress {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    height: 10px;
+    margin: 14px 0;
+    overflow: hidden;
+  }
+
+  .booking-progress span {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    display: block;
+    height: 100%;
+  }
+
+  .booking-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .booking-step {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: var(--chat-muted);
+    font-size: 13px;
+    font-weight: 900;
+    padding: 6px 9px;
+    text-transform: uppercase;
+  }
+
+  .booking-step-complete {
+    background: rgba(0, 255, 102, 0.13);
+    border-color: rgba(0, 255, 102, 0.48);
+    color: var(--neon);
+  }
+
+  .booking-update {
+    color: #e8e8e8;
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 16px 0;
+  }
+
+  .booking-meta {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .booking-meta div {
+    background: rgba(255, 255, 255, 0.055);
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .booking-meta strong {
+    color: #fff;
+    display: block;
+    font-size: 18px;
+    line-height: 1.15;
+    margin-top: 4px;
+  }
+
+  .booking-contract-link {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border-radius: 10px;
+    color: #061006;
+    display: flex;
+    font-size: 17px;
+    font-weight: 950;
+    justify-content: center;
+    margin-top: 16px;
+    padding: 12px;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .booking-loading {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 12px;
+    color: var(--chat-muted);
+    font-size: 20px;
+    padding: 18px;
+  }
+
+  .golfers-hero {
+    margin-bottom: 1rem;
+  }
+
+  .golfers-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin-bottom: 18px;
+  }
+
+  .golfer-stat {
+    background:
+      linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(0, 255, 102, 0.08)),
+      #0a0f0b;
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.1);
+    padding: 16px;
+  }
+
+  .golfer-stat span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .golfer-stat strong {
+    color: var(--gold);
+    display: block;
+    font-size: 34px;
+    line-height: 1;
+    margin-top: 8px;
+  }
+
+  .golfer-stat small {
+    color: var(--neon);
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+
+  .golfers-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .golfer-card {
+    background:
+      radial-gradient(circle at top left, rgba(0, 255, 102, 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(255, 215, 0, 0.06), rgba(0, 255, 102, 0.03)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    padding: 18px;
+  }
+
+  .golfer-card-header {
+    align-items: start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .golfer-card h2 {
+    color: #fff;
+    font-size: 27px;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  .golfer-handicap {
+    background: var(--gold);
+    border-radius: 12px;
+    color: #061006;
+    flex: 0 0 auto;
+    min-width: 58px;
+    padding: 7px 9px;
+    text-align: center;
+  }
+
+  .golfer-handicap span {
+    display: block;
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+  }
+
+  .golfer-handicap strong {
+    display: block;
+    font-size: 24px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .golfer-commitments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .golfer-commitment {
+    background: rgba(0, 255, 102, 0.13);
+    border: 1px solid rgba(0, 255, 102, 0.42);
+    border-radius: 999px;
+    color: var(--neon);
+    font-size: 14px;
+    font-weight: 900;
+    padding: 7px 10px;
+    text-transform: uppercase;
+  }
+
+  .golfers-loading {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 12px;
+    color: var(--chat-muted);
+    font-size: 20px;
+    padding: 18px;
+  }
+
+  .gallery-hero {
+    margin-bottom: 1rem;
+  }
+
+  .gallery-upload-panel {
+    background:
+      radial-gradient(circle at top right, rgba(0, 255, 102, 0.16), transparent 34%),
+      linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 255, 102, 0.05)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    border-radius: 14px;
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.14);
+    display: grid;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 18px;
+  }
+
+  .gallery-upload-panel h2 {
+    color: #fff;
+    font-size: 30px;
+    line-height: 1.1;
+    margin: 6px 0 8px;
+  }
+
+  .gallery-upload-panel p {
+    color: #ddd;
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .gallery-upload-form {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 120px;
+  }
+
+  .gallery-upload-form input,
+  .gallery-upload-form select {
+    background: #151515;
+    border: 1px solid rgba(255, 215, 0, 0.24);
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 18px;
+    min-width: 0;
+    padding: 13px 14px;
+  }
+
+  .gallery-upload-form input[type="file"] {
+    grid-column: 1 / -1;
+  }
+
+  .gallery-upload-form button {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border: 0;
+    border-radius: 10px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.36);
+    color: #061006;
+    cursor: pointer;
+    font-size: 19px;
+    font-weight: 950;
+    grid-column: 1 / -1;
+    padding: 14px;
+    text-transform: uppercase;
+  }
+
+  .gallery-upload-status {
+    color: var(--neon);
+    font-size: 16px;
+    font-weight: 800;
+    min-height: 20px;
+  }
+
+  .gallery-upload-status.error {
+    color: #ff6666;
+  }
+
+  .gallery-grid {
+    column-count: 3;
+    column-gap: 14px;
+  }
+
+  .gallery-card {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    break-inside: avoid;
+    margin: 0 0 14px;
+    overflow: hidden;
+  }
+
+  .gallery-photo {
+    background: #171717;
+    display: block;
+    height: auto;
+    width: 100%;
+  }
+
+  .gallery-card-body {
+    padding: 14px;
+  }
+
+  .gallery-meta {
+    color: var(--neon);
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .gallery-card p {
+    color: #fff;
+    font-size: 18px;
+    line-height: 1.3;
+    margin: 6px 0 0;
+  }
+
+  .gallery-loading {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 12px;
+    color: var(--chat-muted);
+    font-size: 20px;
+    padding: 18px;
+  }
+
+  .team-score-hero {
+    margin-bottom: 1rem;
+  }
+
+  .team-score-panel {
+    background:
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.16), transparent 34%),
+      linear-gradient(135deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.05)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.14);
+    padding: 18px;
+  }
+
+  .team-score-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 16px;
+  }
+
+  .team-score-summary article {
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 215, 0, 0.18);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .team-score-summary span,
+  .team-score-scorer span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .team-score-summary strong {
+    color: var(--gold);
+    display: block;
+    font-size: 32px;
+    line-height: 1.05;
+    margin-top: 6px;
+  }
+
+  .team-score-scorer {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .team-score-scorer input {
+    background: #151515;
+    border: 1px solid rgba(255, 215, 0, 0.24);
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 20px;
+    margin-top: 8px;
+    padding: 13px 14px;
+    width: 100%;
+  }
+
+  .team-score-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .team-score-hole {
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 215, 0, 0.18);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .team-score-hole span {
+    color: var(--neon);
+    display: block;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .team-score-hole input {
+    background: #070707;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 900;
+    padding: 10px 8px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .team-score-actions {
+    margin-top: 16px;
+  }
+
+  .team-score-actions button {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.42);
+    color: #061006;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 950;
+    padding: 16px;
+    text-transform: uppercase;
+    width: 100%;
+  }
+
+  #team-score-status {
+    color: var(--neon);
+    font-size: 16px;
+    font-weight: 800;
+    margin-top: 10px;
+    min-height: 20px;
+  }
+
+  #team-score-status.error {
+    color: #ff6666;
+  }
+
   .panel {
     background: #0a0a0a;
     border: 1px solid rgba(255, 215, 0, 0.3);
@@ -653,26 +1230,85 @@
     border-bottom: 1px solid rgba(255, 215, 0, 0.25);
     box-shadow: 0 0 12px rgba(0, 255, 102, 0.2);
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    padding: 0.6rem 0;
+    justify-content: center;
+    padding: 0.65rem 14px;
+    position: relative;
+    z-index: 30;
   }
 
-  .nav button {
-    background: none;
-    border: none;
+  .page-menu-toggle {
+    align-items: center;
+    background:
+      linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(0, 255, 102, 0.08)),
+      #111;
+    border: 1px solid rgba(255, 215, 0, 0.45);
+    border-radius: 999px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.24);
     color: var(--gold);
     cursor: pointer;
+    display: inline-flex;
     font-size: 24px;
-    font-weight: 700;
-    padding: 14px 12px;
+    font-weight: 900;
+    gap: 12px;
+    justify-content: center;
+    min-width: min(320px, 86vw);
+    padding: 13px 22px;
     text-shadow: 0 0 8px var(--gold);
-    width: auto;
   }
 
-  .nav button:hover {
+  .page-menu-toggle:hover {
     color: var(--neon);
     text-shadow: 0 0 10px var(--neon);
+  }
+
+  .page-menu-caret {
+    color: var(--neon);
+    font-size: 16px;
+    font-weight: 950;
+    text-shadow: 0 0 8px var(--neon);
+  }
+
+  .page-menu {
+    background:
+      linear-gradient(180deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.04)),
+      #080b08;
+    border: 1px solid rgba(255, 215, 0, 0.34);
+    border-radius: 18px;
+    box-shadow:
+      0 18px 34px rgba(0, 0, 0, 0.58),
+      0 0 20px rgba(0, 255, 102, 0.12);
+    display: none;
+    gap: 6px;
+    left: 50%;
+    max-width: min(360px, calc(100vw - 28px));
+    padding: 10px;
+    position: absolute;
+    top: calc(100% - 4px);
+    transform: translateX(-50%);
+    width: 100%;
+  }
+
+  .nav.open .page-menu {
+    display: grid;
+  }
+
+  .page-menu button {
+    background: transparent;
+    border: 0;
+    border-radius: 12px;
+    color: #f4f4f4;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 850;
+    padding: 13px 14px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .page-menu button:hover,
+  .page-menu button.active {
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.92), rgba(255, 215, 0, 0.86));
+    color: #061006;
   }
 
   .entry-form {
@@ -782,7 +1418,7 @@
 
   .chat-sidebar {
     background: var(--chat-sidebar);
-    border-right: 1px solid #2f2230;
+    border-right: 1px solid rgba(255, 215, 0, 0.22);
     bottom: 0;
     box-shadow: 12px 0 24px rgba(0, 0, 0, 0.5);
     display: flex;
@@ -809,7 +1445,7 @@
   }
 
   .chat-sidebar-label {
-    color: #ad9fad;
+    color: var(--gold);
     font-size: 16px;
     font-weight: 700;
     padding: 8px;
@@ -1053,7 +1689,7 @@
 
   .channel-drawer {
     background: var(--chat-sidebar);
-    border-right: 1px solid #2f2230;
+    border-right: 1px solid rgba(255, 215, 0, 0.22);
     box-shadow: 4px 0 16px rgba(0, 0, 0, 0.6);
     font-size: 16px;
     height: 100%;
@@ -1065,7 +1701,7 @@
   }
 
   .drawer-title {
-    border-bottom: 1px solid #2f2230;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.22);
     color: #fff;
     font-size: 15px;
     font-weight: 800;
@@ -1092,12 +1728,13 @@
   }
 
   .channel-item:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 255, 102, 0.12);
   }
 
   .channel-active {
-    background: #1264a3;
-    color: #fff;
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.95), rgba(255, 215, 0, 0.9));
+    box-shadow: 0 0 14px rgba(0, 255, 102, 0.25);
+    color: #061006;
     font-weight: 800;
   }
 
@@ -1154,9 +1791,14 @@
       padding-bottom: 0;
     }
 
-    .nav button {
+    .page-menu-toggle {
       font-size: 24px;
-      padding: 14px 10px;
+      padding: 13px 20px;
+    }
+
+    .page-menu button {
+      font-size: 20px;
+      padding: 13px 14px;
     }
 
     .hero {
@@ -1346,6 +1988,291 @@
 
     .chat-reply-block {
       margin-left: 62px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .content:has(#chat:not([style*="display:none"])),
+    body.chat-active .content {
+      min-height: calc(100vh - 250px);
+      padding: 8px;
+      padding-bottom: 0;
+    }
+
+    .chat-page,
+    .chat-shell {
+      min-height: calc(100vh - 250px);
+    }
+
+    .chat-shell {
+      font-size: 15px;
+    }
+
+    .chat-sidebar {
+      padding: 10px 7px;
+      width: min(82vw, 238px);
+    }
+
+    .chat-sidebar:not(.open) {
+      margin-left: -238px;
+    }
+
+    .chat-workspace {
+      font-size: 17px;
+      padding: 3px 6px 10px;
+    }
+
+    .chat-sidebar-label {
+      font-size: 11px;
+      padding: 6px;
+    }
+
+    .channel-item {
+      border-radius: 5px;
+      font-size: 17px;
+      padding: 10px;
+    }
+
+    .chat-header {
+      min-height: 59px;
+      padding: 11px;
+    }
+
+    .chat-header-left {
+      gap: 7px;
+    }
+
+    .chat-channel-name {
+      font-size: clamp(20px, 5vw, 24px);
+    }
+
+    .chat-header-sub {
+      font-size: 13px;
+    }
+
+    .chat-header button {
+      border-radius: 6px;
+      font-size: 15px;
+      padding: 10px 11px;
+    }
+
+    .chat-name-select,
+    .chat-messages,
+    .chat-input-bar {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .chat-name-select {
+      padding-bottom: 7px;
+      padding-top: 7px;
+    }
+
+    .chat-name-select input,
+    .chat-input-bar input {
+      border-radius: 6px;
+      font-size: 18px;
+      padding: 13px;
+    }
+
+    .suggestions {
+      left: 10px;
+      max-height: 126px;
+      right: 10px;
+      top: 43px;
+    }
+
+    .suggestion {
+      font-size: 14px;
+      padding: 6px 9px;
+    }
+
+    .chat-messages {
+      padding-bottom: 10px;
+      padding-top: 10px;
+    }
+
+    .chat-message {
+      margin-bottom: 6px;
+    }
+
+    .chat-empty {
+      font-size: 17px;
+      padding: 8px 3px;
+    }
+
+    .chat-message-row,
+    .chat-reply-row {
+      gap: 8px;
+      grid-template-columns: 35px minmax(0, 1fr);
+      margin-bottom: 11px;
+    }
+
+    .chat-reply-row {
+      margin-top: 6px;
+    }
+
+    .chat-avatar {
+      border-radius: 5px;
+      font-size: 13px;
+      height: 34px;
+      width: 34px;
+    }
+
+    .chat-message-header {
+      gap: 6px;
+    }
+
+    .chat-user,
+    .chat-reply-user,
+    .chat-text,
+    .chat-reply-text {
+      font-size: 18px;
+    }
+
+    .chat-text,
+    .chat-reply-text {
+      line-height: 1.3;
+    }
+
+    .chat-meta,
+    .chat-reply-meta,
+    .chat-reply-button {
+      font-size: 13px;
+    }
+
+    .chat-reply-block {
+      margin-left: 43px;
+      margin-top: 4px;
+      padding-left: 7px;
+    }
+
+    .chat-input-bar {
+      gap: 7px;
+      padding-bottom: 8px;
+      padding-top: 8px;
+    }
+
+    .chat-input-bar button {
+      border-radius: 6px;
+      font-size: 18px;
+      padding: 13px 10px;
+    }
+
+    .channel-drawer {
+      font-size: 11px;
+      padding: 42px 6px 0;
+      width: 220px;
+    }
+
+    .drawer-title {
+      font-size: 11px;
+      padding: 0 6px 7px;
+    }
+
+    .booking-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-card {
+      padding: 14px;
+    }
+
+    .booking-card h2 {
+      font-size: 22px;
+    }
+
+    .booking-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-update {
+      font-size: 16px;
+    }
+
+    .golfers-summary,
+    .golfers-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .golfer-card {
+      padding: 14px;
+    }
+
+    .golfer-card h2 {
+      font-size: 23px;
+    }
+
+    .golfer-commitment {
+      font-size: 12px;
+    }
+
+    .gallery-upload-panel {
+      padding: 14px;
+    }
+
+    .gallery-upload-form {
+      grid-template-columns: 1fr;
+    }
+
+    .gallery-grid {
+      column-count: 1;
+    }
+
+    .gallery-upload-panel h2 {
+      font-size: 24px;
+    }
+
+    .team-score-panel {
+      padding: 14px;
+    }
+
+    .team-score-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .team-score-summary strong {
+      font-size: 28px;
+    }
+
+    .team-score-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .team-score-hole {
+      padding: 8px;
+    }
+
+    .team-score-hole input {
+      font-size: 22px;
+      padding: 9px 6px;
+    }
+
+    .team-score-actions button {
+      font-size: 19px;
+    }
+
+    .nav {
+      padding: 0.5rem 10px;
+    }
+
+    .page-menu-toggle {
+      font-size: 21px;
+      min-width: min(260px, 84vw);
+      padding: 11px 18px;
+    }
+
+    .page-menu {
+      max-width: min(300px, calc(100vw - 20px));
+    }
+
+    .page-menu button {
+      font-size: 18px;
+      padding: 12px;
     }
   }
 

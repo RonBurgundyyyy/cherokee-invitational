@@ -17,12 +17,28 @@
     </header>
 
     <!-- NAVIGATION -->
-    <nav class="nav">
-      <button onclick="showPage('home')">Events</button>
-      <button onclick="showPage('rules')">Rules</button>
-      <button onclick="showPage('register')">Register</button>
-      <button onclick="showPage('chat')">Chat</button>
-      <button onclick="showPage('leaderboard')">Leaderboard</button>
+    <nav class="nav" id="page-nav">
+      <button
+        class="page-menu-toggle"
+        id="page-menu-toggle"
+        type="button"
+        onclick="togglePageMenu(event)"
+        aria-expanded="false"
+        aria-controls="page-menu">
+        <span id="page-menu-label">Events</span>
+        <span class="page-menu-caret">v</span>
+      </button>
+
+      <div class="page-menu" id="page-menu">
+        <button type="button" data-page="home" onclick="choosePage('home')">Events</button>
+        <button type="button" data-page="rules" onclick="choosePage('rules')">Rules</button>
+        <button type="button" data-page="register" onclick="choosePage('register')">Register</button>
+        <button type="button" data-page="golfers" onclick="choosePage('golfers')">Golfers</button>
+        <button type="button" data-page="gallery" onclick="choosePage('gallery')">Gallery</button>
+        <button type="button" data-page="chat" onclick="choosePage('chat')">Chat</button>
+        <button type="button" data-page="leaderboard" onclick="choosePage('leaderboard')">Leaderboard</button>
+        <button type="button" data-page="booking" onclick="choosePage('booking')">Booking</button>
+      </div>
     </nav>
 
     <!-- CHANNEL DRAWER OVERLAY (ONLY USED IN CHAT) -->
@@ -46,6 +62,16 @@
         <section class="events-grid" id="events-grid">
           <div class="events-loading">Loading events...</div>
         </section>
+
+        <div class="trip-calendar-actions">
+          <a
+            class="calendar-button trip-calendar-button"
+            id="trip-calendar-button"
+            download="3rd-annual-cherokee-invitational-2026.ics"
+            href="#">
+            Add Entire Trip to Calendar
+          </a>
+        </div>
       </section>
 
       <!-- RULES PAGE -->
@@ -110,6 +136,7 @@
           <article class="rules-card">
             <div class="rules-kicker">Fine Print</div>
             <ul class="rules-list">
+              <li>This tournament will be played as a scramble: every player tees off, the team selects the best shot, everyone moves within one club-length of that spot, and the process repeats for each shot until the ball is holed.</li>
               <li>Fireball holes require a birdie. The player who sinks the birdie putt must take a shot of Fireball to claim the bonus.</li>
               <li>Each team must use two different players' shots at least once per hole.</li>
             </ul>
@@ -120,7 +147,7 @@
           <div class="scorecard-header">
             <div>
               <div class="rules-kicker">Scorecard</div>
-              <h2>Sequoyah National</h2>
+              <h2>Smoky Mountain Country Club</h2>
             </div>
             <div class="scorecard-legend">
               <span class="legend-dot bonus-green"></span> 9 CTP
@@ -245,6 +272,57 @@
         </div>
       </section>
 
+      <!-- GOLFERS PAGE -->
+      <section id="golfers" class="page" style="display:none;">
+        <section class="hero golfers-hero">
+          <h1>Golfers</h1>
+          <p>Committed players, handicaps, and event commitments.</p>
+        </section>
+
+        <section class="golfers-summary" id="golfers-summary">
+          <div class="golfers-loading">Loading golfers...</div>
+        </section>
+
+        <section class="golfers-grid" id="golfers-grid">
+          <div class="golfers-loading">Loading golfers...</div>
+        </section>
+      </section>
+
+      <!-- GALLERY PAGE -->
+      <section id="gallery" class="page" style="display:none;">
+        <section class="hero gallery-hero">
+          <h1>Gallery</h1>
+          <p>Previous years, new memories, and phone uploads from the group.</p>
+        </section>
+
+        <section class="gallery-upload-panel">
+          <div>
+            <div class="rules-kicker">Share a Photo</div>
+            <h2>Upload From Your Phone</h2>
+            <p>Photos are saved to the Cherokee Invitational gallery and may appear for everyone.</p>
+          </div>
+
+          <div class="gallery-upload-form">
+            <input id="gallery-name" type="text" placeholder="Your name">
+            <select id="gallery-year">
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+            </select>
+            <input id="gallery-caption" type="text" maxlength="160" placeholder="Caption optional">
+            <input id="gallery-file" type="file" accept="image/*">
+            <button onclick="uploadGalleryPhoto()">Upload Photo</button>
+          </div>
+
+          <div id="gallery-upload-status" class="gallery-upload-status"></div>
+        </section>
+
+        <section class="gallery-grid" id="gallery-grid">
+          <div class="gallery-loading">Loading gallery...</div>
+        </section>
+      </section>
+
       <!-- CHAT PAGE -->
       <section id="chat" class="page chat-page" style="display:none;">
         <div class="chat-shell">
@@ -323,6 +401,59 @@
         </section>
       </section>
 
+      <!-- BOOKING PAGE -->
+      <section id="booking" class="page" style="display:none;">
+        <section class="hero booking-hero">
+          <h1>Booking Progress</h1>
+          <p>Track what is contacted, confirmed, secured, contracted, and deposited.</p>
+        </section>
+
+        <section class="booking-summary" id="booking-summary">
+          <div class="booking-loading">Loading booking progress...</div>
+        </section>
+
+        <section class="booking-grid" id="booking-grid">
+          <div class="booking-loading">Loading booking items...</div>
+        </section>
+      </section>
+
+      <!-- TEAM SCORE PAGE -->
+      <section id="team-score" class="page" style="display:none;">
+        <section class="hero team-score-hero">
+          <h1 id="team-score-title">Team Score</h1>
+          <p>Enter hole-by-hole strokes for this team's round.</p>
+        </section>
+
+        <section class="team-score-panel">
+          <div class="team-score-summary">
+            <article>
+              <span>Thru</span>
+              <strong id="team-score-thru">0</strong>
+            </article>
+            <article>
+              <span>Strokes</span>
+              <strong id="team-score-strokes">0</strong>
+            </article>
+            <article>
+              <span>Last Saved</span>
+              <strong id="team-score-updated">-</strong>
+            </article>
+          </div>
+
+          <label class="team-score-scorer">
+            <span>Scorer Name</span>
+            <input id="team-score-updated-by" type="text" placeholder="Optional">
+          </label>
+
+          <div class="team-score-grid" id="team-score-grid"></div>
+
+          <div class="team-score-actions">
+            <button onclick="saveCurrentTeamScore()">Save Team Score</button>
+            <div id="team-score-status"></div>
+          </div>
+        </section>
+      </section>
+
     </main>
 
     <!-- SCRIPT -->
@@ -342,7 +473,9 @@
       let selectedUser = null;
       let currentChannel = CHANNELS[0];
       let lastSeen = {};
+      let currentScoringTeam = "";
       window.entryNames = [];
+      const INITIAL_TEAM_NUMBER = "<?= initialTeamNumber ?>";
 
       const DEFAULT_LEADERBOARD_ROWS = Array.from({ length: 8 }, (_, index) => ({
         team: "Team " + (index + 1),
@@ -353,11 +486,25 @@
         badgesOwned: ""
       }));
 
+      const PAGE_LABELS = {
+        home: "Events",
+        rules: "Rules",
+        register: "Register",
+        golfers: "Golfers",
+        gallery: "Gallery",
+        chat: "Chat",
+        leaderboard: "Leaderboard",
+        booking: "Booking",
+        "team-score": "Team Score"
+      };
+
       /* PAGE SWITCHING */
       function showPage(page) {
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
         document.getElementById(page).style.display = 'block';
         document.body.classList.toggle("chat-active", page === "chat");
+        updatePageMenu(page);
+        closePageMenu();
 
         const backdrop = document.getElementById('channel-backdrop');
         if (page !== 'chat') {
@@ -372,6 +519,55 @@
         if (page === 'leaderboard') {
           loadLeaderboard();
         }
+
+        if (page === 'booking') {
+          loadBookingProgress();
+        }
+
+        if (page === 'golfers') {
+          loadGolfers();
+        }
+
+        if (page === 'gallery') {
+          loadGallery();
+        }
+
+        if (page === 'team-score' && currentScoringTeam) {
+          loadTeamScore(currentScoringTeam);
+        }
+      }
+
+      function choosePage(page) {
+        showPage(page);
+      }
+
+      function togglePageMenu(event) {
+        event.stopPropagation();
+        const nav = document.getElementById("page-nav");
+        const toggle = document.getElementById("page-menu-toggle");
+        const isOpen = nav.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      }
+
+      function closePageMenu() {
+        const nav = document.getElementById("page-nav");
+        const toggle = document.getElementById("page-menu-toggle");
+        if (!nav || !toggle) return;
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+
+      function updatePageMenu(page) {
+        const label = document.getElementById("page-menu-label");
+        if (label) {
+          label.textContent = page === "team-score" && currentScoringTeam
+            ? "Team " + currentScoringTeam + " Score"
+            : PAGE_LABELS[page] || "Events";
+        }
+
+        document.querySelectorAll(".page-menu button").forEach(button => {
+          button.classList.toggle("active", button.dataset.page === page);
+        });
       }
 
       /* DRAWER */
@@ -542,6 +738,28 @@
       function buildCalendarDataUrl(event, index) {
         const ics = buildIcsEvent(event, index);
         return "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+      }
+
+      function buildTripCalendarDataUrl() {
+        const title = "3rd Annual Cherokee Invitational - 2026";
+        const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+        const lines = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//Cherokee Invitational//Trip//EN",
+          "CALSCALE:GREGORIAN",
+          "METHOD:PUBLISH",
+          "BEGIN:VEVENT",
+          "UID:cherokee-invitational-2026-trip@cherokee-invitational",
+          "DTSTAMP:" + now,
+          "SUMMARY:" + escapeIcs(title),
+          "DTSTART;VALUE=DATE:20260925",
+          "DTEND;VALUE=DATE:20260928",
+          "END:VEVENT",
+          "END:VCALENDAR"
+        ];
+
+        return "data:text/calendar;charset=utf-8," + encodeURIComponent(lines.join("\r\n"));
       }
 
       function buildIcsEvent(event, index) {
@@ -803,6 +1021,519 @@
         return numeric > 0 ? "+" + numeric : String(numeric);
       }
 
+      function loadBookingProgress() {
+        google.script.run
+          .withSuccessHandler(renderBookingProgress)
+          .withFailureHandler(err => showBookingError(err.message || "Could not load booking progress."))
+          .getBookingRows();
+      }
+
+      function renderBookingProgress(data) {
+        const rows = data && Array.isArray(data.rows) ? data.rows : [];
+        renderBookingSummary(rows, data && data.summary ? data.summary : {});
+        renderBookingCards(rows);
+      }
+
+      function renderBookingSummary(rows, summary) {
+        const container = document.getElementById("booking-summary");
+        container.innerHTML = "";
+
+        if (!rows.length) {
+          const empty = document.createElement("div");
+          empty.className = "booking-loading";
+          empty.textContent = "No booking items found yet.";
+          container.appendChild(empty);
+          return;
+        }
+
+        const totalSteps = rows.length * BOOKING_STEPS.length;
+        const completedSteps = rows.reduce((sum, row) => {
+          return sum + BOOKING_STEPS.filter(step => row[step.key]).length;
+        }, 0);
+        const percent = totalSteps ? Math.round((completedSteps / totalSteps) * 100) : 0;
+
+        container.appendChild(createBookingStat("Overall", completedSteps + " / " + totalSteps, percent + "% complete"));
+        container.appendChild(createBookingStat("Secured", summary.secured || countBookingStep(rows, "secured") + " / " + rows.length, "items locked in"));
+        container.appendChild(createBookingStat("Deposits", summary.depositPaid || countBookingStep(rows, "depositPaid") + " / " + rows.length, "paid or placed"));
+        container.appendChild(createBookingStat("Price / PP", summary.pricePerPerson || "-", "visible total"));
+        container.appendChild(createBookingStat("Liability", summary.totalLiability || "-", "total exposure"));
+      }
+
+      function renderBookingCards(rows) {
+        const grid = document.getElementById("booking-grid");
+        grid.innerHTML = "";
+
+        if (!rows.length) {
+          const empty = document.createElement("div");
+          empty.className = "booking-loading";
+          empty.textContent = "Add rows to the BOOKING tab to show progress here.";
+          grid.appendChild(empty);
+          return;
+        }
+
+        rows.forEach(row => {
+          const card = document.createElement("article");
+          card.className = "booking-card" + (row.secured ? " booking-card-secured" : "");
+
+          const header = document.createElement("div");
+          header.className = "booking-card-header";
+
+          const title = document.createElement("h2");
+          title.textContent = row.item || "Booking item";
+
+          const percent = bookingCompletionPercent(row);
+          const meter = document.createElement("div");
+          meter.className = "booking-meter-label";
+          meter.textContent = percent + "%";
+
+          header.appendChild(title);
+          header.appendChild(meter);
+
+          const progress = document.createElement("div");
+          progress.className = "booking-progress";
+          const bar = document.createElement("span");
+          bar.style.width = percent + "%";
+          progress.appendChild(bar);
+
+          const chips = document.createElement("div");
+          chips.className = "booking-steps";
+          BOOKING_STEPS.forEach(step => {
+            const chip = document.createElement("span");
+            chip.className = "booking-step" + (row[step.key] ? " booking-step-complete" : "");
+            chip.textContent = (row[step.key] ? "Done: " : "") + step.label;
+            chips.appendChild(chip);
+          });
+
+          const update = document.createElement("p");
+          update.className = "booking-update";
+          update.textContent = row.latestUpdate || "No update yet.";
+
+          const meta = document.createElement("div");
+          meta.className = "booking-meta";
+          appendBookingMeta(meta, "Price / PP", row.pricePerPerson || "-");
+          appendBookingMeta(meta, "Cancel By", row.cancelBy || "-");
+          appendBookingMeta(meta, "Liability", row.totalLiability || "-");
+
+          card.appendChild(header);
+          card.appendChild(progress);
+          card.appendChild(chips);
+          card.appendChild(update);
+          card.appendChild(meta);
+
+          if (row.contractUrl) {
+            const link = document.createElement("a");
+            link.className = "booking-contract-link";
+            link.href = row.contractUrl;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.textContent = "View Contract";
+            card.appendChild(link);
+          }
+
+          grid.appendChild(card);
+        });
+      }
+
+      const BOOKING_STEPS = [
+        { key: "madeContact", label: "Contacted" },
+        { key: "confirmedAvailability", label: "Available" },
+        { key: "secured", label: "Secured" },
+        { key: "contractSigned", label: "Contract" },
+        { key: "depositPaid", label: "Deposit" }
+      ];
+
+      function bookingCompletionPercent(row) {
+        const complete = BOOKING_STEPS.filter(step => row[step.key]).length;
+        return Math.round((complete / BOOKING_STEPS.length) * 100);
+      }
+
+      function countBookingStep(rows, key) {
+        return rows.filter(row => row[key]).length;
+      }
+
+      function createBookingStat(label, value, detail) {
+        const stat = document.createElement("article");
+        stat.className = "booking-stat";
+
+        const statLabel = document.createElement("span");
+        statLabel.textContent = label;
+
+        const statValue = document.createElement("strong");
+        statValue.textContent = value;
+
+        const statDetail = document.createElement("small");
+        statDetail.textContent = detail;
+
+        stat.appendChild(statLabel);
+        stat.appendChild(statValue);
+        stat.appendChild(statDetail);
+        return stat;
+      }
+
+      function appendBookingMeta(container, label, value) {
+        const item = document.createElement("div");
+        const itemLabel = document.createElement("span");
+        const itemValue = document.createElement("strong");
+
+        itemLabel.textContent = label;
+        itemValue.textContent = value;
+        item.appendChild(itemLabel);
+        item.appendChild(itemValue);
+        container.appendChild(item);
+      }
+
+      function showBookingError(text) {
+        const summary = document.getElementById("booking-summary");
+        const grid = document.getElementById("booking-grid");
+        summary.innerHTML = "";
+        grid.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "booking-loading";
+        error.textContent = text;
+        grid.appendChild(error);
+        showToast(text);
+      }
+
+      function loadGolfers() {
+        google.script.run
+          .withSuccessHandler(renderGolfers)
+          .withFailureHandler(err => showGolfersError(err.message || "Could not load golfers."))
+          .getGolfersRows();
+      }
+
+      function renderGolfers(rows) {
+        const golfers = Array.isArray(rows) ? rows : [];
+        renderGolfersSummary(golfers);
+        renderGolfersGrid(golfers);
+      }
+
+      function renderGolfersSummary(golfers) {
+        const container = document.getElementById("golfers-summary");
+        container.innerHTML = "";
+
+        if (!golfers.length) {
+          const empty = document.createElement("div");
+          empty.className = "golfers-loading";
+          empty.textContent = "No committed golfers found yet.";
+          container.appendChild(empty);
+          return;
+        }
+
+        container.appendChild(createGolferStat("Committed", String(golfers.length), "registered players"));
+        container.appendChild(createGolferStat("Tournament", String(countCommitment(golfers, "Tournament")), "playing Saturday"));
+        container.appendChild(createGolferStat("Practice", String(countCommitment(golfers, "Practice Round")), "playing Friday"));
+        container.appendChild(createGolferStat("SportsBook", String(countCommitment(golfers, "SportsBook")), "signed up"));
+        container.appendChild(createGolferStat("Hotel", String(countCommitment(golfers, "Hotel")), "staying onsite"));
+      }
+
+      function renderGolfersGrid(golfers) {
+        const grid = document.getElementById("golfers-grid");
+        grid.innerHTML = "";
+
+        if (!golfers.length) {
+          const empty = document.createElement("div");
+          empty.className = "golfers-loading";
+          empty.textContent = "Registration entries will show here once players sign up.";
+          grid.appendChild(empty);
+          return;
+        }
+
+        golfers
+          .slice()
+          .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")))
+          .forEach(golfer => {
+            const card = document.createElement("article");
+            card.className = "golfer-card";
+
+            const header = document.createElement("div");
+            header.className = "golfer-card-header";
+
+            const name = document.createElement("h2");
+            name.textContent = golfer.name || "Golfer";
+
+            const handicap = document.createElement("div");
+            handicap.className = "golfer-handicap";
+            handicap.innerHTML = "<span>HCP</span><strong></strong>";
+            handicap.querySelector("strong").textContent = golfer.handicap || "-";
+
+            header.appendChild(name);
+            header.appendChild(handicap);
+
+            const commitments = document.createElement("div");
+            commitments.className = "golfer-commitments";
+
+            const labels = golfer.commitments && golfer.commitments.length ? golfer.commitments : ["No commitments listed"];
+            labels.forEach(label => {
+              const chip = document.createElement("span");
+              chip.className = "golfer-commitment";
+              chip.textContent = label;
+              commitments.appendChild(chip);
+            });
+
+            card.appendChild(header);
+            card.appendChild(commitments);
+            grid.appendChild(card);
+          });
+      }
+
+      function createGolferStat(label, value, detail) {
+        const stat = document.createElement("article");
+        stat.className = "golfer-stat";
+
+        const statLabel = document.createElement("span");
+        statLabel.textContent = label;
+
+        const statValue = document.createElement("strong");
+        statValue.textContent = value;
+
+        const statDetail = document.createElement("small");
+        statDetail.textContent = detail;
+
+        stat.appendChild(statLabel);
+        stat.appendChild(statValue);
+        stat.appendChild(statDetail);
+        return stat;
+      }
+
+      function countCommitment(golfers, commitment) {
+        return golfers.filter(golfer => {
+          return Array.isArray(golfer.commitments) && golfer.commitments.includes(commitment);
+        }).length;
+      }
+
+      function showGolfersError(text) {
+        const summary = document.getElementById("golfers-summary");
+        const grid = document.getElementById("golfers-grid");
+        summary.innerHTML = "";
+        grid.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "golfers-loading";
+        error.textContent = text;
+        grid.appendChild(error);
+        showToast(text);
+      }
+
+      function loadGallery() {
+        google.script.run
+          .withSuccessHandler(renderGallery)
+          .withFailureHandler(err => showGalleryError(err.message || "Could not load gallery."))
+          .getGalleryPhotos();
+      }
+
+      function renderGallery(photos) {
+        const grid = document.getElementById("gallery-grid");
+        const rows = Array.isArray(photos) ? photos : [];
+        grid.innerHTML = "";
+
+        if (!rows.length) {
+          const empty = document.createElement("div");
+          empty.className = "gallery-loading";
+          empty.textContent = "No gallery photos yet. Add previous years in the Gallery sheet, or upload one here.";
+          grid.appendChild(empty);
+          return;
+        }
+
+        rows.forEach(photo => {
+          const card = document.createElement("article");
+          card.className = "gallery-card";
+
+          const image = document.createElement("img");
+          image.className = "gallery-photo";
+          image.src = photo.imageUrl;
+          image.alt = photo.caption || "Cherokee Invitational photo";
+          image.loading = "lazy";
+
+          const body = document.createElement("div");
+          body.className = "gallery-card-body";
+
+          const meta = document.createElement("div");
+          meta.className = "gallery-meta";
+          meta.textContent = [photo.year, photo.uploadedBy].filter(Boolean).join(" / ");
+
+          const caption = document.createElement("p");
+          caption.textContent = photo.caption || "Cherokee Invitational";
+
+          body.appendChild(meta);
+          body.appendChild(caption);
+          card.appendChild(image);
+          card.appendChild(body);
+          grid.appendChild(card);
+        });
+      }
+
+      function uploadGalleryPhoto() {
+        const name = document.getElementById("gallery-name").value.trim();
+        const year = document.getElementById("gallery-year").value;
+        const caption = document.getElementById("gallery-caption").value.trim();
+        const fileInput = document.getElementById("gallery-file");
+        const status = document.getElementById("gallery-upload-status");
+        const file = fileInput.files && fileInput.files[0];
+
+        if (!name) {
+          showGalleryUploadStatus("Add your name before uploading.", true);
+          return;
+        }
+        if (!file) {
+          showGalleryUploadStatus("Choose a photo first.", true);
+          return;
+        }
+        if (!/^image\//i.test(file.type)) {
+          showGalleryUploadStatus("Choose an image file.", true);
+          return;
+        }
+        if (file.size > 8 * 1024 * 1024) {
+          showGalleryUploadStatus("Photo is too large. Please upload an image under 8 MB.", true);
+          return;
+        }
+
+        status.classList.remove("error");
+        status.textContent = "Uploading...";
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          google.script.run
+            .withSuccessHandler(() => {
+              showGalleryUploadStatus("Photo uploaded. Refreshing gallery...", false);
+              document.getElementById("gallery-caption").value = "";
+              fileInput.value = "";
+              loadGallery();
+            })
+            .withFailureHandler(err => showGalleryUploadStatus(err.message || "Upload failed.", true))
+            .uploadGalleryPhoto({
+              uploadedBy: name,
+              year: year,
+              caption: caption,
+              dataUrl: reader.result
+            });
+        };
+        reader.onerror = () => showGalleryUploadStatus("Could not read that photo.", true);
+        reader.readAsDataURL(file);
+      }
+
+      function showGalleryUploadStatus(text, isError) {
+        const status = document.getElementById("gallery-upload-status");
+        status.textContent = text;
+        status.classList.toggle("error", Boolean(isError));
+      }
+
+      function showGalleryError(text) {
+        const grid = document.getElementById("gallery-grid");
+        grid.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "gallery-loading";
+        error.textContent = text;
+        grid.appendChild(error);
+        showToast(text);
+      }
+
+      function openTeamScore(teamNumber) {
+        currentScoringTeam = String(teamNumber || "").replace(/\D/g, "").slice(0, 2);
+        if (!currentScoringTeam) return;
+
+        document.getElementById("team-score-title").textContent = "Team " + currentScoringTeam + " Score";
+        buildTeamScoreGrid();
+        showPage("team-score");
+      }
+
+      function buildTeamScoreGrid() {
+        const grid = document.getElementById("team-score-grid");
+        if (grid.childElementCount) return;
+
+        for (let hole = 1; hole <= 18; hole++) {
+          const field = document.createElement("label");
+          field.className = "team-score-hole";
+
+          const label = document.createElement("span");
+          label.textContent = "Hole " + hole;
+
+          const input = document.createElement("input");
+          input.type = "number";
+          input.min = "1";
+          input.max = "20";
+          input.inputMode = "numeric";
+          input.id = "team-hole-" + hole;
+          input.addEventListener("input", updateTeamScoreSummary);
+
+          field.appendChild(label);
+          field.appendChild(input);
+          grid.appendChild(field);
+        }
+      }
+
+      function loadTeamScore(teamNumber) {
+        const status = document.getElementById("team-score-status");
+        status.textContent = "Loading...";
+        status.classList.remove("error");
+
+        google.script.run
+          .withSuccessHandler(renderTeamScore)
+          .withFailureHandler(err => showTeamScoreStatus(err.message || "Could not load team score.", true))
+          .getTeamScore(teamNumber);
+      }
+
+      function renderTeamScore(data) {
+        const score = data || {};
+        currentScoringTeam = String(score.teamNumber || currentScoringTeam || "");
+        document.getElementById("team-score-title").textContent = "Team " + currentScoringTeam + " Score";
+        document.getElementById("team-score-updated-by").value = score.updatedBy || "";
+        document.getElementById("team-score-updated").textContent = score.updatedAt || "-";
+
+        const scores = Array.isArray(score.scores) ? score.scores : [];
+        for (let hole = 1; hole <= 18; hole++) {
+          const input = document.getElementById("team-hole-" + hole);
+          if (input) input.value = scores[hole - 1] || "";
+        }
+
+        updateTeamScoreSummary();
+        showTeamScoreStatus("Ready.", false);
+      }
+
+      function saveCurrentTeamScore() {
+        if (!currentScoringTeam) {
+          showTeamScoreStatus("No team number found.", true);
+          return;
+        }
+
+        const scores = getTeamScoreInputValues();
+        const updatedBy = document.getElementById("team-score-updated-by").value.trim();
+        showTeamScoreStatus("Saving...", false);
+
+        google.script.run
+          .withSuccessHandler(data => {
+            renderTeamScore(data);
+            loadLeaderboard();
+            showTeamScoreStatus("Saved. Leaderboard updated.", false);
+          })
+          .withFailureHandler(err => showTeamScoreStatus(err.message || "Could not save score.", true))
+          .saveTeamScore(currentScoringTeam, scores, updatedBy);
+      }
+
+      function getTeamScoreInputValues() {
+        return Array.from({ length: 18 }, (_, index) => {
+          const input = document.getElementById("team-hole-" + (index + 1));
+          return input ? input.value.trim() : "";
+        });
+      }
+
+      function updateTeamScoreSummary() {
+        const scores = getTeamScoreInputValues();
+        const numericScores = scores
+          .map(value => Number(value))
+          .filter(value => Number.isInteger(value) && value > 0);
+
+        document.getElementById("team-score-thru").textContent = String(numericScores.length);
+        document.getElementById("team-score-strokes").textContent = String(numericScores.reduce((sum, value) => sum + value, 0));
+      }
+
+      function showTeamScoreStatus(text, isError) {
+        const status = document.getElementById("team-score-status");
+        status.textContent = text;
+        status.classList.toggle("error", Boolean(isError));
+      }
+
       document.addEventListener("input", e => {
         if (e.target.id !== "chat-name") return;
 
@@ -834,6 +1565,17 @@
         if (e.target.id === "chat-text" && e.key === "Enter") {
           e.preventDefault();
           sendMessage();
+        }
+
+        if (e.key === "Escape") {
+          closePageMenu();
+        }
+      });
+
+      document.addEventListener("click", e => {
+        const nav = document.getElementById("page-nav");
+        if (nav && !nav.contains(e.target)) {
+          closePageMenu();
         }
       });
 
@@ -1049,17 +1791,35 @@
 
       /* INIT */
       initState();
+      document.getElementById("trip-calendar-button").href = buildTripCalendarDataUrl();
       buildChannelDrawer();
       loadEvents();
       loadNames();
       loadChat();
       loadLeaderboard();
+      loadBookingProgress();
+      loadGolfers();
+      loadGallery();
+      if (INITIAL_TEAM_NUMBER) {
+        openTeamScore(INITIAL_TEAM_NUMBER);
+      } else {
+        updatePageMenu("home");
+      }
       setInterval(() => {
         if (isChatVisible()) loadChat();
       }, 8000);
       setInterval(() => {
         if (document.getElementById("leaderboard").style.display !== "none") loadLeaderboard();
       }, 15000);
+      setInterval(() => {
+        if (document.getElementById("booking").style.display !== "none") loadBookingProgress();
+      }, 30000);
+      setInterval(() => {
+        if (document.getElementById("golfers").style.display !== "none") loadGolfers();
+      }, 30000);
+      setInterval(() => {
+        if (document.getElementById("gallery").style.display !== "none") loadGallery();
+      }, 45000);
     </script>
 
   </body>
