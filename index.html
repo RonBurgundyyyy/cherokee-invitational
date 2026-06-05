@@ -498,6 +498,18 @@
         "team-score": "Team Score"
       };
 
+      const BONUS_BADGES = [
+        { key: "fireball3", label: "Fireball 3", hole: 3 },
+        { key: "fireball5", label: "Fireball 5", hole: 5 },
+        { key: "fireball7", label: "Fireball 7", hole: 7 },
+        { key: "ctp9", label: "9 CTP", hole: 9 },
+        { key: "fireball10", label: "Fireball 10", hole: 10 },
+        { key: "fireball12", label: "Fireball 12", hole: 12 },
+        { key: "longDrive14", label: "14 Long Drive", hole: 14 },
+        { key: "fireball16", label: "Fireball 16", hole: 16 },
+        { key: "happy18", label: "18 Happy", hole: 18 }
+      ];
+
       /* PAGE SWITCHING */
       function showPage(page) {
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
@@ -1459,6 +1471,21 @@
 
           field.appendChild(label);
           field.appendChild(input);
+
+          const badge = getBonusBadgeForHole(hole);
+          if (badge) {
+            field.classList.add("team-score-bonus-hole");
+
+            const badgeButton = document.createElement("button");
+            badgeButton.type = "button";
+            badgeButton.className = "team-badge-toggle";
+            badgeButton.dataset.badgeKey = badge.key;
+            badgeButton.dataset.badgeLabel = badge.label;
+            badgeButton.textContent = "Badge: " + badge.label;
+            badgeButton.onclick = () => toggleTeamBadge(badgeButton);
+            field.appendChild(badgeButton);
+          }
+
           grid.appendChild(field);
         }
       }
@@ -1486,6 +1513,7 @@
           const input = document.getElementById("team-hole-" + hole);
           if (input) input.value = scores[hole - 1] || "";
         }
+        setTeamBadgeValues(score.badges || {});
 
         updateTeamScoreSummary();
         showTeamScoreStatus("Ready.", false);
@@ -1498,6 +1526,7 @@
         }
 
         const scores = getTeamScoreInputValues();
+        const badges = getTeamBadgeValues();
         const updatedBy = document.getElementById("team-score-updated-by").value.trim();
         showTeamScoreStatus("Saving...", false);
 
@@ -1508,7 +1537,7 @@
             showTeamScoreStatus("Saved. Leaderboard updated.", false);
           })
           .withFailureHandler(err => showTeamScoreStatus(err.message || "Could not save score.", true))
-          .saveTeamScore(currentScoringTeam, scores, updatedBy);
+          .saveTeamScore(currentScoringTeam, scores, updatedBy, badges);
       }
 
       function getTeamScoreInputValues() {
@@ -1526,6 +1555,33 @@
 
         document.getElementById("team-score-thru").textContent = String(numericScores.length);
         document.getElementById("team-score-strokes").textContent = String(numericScores.reduce((sum, value) => sum + value, 0));
+      }
+
+      function getBonusBadgeForHole(hole) {
+        return BONUS_BADGES.find(badge => badge.hole === hole) || null;
+      }
+
+      function toggleTeamBadge(button) {
+        const isEarned = button.classList.toggle("earned");
+        button.setAttribute("aria-pressed", isEarned ? "true" : "false");
+        button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel;
+      }
+
+      function setTeamBadgeValues(badges) {
+        document.querySelectorAll(".team-badge-toggle").forEach(button => {
+          const isEarned = Boolean(badges[button.dataset.badgeKey]);
+          button.classList.toggle("earned", isEarned);
+          button.setAttribute("aria-pressed", isEarned ? "true" : "false");
+          button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel;
+        });
+      }
+
+      function getTeamBadgeValues() {
+        const badges = {};
+        document.querySelectorAll(".team-badge-toggle").forEach(button => {
+          badges[button.dataset.badgeKey] = button.classList.contains("earned");
+        });
+        return badges;
       }
 
       function showTeamScoreStatus(text, isError) {

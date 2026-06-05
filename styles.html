@@ -1153,6 +1153,11 @@
     padding: 10px;
   }
 
+  .team-score-bonus-hole {
+    border-color: rgba(0, 255, 102, 0.42);
+    box-shadow: inset 0 0 0 1px rgba(0, 255, 102, 0.08);
+  }
+
   .team-score-hole span {
     color: var(--neon);
     display: block;
@@ -1174,6 +1179,27 @@
     padding: 10px 8px;
     text-align: center;
     width: 100%;
+  }
+
+  .team-badge-toggle {
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.34);
+    border-radius: 999px;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 900;
+    margin-top: 8px;
+    padding: 7px 8px;
+    text-transform: uppercase;
+    width: 100%;
+  }
+
+  .team-badge-toggle.earned {
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.92), rgba(255, 215, 0, 0.86));
+    border-color: rgba(0, 255, 102, 0.62);
+    color: #061006;
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.24);
   }
 
   .team-score-actions {
@@ -2250,6 +2276,11 @@
     .team-score-hole input {
       font-size: 22px;
       padding: 9px 6px;
+    }
+
+    .team-badge-toggle {
+      font-size: 10px;
+      padding: 6px 5px;
     }
 
     .team-score-actions button {

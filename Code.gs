@@ -65,6 +65,18 @@ const LEADERBOARD_HEADERS = [
   "Badges Owned"
 ];
 
+const BONUS_BADGES = [
+  { key: "fireball3", label: "Fireball 3", hole: 3 },
+  { key: "fireball5", label: "Fireball 5", hole: 5 },
+  { key: "fireball7", label: "Fireball 7", hole: 7 },
+  { key: "ctp9", label: "9 CTP", hole: 9 },
+  { key: "fireball10", label: "Fireball 10", hole: 10 },
+  { key: "fireball12", label: "Fireball 12", hole: 12 },
+  { key: "longDrive14", label: "14 Long Drive", hole: 14 },
+  { key: "fireball16", label: "Fireball 16", hole: 16 },
+  { key: "happy18", label: "18 Happy", hole: 18 }
+];
+
 const TEAM_SCORE_HEADERS = [
   "Timestamp",
   "Team #",
@@ -88,7 +100,8 @@ const TEAM_SCORE_HEADERS = [
   "Hole 17",
   "Hole 18",
   "Thru",
-  "Strokes"
+  "Strokes",
+  ...BONUS_BADGES.map(badge => badge.label)
 ];
 
 const BOOKING_HEADERS = [
@@ -223,6 +236,7 @@ function getTeamScore(teamNumber) {
       teamNumber: cleanTeamNumber,
       updatedBy: "",
       scores: Array(18).fill(""),
+      badges: {},
       thru: "0",
       strokes: "0",
       updatedAt: ""
@@ -234,13 +248,14 @@ function getTeamScore(teamNumber) {
     teamNumber: cleanTeamNumber,
     updatedBy: cleanText_(row[2], 80),
     scores: row.slice(3, 21).map(value => cleanText_(value, 4)),
+    badges: readBadgeValues_(row),
     thru: cleanText_(row[21], 10) || "0",
     strokes: cleanText_(row[22], 10) || "0",
     updatedAt: cleanText_(row[0], 80)
   };
 }
 
-function saveTeamScore(teamNumber, scores, updatedBy) {
+function saveTeamScore(teamNumber, scores, updatedBy, badges) {
   const cleanTeamNumber = cleanTeamNumber_(teamNumber);
   if (!cleanTeamNumber) {
     throw new Error("Unknown team number.");
@@ -248,6 +263,8 @@ function saveTeamScore(teamNumber, scores, updatedBy) {
 
   const cleanUpdatedBy = cleanText_(updatedBy, 80);
   const cleanScores = normalizeScores_(scores);
+  const cleanBadges = normalizeBadges_(badges);
+  const badgesOwned = badgeLabels_(cleanBadges).join(", ");
   const thru = cleanScores.filter(score => score !== "").length;
   const strokes = cleanScores.reduce((sum, score) => sum + (score === "" ? 0 : Number(score)), 0);
   const lock = LockService.getDocumentLock();
@@ -261,7 +278,8 @@ function saveTeamScore(teamNumber, scores, updatedBy) {
       cleanUpdatedBy,
       ...cleanScores,
       thru,
-      strokes
+      strokes,
+      ...BONUS_BADGES.map(badge => cleanBadges[badge.key] ? "Yes" : "")
     ];
     const rowIndex = findTeamScoreRow_(scoreSheet, cleanTeamNumber);
 
@@ -271,7 +289,7 @@ function saveTeamScore(teamNumber, scores, updatedBy) {
       scoreSheet.appendRow(scoreRow);
     }
 
-    updateLeaderboardScore_(cleanTeamNumber, thru, strokes);
+    updateLeaderboardScore_(cleanTeamNumber, thru, strokes, badgesOwned);
   } finally {
     lock.releaseLock();
   }
@@ -280,6 +298,7 @@ function saveTeamScore(teamNumber, scores, updatedBy) {
     teamNumber: cleanTeamNumber,
     updatedBy: cleanUpdatedBy,
     scores: cleanScores,
+    badges: cleanBadges,
     thru: String(thru),
     strokes: String(strokes)
   };
@@ -580,6 +599,27 @@ function normalizeScores_(scores) {
   });
 }
 
+function normalizeBadges_(badges) {
+  const source = badges && typeof badges === "object" ? badges : {};
+  return BONUS_BADGES.reduce((result, badge) => {
+    result[badge.key] = source[badge.key] === true || source[badge.key] === "true" || source[badge.key] === "Yes";
+    return result;
+  }, {});
+}
+
+function readBadgeValues_(row) {
+  return BONUS_BADGES.reduce((result, badge, index) => {
+    result[badge.key] = isYes_(row[23 + index]);
+    return result;
+  }, {});
+}
+
+function badgeLabels_(badges) {
+  return BONUS_BADGES
+    .filter(badge => badges[badge.key])
+    .map(badge => badge.label);
+}
+
 function findTeamScoreRow_(sheet, teamNumber) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return 0;
@@ -589,7 +629,7 @@ function findTeamScoreRow_(sheet, teamNumber) {
   return index === -1 ? 0 : index + 2;
 }
 
-function updateLeaderboardScore_(teamNumber, thru, strokes) {
+function updateLeaderboardScore_(teamNumber, thru, strokes, badgesOwned) {
   const sheet = getSheet_("Leaderboard", LEADERBOARD_HEADERS);
   const lastRow = sheet.getLastRow();
   let targetRow = 0;
@@ -601,13 +641,14 @@ function updateLeaderboardScore_(teamNumber, thru, strokes) {
   }
 
   if (!targetRow) {
-    sheet.appendRow(["Team " + teamNumber, "", thru, strokes, strokes, ""]);
+    sheet.appendRow(["Team " + teamNumber, "", thru, strokes, strokes, badgesOwned]);
     return;
   }
 
   sheet.getRange(targetRow, 3).setValue(thru);
   sheet.getRange(targetRow, 4).setValue(strokes);
   sheet.getRange(targetRow, 5).setValue(strokes);
+  sheet.getRange(targetRow, 6).setValue(badgesOwned);
 }
 
 function cleanLeaderboardTeamNumber_(value) {
