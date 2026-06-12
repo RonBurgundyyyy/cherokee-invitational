@@ -641,6 +641,50 @@
     margin-bottom: 1rem;
   }
 
+  .pricing-topline {
+    margin-bottom: 18px;
+  }
+
+  .pricing-hero-card {
+    background:
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.24), transparent 34%),
+      linear-gradient(135deg, rgba(0, 255, 102, 0.14), rgba(255, 215, 0, 0.08)),
+      #07100a;
+    border: 1px solid rgba(255, 215, 0, 0.42);
+    border-radius: 16px;
+    box-shadow:
+      0 0 28px rgba(255, 215, 0, 0.18),
+      0 0 20px rgba(0, 255, 102, 0.12);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .pricing-hero-card span {
+    color: var(--neon);
+    display: block;
+    font-size: 15px;
+    font-weight: 950;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .pricing-hero-card strong {
+    color: var(--gold);
+    display: block;
+    font-size: clamp(42px, 8vw, 76px);
+    line-height: 1;
+    margin-top: 8px;
+    text-shadow: 0 0 18px rgba(255, 215, 0, 0.5);
+  }
+
+  .pricing-hero-card small {
+    color: #e8e8e8;
+    display: block;
+    font-size: 17px;
+    font-weight: 800;
+    margin-top: 10px;
+  }
+
   .booking-summary {
     display: grid;
     gap: 12px;
@@ -2198,6 +2242,14 @@
 
     .booking-summary {
       grid-template-columns: 1fr;
+    }
+
+    .pricing-hero-card {
+      padding: 16px;
+    }
+
+    .pricing-hero-card small {
+      font-size: 14px;
     }
 
     .booking-grid {
