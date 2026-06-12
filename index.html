@@ -1087,13 +1087,13 @@
         card.className = "pricing-hero-card";
 
         const label = document.createElement("span");
-        label.textContent = "Price Per Person";
+        label.textContent = "Price Per Person*";
 
         const value = document.createElement("strong");
         value.textContent = summary.pricePerPerson || "-";
 
         const detail = document.createElement("small");
-        detail.textContent = "Current estimated total for the trip.";
+        detail.textContent = "*Assumes you are splitting a room with one other person for two nights.";
 
         card.appendChild(label);
         card.appendChild(value);
