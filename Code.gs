@@ -255,7 +255,7 @@ function getItineraryEvents() {
     .getValues()
     .map(row => ({
       date: formatDateValue_(row[0]),
-      time: cleanText_(row[1], 40),
+      time: formatItineraryTimeValue_(row[1]),
       title: cleanText_(row[2], 120),
       location: cleanText_(row[3], 180),
       notes: cleanText_(row[4], 260),
@@ -833,6 +833,13 @@ function formatTimeValue_(value) {
 function formatDateValue_(value) {
   if (value instanceof Date) {
     return Utilities.formatDate(value, Session.getScriptTimeZone(), "M/d/yyyy");
+  }
+  return cleanText_(value, 40);
+}
+
+function formatItineraryTimeValue_(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), "h:mm a");
   }
   return cleanText_(value, 40);
 }
