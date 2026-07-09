@@ -1,46 +1,4573 @@
 <!doctype html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="0; url=https://script.google.com/macros/s/AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F/exec">
-    <title>Cherokee Invitational</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <script>
-      window.location.replace("https://script.google.com/macros/s/AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F/exec");
-    </script>
     <style>
-      html,
-      body {
-        align-items: center;
-        background: #000;
-        color: #fff;
-        display: flex;
-        font-family: Arial, sans-serif;
-        height: 100%;
-        justify-content: center;
-        margin: 0;
-        padding: 0;
-        text-align: center;
+  :root {
+    --gold: #ffd700;
+    --neon: #00ff66;
+    --chat-bg: #101010;
+    --chat-panel: #151515;
+    --chat-sidebar: #07140b;
+    --chat-text: #ffffff;
+    --chat-muted: #a8a8a8;
+  }
+
+  html {
+    background: #000;
+    color: #fff;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 24px;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    padding: 0;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .banner img {
+    display: block;
+    height: auto;
+    max-height: 320px;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .content {
+    box-sizing: border-box;
+    margin: 0;
+    max-width: 100%;
+    padding: 16px;
+    width: 100%;
+  }
+
+  .content:has(#chat:not([style*="display:none"])) {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: calc(100vh - 420px);
+    padding-bottom: 0;
+  }
+
+  body.chat-active .content {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: calc(100vh - 420px);
+    padding-bottom: 0;
+  }
+
+  .hero {
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  .hero h1 {
+    color: var(--gold);
+    font-size: 38px;
+    margin: 0;
+    text-shadow: 0 0 12px var(--gold);
+  }
+
+  .hero p {
+    color: var(--neon);
+    font-size: 18px;
+    margin: 0.4rem 0 0;
+    text-shadow: 0 0 10px var(--neon);
+  }
+
+  .events-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1fr;
+  }
+
+  .events-loading {
+    color: var(--chat-muted);
+    font-size: 1rem;
+    padding: 1rem 0;
+  }
+
+  .event-card {
+    background: #101010;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 8px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .event-image-wrap {
+    aspect-ratio: 16 / 9;
+    background: #171717;
+    overflow: hidden;
+  }
+
+  .event-image {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .event-image-missing {
+    background:
+      linear-gradient(135deg, rgba(0, 255, 102, 0.25), rgba(255, 215, 0, 0.22)),
+      #151515;
+  }
+
+  .event-card-body {
+    padding: 18px;
+  }
+
+  .event-meta {
+    color: var(--neon);
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .event-card h2 {
+    color: #fff;
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 0 0 8px;
+  }
+
+  .event-location {
+    color: var(--gold);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .event-card p {
+    color: #ddd;
+    font-size: 20px;
+    line-height: 1.35;
+    margin: 0 0 14px;
+  }
+
+  .event-type {
+    background: rgba(255, 215, 0, 0.14);
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 999px;
+    color: var(--gold);
+    display: inline-flex;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 4px 10px;
+    text-transform: uppercase;
+  }
+
+  .event-actions {
+    margin-top: 18px;
+  }
+
+  .trip-calendar-actions {
+    margin: 22px 0 6px;
+  }
+
+  .trip-calendar-button {
+    text-transform: uppercase;
+  }
+
+  .calendar-button {
+    align-items: center;
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border-radius: 8px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.45);
+    color: #000;
+    display: flex;
+    font-size: 22px;
+    font-weight: 900;
+    justify-content: center;
+    padding: 14px 16px;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .calendar-button:active,
+  .calendar-button:hover {
+    filter: brightness(1.08);
+  }
+
+  .rules-layout {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1fr;
+  }
+
+  .rules-card {
+    background:
+      linear-gradient(135deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.04)),
+      #101010;
+    border: 1px solid rgba(255, 215, 0, 0.26);
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.14);
+    overflow: hidden;
+    padding: 22px;
+  }
+
+  .rules-kicker {
+    color: var(--neon);
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .rules-card h2 {
+    color: #fff;
+    font-size: 34px;
+    line-height: 1.1;
+    margin: 8px 0 10px;
+  }
+
+  .rules-card p,
+  .rules-list {
+    color: #e8e8e8;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .rules-pot h2 {
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+
+  .bonus-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .bonus-item {
+    align-items: start;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 68px minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .bonus-item > span {
+    align-items: center;
+    border-radius: 999px;
+    color: #061006;
+    display: flex;
+    font-size: 24px;
+    font-weight: 950;
+    height: 58px;
+    justify-content: center;
+    width: 58px;
+  }
+
+  .bonus-item strong {
+    color: #fff;
+    display: block;
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .bonus-item p {
+    color: var(--chat-muted);
+    font-size: 20px;
+    margin-top: 4px;
+  }
+
+  .bonus-blue > span,
+  .legend-dot.bonus-blue {
+    background: #38d9ff;
+  }
+
+  .bonus-green > span,
+  .legend-dot.bonus-green,
+  .scorecard .ctp-hole {
+    background: #00ff66;
+    color: #001f0d;
+  }
+
+  .bonus-purple > span,
+  .legend-dot.bonus-purple,
+  .scorecard .long-drive-hole {
+    background: #9b5cff;
+    color: #fff;
+  }
+
+  .bonus-yellow > span,
+  .legend-dot.bonus-yellow,
+  .scorecard .happy-hole {
+    background: #ffd700;
+    color: #181300;
+  }
+
+  .bonus-red > span,
+  .legend-dot.bonus-red,
+  .scorecard .fireball-hole {
+    background: #ff3030;
+    color: #fff;
+  }
+
+  .rules-list {
+    padding-left: 1.1rem;
+  }
+
+  .rules-list li + li {
+    margin-top: 12px;
+  }
+
+  .scorecard-card {
+    margin-top: 18px;
+    padding: 0;
+  }
+
+  .scorecard-header {
+    align-items: start;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .scorecard-legend {
+    color: #ddd;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 18px;
+    font-weight: 800;
+    gap: 10px 14px;
+  }
+
+  .legend-dot {
+    border-radius: 999px;
+    display: inline-block;
+    height: 18px;
+    margin-right: -8px;
+    width: 18px;
+  }
+
+  .scorecard-scroll {
+    overflow-x: auto;
+    padding: 0 0 18px;
+  }
+
+  .scorecard {
+    border-collapse: collapse;
+    min-width: 980px;
+    width: 100%;
+  }
+
+  .scorecard th,
+  .scorecard td {
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    font-size: 19px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+
+  .scorecard th {
+    background: rgba(255, 215, 0, 0.12);
+    color: var(--gold);
+    font-weight: 900;
+  }
+
+  .scorecard tbody th {
+    color: #fff;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+
+  .scorecard td {
+    background: rgba(0, 0, 0, 0.35);
+    color: #eee;
+  }
+
+  .leaderboard-hero {
+    margin-bottom: 1rem;
+  }
+
+  .leaderboard-broadcast {
+    background:
+      linear-gradient(180deg, rgba(255, 215, 0, 0.08), rgba(0, 255, 102, 0.04)),
+      #070907;
+    border: 1px solid rgba(255, 215, 0, 0.32);
+    border-radius: 14px;
+    box-shadow:
+      0 0 26px rgba(0, 255, 102, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+
+  .leaderboard-topbar {
+    align-items: center;
+    background:
+      linear-gradient(90deg, #07140b, #0f2a13 48%, #1d1600),
+      #111;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.65);
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 22px;
+  }
+
+  .leaderboard-topbar strong {
+    color: #fff;
+    display: block;
+    font-size: 32px;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .broadcast-label {
+    color: var(--gold);
+    display: block;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .broadcast-live {
+    background: #e81725;
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(232, 23, 37, 0.65);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    padding: 8px 14px;
+    text-transform: uppercase;
+  }
+
+  .leaderboard-table-wrap {
+    overflow-x: auto;
+  }
+
+  .leaderboard-table {
+    border-collapse: collapse;
+    min-width: 940px;
+    width: 100%;
+  }
+
+  .leaderboard-table th {
+    background: #ece8d7;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    color: #121212;
+    font-size: 17px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    padding: 10px 12px;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .leaderboard-table td {
+    background: rgba(11, 17, 12, 0.94);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f8f8f8;
+    font-size: 24px;
+    font-weight: 800;
+    padding: 15px 12px;
+    vertical-align: middle;
+  }
+
+  .leaderboard-table tr:nth-child(even) td {
+    background: rgba(18, 28, 20, 0.96);
+  }
+
+  .leaderboard-table .leader-row td {
+    background:
+      linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(0, 255, 102, 0.08)),
+      #14210f;
+    box-shadow: inset 0 1px 0 rgba(255, 215, 0, 0.35);
+  }
+
+  .leaderboard-table .pos {
+    color: var(--gold);
+    font-size: 26px;
+    width: 70px;
+  }
+
+  .leaderboard-table .team {
+    color: #fff;
+    min-width: 180px;
+  }
+
+  .leaderboard-table .total {
+    background: #f5f0d9;
+    color: #09120b;
+    font-size: 30px;
+    text-align: center;
+    width: 100px;
+  }
+
+  .leaderboard-table .leader-row .total {
+    background: var(--gold);
+    color: #080800;
+  }
+
+  .leaderboard-table .thru,
+  .leaderboard-table .strokes,
+  .leaderboard-table .base {
+    color: #dce6dc;
+    text-align: center;
+    width: 110px;
+  }
+
+  .badges-cell {
+    min-width: 250px;
+  }
+
+  .badge-rail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge-pill {
+    background: rgba(0, 255, 102, 0.12);
+    border: 1px solid rgba(0, 255, 102, 0.38);
+    border-radius: 999px;
+    color: var(--neon);
+    font-size: 16px;
+    font-weight: 900;
+    padding: 6px 10px;
+    text-transform: uppercase;
+  }
+
+  .empty-badge {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--chat-muted);
+  }
+
+  .leaderboard-mobile {
+    display: none;
+  }
+
+  .leaderboard-card,
+  .leaderboard-empty {
+    background: rgba(13, 18, 14, 0.96);
+    border: 1px solid rgba(255, 215, 0, 0.24);
+    border-radius: 12px;
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.12);
+    padding: 16px;
+  }
+
+  .leader-card {
+    border-color: rgba(255, 215, 0, 0.75);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.22);
+  }
+
+  .leaderboard-card-top {
+    align-items: center;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 44px minmax(0, 1fr) 82px;
+  }
+
+  .leaderboard-position {
+    align-items: center;
+    background: var(--gold);
+    border-radius: 8px;
+    color: #0a0a0a;
+    display: flex;
+    font-size: 24px;
+    font-weight: 950;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
+  }
+
+  .leaderboard-team {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 950;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .leaderboard-total {
+    background: #f5f0d9;
+    border-radius: 8px;
+    color: #09120b;
+    font-size: 30px;
+    font-weight: 950;
+    padding: 8px 0;
+    text-align: center;
+  }
+
+  .leaderboard-stats {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 14px 0;
+  }
+
+  .leaderboard-stat {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  .leaderboard-stat span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .leaderboard-stat strong {
+    color: #fff;
+    display: block;
+    font-size: 24px;
+    margin-top: 2px;
+  }
+
+  .leaderboard-card-badges {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 12px;
+  }
+
+  .booking-hero {
+    margin-bottom: 1rem;
+  }
+
+  .pricing-topline {
+    margin-bottom: 18px;
+  }
+
+  .pricing-hero-card {
+    background:
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.24), transparent 34%),
+      linear-gradient(135deg, rgba(0, 255, 102, 0.14), rgba(255, 215, 0, 0.08)),
+      #07100a;
+    border: 1px solid rgba(255, 215, 0, 0.42);
+    border-radius: 16px;
+    box-shadow:
+      0 0 28px rgba(255, 215, 0, 0.18),
+      0 0 20px rgba(0, 255, 102, 0.12);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .pricing-hero-card span {
+    color: var(--neon);
+    display: block;
+    font-size: 15px;
+    font-weight: 950;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .pricing-hero-card strong {
+    color: var(--gold);
+    display: block;
+    font-size: clamp(42px, 8vw, 76px);
+    line-height: 1;
+    margin-top: 8px;
+    text-shadow: 0 0 18px rgba(255, 215, 0, 0.5);
+  }
+
+  .pricing-hero-card small {
+    color: #e8e8e8;
+    display: block;
+    font-size: 17px;
+    font-weight: 800;
+    margin-top: 10px;
+  }
+
+  .booking-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    margin-bottom: 18px;
+  }
+
+  .booking-stat {
+    background:
+      linear-gradient(135deg, rgba(0, 255, 102, 0.13), rgba(255, 215, 0, 0.08)),
+      #0a0f0b;
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    padding: 16px;
+  }
+
+  .booking-stat span,
+  .booking-meta span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .booking-stat strong {
+    color: var(--gold);
+    display: block;
+    font-size: 30px;
+    line-height: 1.1;
+    margin-top: 6px;
+  }
+
+  .booking-stat small {
+    color: var(--neon);
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+
+  .booking-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .booking-card {
+    background:
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(0, 255, 102, 0.06), rgba(255, 215, 0, 0.03)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    overflow: hidden;
+    padding: 18px;
+  }
+
+  .booking-card-secured {
+    border-color: rgba(0, 255, 102, 0.55);
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.18);
+  }
+
+  .booking-card-header {
+    align-items: start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .booking-card h2 {
+    color: #fff;
+    font-size: 26px;
+    line-height: 1.1;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .booking-meter-label {
+    background: var(--gold);
+    border-radius: 999px;
+    color: #061006;
+    flex: 0 0 auto;
+    font-size: 16px;
+    font-weight: 950;
+    padding: 6px 10px;
+  }
+
+  .booking-progress {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    height: 10px;
+    margin: 14px 0;
+    overflow: hidden;
+  }
+
+  .booking-progress span {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    display: block;
+    height: 100%;
+  }
+
+  .booking-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .booking-step {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: var(--chat-muted);
+    font-size: 13px;
+    font-weight: 900;
+    padding: 6px 9px;
+    text-transform: uppercase;
+  }
+
+  .booking-step-complete {
+    background: rgba(0, 255, 102, 0.13);
+    border-color: rgba(0, 255, 102, 0.48);
+    color: var(--neon);
+  }
+
+  .booking-update {
+    color: #e8e8e8;
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 16px 0;
+  }
+
+  .booking-meta {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .booking-meta div {
+    background: rgba(255, 255, 255, 0.055);
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .booking-meta strong {
+    color: #fff;
+    display: block;
+    font-size: 18px;
+    line-height: 1.15;
+    margin-top: 4px;
+  }
+
+  .booking-contract-link {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border-radius: 10px;
+    color: #061006;
+    display: flex;
+    font-size: 17px;
+    font-weight: 950;
+    justify-content: center;
+    margin-top: 16px;
+    padding: 12px;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .booking-loading {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 12px;
+    color: var(--chat-muted);
+    font-size: 20px;
+    padding: 18px;
+  }
+
+  .golfers-hero {
+    margin-bottom: 1rem;
+  }
+
+  .golfers-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin-bottom: 18px;
+  }
+
+  .golfer-stat {
+    background:
+      linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(0, 255, 102, 0.08)),
+      #0a0f0b;
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    border-radius: 12px;
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.1);
+    padding: 16px;
+  }
+
+  .golfer-stat span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .golfer-stat strong {
+    color: var(--gold);
+    display: block;
+    font-size: 34px;
+    line-height: 1;
+    margin-top: 8px;
+  }
+
+  .golfer-stat small {
+    color: var(--neon);
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+
+  .golfers-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .golfer-card {
+    background:
+      radial-gradient(circle at top left, rgba(0, 255, 102, 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(255, 215, 0, 0.06), rgba(0, 255, 102, 0.03)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    padding: 18px;
+  }
+
+  .golfer-card-header {
+    align-items: start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .golfer-card h2 {
+    color: #fff;
+    font-size: 27px;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  .golfer-handicap {
+    background: var(--gold);
+    border-radius: 12px;
+    color: #061006;
+    flex: 0 0 auto;
+    min-width: 58px;
+    padding: 7px 9px;
+    text-align: center;
+  }
+
+  .golfer-handicap span {
+    display: block;
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+  }
+
+  .golfer-handicap strong {
+    display: block;
+    font-size: 24px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .golfer-commitments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .golfer-commitment {
+    background: rgba(0, 255, 102, 0.13);
+    border: 1px solid rgba(0, 255, 102, 0.42);
+    border-radius: 999px;
+    color: var(--neon);
+    font-size: 14px;
+    font-weight: 900;
+    padding: 7px 10px;
+    text-transform: uppercase;
+  }
+
+  .golfers-loading {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 12px;
+    color: var(--chat-muted);
+    font-size: 20px;
+    padding: 18px;
+  }
+
+  .gallery-hero {
+    margin-bottom: 1rem;
+  }
+
+  .gallery-upload-panel {
+    background:
+      radial-gradient(circle at top right, rgba(0, 255, 102, 0.16), transparent 34%),
+      linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 255, 102, 0.05)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    border-radius: 14px;
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.14);
+    display: grid;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 18px;
+  }
+
+  .gallery-upload-panel h2 {
+    color: #fff;
+    font-size: 30px;
+    line-height: 1.1;
+    margin: 6px 0 8px;
+  }
+
+  .gallery-upload-panel p {
+    color: #ddd;
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .gallery-upload-form {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 120px;
+  }
+
+  .gallery-upload-form input,
+  .gallery-upload-form select {
+    background: #151515;
+    border: 1px solid rgba(255, 215, 0, 0.24);
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 18px;
+    min-width: 0;
+    padding: 13px 14px;
+  }
+
+  .gallery-upload-form input[type="file"] {
+    grid-column: 1 / -1;
+  }
+
+  .gallery-upload-form button {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border: 0;
+    border-radius: 10px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.36);
+    color: #061006;
+    cursor: pointer;
+    font-size: 19px;
+    font-weight: 950;
+    grid-column: 1 / -1;
+    padding: 14px;
+    text-transform: uppercase;
+  }
+
+  .gallery-upload-status {
+    color: var(--neon);
+    font-size: 16px;
+    font-weight: 800;
+    min-height: 20px;
+  }
+
+  .gallery-upload-status.error {
+    color: #ff6666;
+  }
+
+  .gallery-grid {
+    column-count: 3;
+    column-gap: 14px;
+  }
+
+  .gallery-card {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.12);
+    break-inside: avoid;
+    margin: 0 0 14px;
+    overflow: hidden;
+  }
+
+  .gallery-photo {
+    background: #171717;
+    display: block;
+    height: auto;
+    width: 100%;
+  }
+
+  .gallery-card-body {
+    padding: 14px;
+  }
+
+  .gallery-meta {
+    color: var(--neon);
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .gallery-card p {
+    color: #fff;
+    font-size: 18px;
+    line-height: 1.3;
+    margin: 6px 0 0;
+  }
+
+  .gallery-loading {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 12px;
+    color: var(--chat-muted);
+    font-size: 20px;
+    padding: 18px;
+  }
+
+  .team-score-hero {
+    margin-bottom: 1rem;
+  }
+
+  .team-score-panel {
+    background:
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.16), transparent 34%),
+      linear-gradient(135deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.05)),
+      #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.14);
+    padding: 18px;
+  }
+
+  .team-score-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 16px;
+  }
+
+  .team-score-summary article {
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 215, 0, 0.18);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .team-score-summary span,
+  .team-score-scorer span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .team-score-summary strong {
+    color: var(--gold);
+    display: block;
+    font-size: 32px;
+    line-height: 1.05;
+    margin-top: 6px;
+  }
+
+  .team-score-scorer {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .team-score-scorer input {
+    background: #151515;
+    border: 1px solid rgba(255, 215, 0, 0.24);
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 20px;
+    margin-top: 8px;
+    padding: 13px 14px;
+    width: 100%;
+  }
+
+  .team-score-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .team-score-hole {
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 215, 0, 0.18);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .team-score-bonus-hole {
+    border-color: rgba(0, 255, 102, 0.42);
+    box-shadow: inset 0 0 0 1px rgba(0, 255, 102, 0.08);
+  }
+
+  .team-score-hole span {
+    color: var(--neon);
+    display: block;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .team-score-hole input {
+    background: #070707;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 900;
+    padding: 10px 8px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .team-badge-toggle {
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.34);
+    border-radius: 999px;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 900;
+    margin-top: 8px;
+    padding: 7px 8px;
+    text-transform: uppercase;
+    width: 100%;
+  }
+
+  .team-badge-toggle.earned {
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.92), rgba(255, 215, 0, 0.86));
+    border-color: rgba(0, 255, 102, 0.62);
+    color: #061006;
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.24);
+  }
+
+  .team-score-actions {
+    margin-top: 16px;
+  }
+
+  .team-score-actions button {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.42);
+    color: #061006;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 950;
+    padding: 16px;
+    text-transform: uppercase;
+    width: 100%;
+  }
+
+  #team-score-status {
+    color: var(--neon);
+    font-size: 16px;
+    font-weight: 800;
+    margin-top: 10px;
+    min-height: 20px;
+  }
+
+  #team-score-status.error {
+    color: #ff6666;
+  }
+
+  .panel {
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+    padding: 1.2rem;
+  }
+
+  .panel h2 {
+    color: var(--gold);
+    margin-top: 0;
+    text-shadow: 0 0 10px var(--gold);
+  }
+
+  .panel p {
+    line-height: 1.4;
+    margin: 0.4rem 0 0;
+  }
+
+  .nav {
+    background: #0a0a0a;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.25);
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.2);
+    display: flex;
+    justify-content: center;
+    padding: 0.65rem 14px;
+    position: relative;
+    z-index: 30;
+  }
+
+  .page-menu-toggle {
+    align-items: center;
+    background:
+      linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(0, 255, 102, 0.08)),
+      #111;
+    border: 1px solid rgba(255, 215, 0, 0.45);
+    border-radius: 999px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.24);
+    color: var(--gold);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 24px;
+    font-weight: 900;
+    gap: 12px;
+    justify-content: center;
+    min-width: min(320px, 86vw);
+    padding: 13px 22px;
+    text-shadow: 0 0 8px var(--gold);
+  }
+
+  .page-menu-toggle:hover {
+    color: var(--neon);
+    text-shadow: 0 0 10px var(--neon);
+  }
+
+  .page-menu-caret {
+    color: var(--neon);
+    font-size: 16px;
+    font-weight: 950;
+    text-shadow: 0 0 8px var(--neon);
+  }
+
+  .page-menu {
+    background:
+      linear-gradient(180deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.04)),
+      #080b08;
+    border: 1px solid rgba(255, 215, 0, 0.34);
+    border-radius: 18px;
+    box-shadow:
+      0 18px 34px rgba(0, 0, 0, 0.58),
+      0 0 20px rgba(0, 255, 102, 0.12);
+    display: none;
+    gap: 6px;
+    left: 50%;
+    max-width: min(360px, calc(100vw - 28px));
+    padding: 10px;
+    position: absolute;
+    top: calc(100% - 4px);
+    transform: translateX(-50%);
+    width: 100%;
+  }
+
+  .nav.open .page-menu {
+    display: grid;
+  }
+
+  .page-menu button {
+    background: transparent;
+    border: 0;
+    border-radius: 12px;
+    color: #f4f4f4;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 850;
+    padding: 13px 14px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .page-menu button:hover,
+  .page-menu button.active {
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.92), rgba(255, 215, 0, 0.86));
+    color: #061006;
+  }
+
+  .entry-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .form-row label {
+    color: var(--gold);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .entry-form input {
+    background: #0d0d0d;
+    border: 1px solid #333;
+    border-radius: 10px;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .form-section-title {
+    color: var(--neon);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    text-shadow: 0 0 10px var(--neon);
+  }
+
+  .checkbox-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .checkbox-item {
+    align-items: center;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.15);
+    color: var(--gold);
+    display: flex;
+    font-size: 0.95rem;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .checkbox-item input[type="checkbox"] {
+    accent-color: var(--neon);
+    height: 1.2rem;
+    width: 1.2rem;
+  }
+
+  .submit-btn {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 16px var(--gold);
+    color: #000;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    padding: 0.9rem;
+    transition: transform 0.15s ease;
+  }
+
+  .submit-btn:hover {
+    transform: scale(1.04);
+  }
+
+  #entry-status {
+    font-weight: 700;
+    margin-top: 0.5rem;
+    min-height: 1.2rem;
+  }
+
+  .chat-page {
+    box-sizing: border-box;
+    display: flex;
+    min-height: calc(100vh - 360px);
+    padding: 0;
+  }
+
+  .chat-shell {
+    background: var(--chat-bg);
+    border: 1px solid #242424;
+    border-radius: 8px;
+    display: grid;
+    font-size: 22px;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: calc(100vh - 360px);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .chat-sidebar {
+    background: var(--chat-sidebar);
+    border-right: 1px solid rgba(255, 215, 0, 0.22);
+    bottom: 0;
+    box-shadow: 12px 0 24px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    min-width: 0;
+    padding: 14px 10px;
+    position: absolute;
+    top: 0;
+    transition: margin-left 0.2s ease;
+    width: min(82vw, 320px);
+    z-index: 5;
+  }
+
+  .chat-sidebar:not(.open) {
+    margin-left: -320px;
+  }
+
+  .chat-workspace {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    padding: 4px 8px 14px;
+  }
+
+  .chat-sidebar-label {
+    color: var(--gold);
+    font-size: 16px;
+    font-weight: 700;
+    padding: 8px;
+    text-transform: uppercase;
+  }
+
+  .chat-sidebar-list,
+  .channel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .chat-main {
+    background: #101010;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .chat-header {
+    align-items: center;
+    background: #111;
+    border-bottom: 1px solid #242424;
+    display: flex;
+    justify-content: space-between;
+    min-height: 82px;
+    padding: 16px 18px;
+  }
+
+  .chat-header-left {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .chat-channel-name {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .chat-header-sub {
+    color: var(--chat-muted);
+    font-size: 20px;
+  }
+
+  .channel-toggle {
+    display: inline-flex;
+  }
+
+  .chat-header button {
+    background: #242424;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    box-shadow: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 22px;
+    padding: 14px 16px;
+    width: auto;
+  }
+
+  .chat-name-select {
+    border-bottom: 1px solid #242424;
+    padding: 10px 18px;
+    position: relative;
+  }
+
+  .chat-name-select input {
+    background: #151515;
+    border: 1px solid #333;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 26px;
+    padding: 18px 18px;
+    width: 100%;
+  }
+
+  .suggestions {
+    background: #151515;
+    border: 1px solid #333;
+    border-radius: 8px;
+    left: 18px;
+    max-height: 180px;
+    overflow-y: auto;
+    position: absolute;
+    right: 18px;
+    top: 54px;
+    z-index: 20;
+  }
+
+  .suggestion {
+    cursor: pointer;
+    font-size: 20px;
+    padding: 8px 12px;
+  }
+
+  .suggestion:hover {
+    background: #242424;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 18px;
+  }
+
+  .chat-message {
+    margin-bottom: 8px;
+  }
+
+  .chat-empty {
+    color: var(--chat-muted);
+    font-size: 24px;
+    padding: 12px 4px;
+  }
+
+  .chat-message-row,
+  .chat-reply-row {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 50px minmax(0, 1fr);
+    margin-bottom: 16px;
+  }
+
+  .chat-reply-row {
+    margin: 8px 0 0;
+  }
+
+  .chat-avatar {
+    align-items: center;
+    background: linear-gradient(135deg, #19c76f, #ffd700);
+    border-radius: 6px;
+    color: #061006;
+    display: flex;
+    font-size: 18px;
+    font-weight: 800;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+  }
+
+  .chat-bubble,
+  .chat-reply-bubble {
+    min-width: 0;
+  }
+
+  .chat-message-header {
+    align-items: baseline;
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .chat-user,
+  .chat-reply-user {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  .chat-text,
+  .chat-reply-text {
+    color: var(--chat-text);
+    font-size: 25px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .chat-meta,
+  .chat-reply-meta {
+    color: var(--chat-muted);
+    font-size: 18px;
+  }
+
+  .chat-reply-block {
+    border-left: 2px solid #333;
+    margin-left: 62px;
+    margin-top: 6px;
+    padding-left: 10px;
+  }
+
+  .chat-reply-button {
+    color: var(--chat-muted);
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .chat-reply-button:hover {
+    color: var(--neon);
+  }
+
+  .chat-input-bar {
+    align-items: center;
+    background: #111;
+    border-top: 1px solid #242424;
+    display: flex;
+    gap: 10px;
+    padding: 12px 18px;
+  }
+
+  .chat-input-bar input {
+    background: #151515;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    flex: 1;
+    font-size: 26px;
+    min-width: 0;
+    padding: 18px 18px;
+  }
+
+  .chat-input-bar button {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 0 10px var(--gold);
+    color: #000;
+    cursor: pointer;
+    font-size: 26px;
+    padding: 18px 20px;
+    width: auto;
+  }
+
+  .channel-drawer-backdrop {
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    inset: 0;
+    position: fixed;
+    z-index: 40;
+  }
+
+  .channel-drawer-backdrop.open {
+    display: block;
+  }
+
+  .channel-drawer {
+    background: var(--chat-sidebar);
+    border-right: 1px solid rgba(255, 215, 0, 0.22);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+    height: 100%;
+    left: 0;
+    padding: 60px 8px 0;
+    position: absolute;
+    top: 0;
+    width: 260px;
+  }
+
+  .drawer-title {
+    border-bottom: 1px solid rgba(255, 215, 0, 0.22);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 0 8px 10px;
+  }
+
+  .channel-list {
+    padding: 8px 0;
+  }
+
+  .channel-item {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: #ddd;
+    cursor: pointer;
+    display: flex;
+    font-size: 24px;
+    justify-content: space-between;
+    padding: 14px 14px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .channel-item:hover {
+    background: rgba(0, 255, 102, 0.12);
+  }
+
+  .channel-active {
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.95), rgba(255, 215, 0, 0.9));
+    box-shadow: 0 0 14px rgba(0, 255, 102, 0.25);
+    color: #061006;
+    font-weight: 800;
+  }
+
+  .unread-badge {
+    background: var(--neon);
+    border-radius: 999px;
+    color: #000;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 1px 7px;
+  }
+
+  .toast {
+    animation: fadeInOut 3s ease;
+    background: var(--neon);
+    border-radius: 10px;
+    bottom: 20px;
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.8);
+    color: #000;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 0.8rem 1.2rem;
+    position: fixed;
+    right: 20px;
+    z-index: 50;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+  }
+
+  @media (max-width: 1599px) {
+    html {
+      font-size: 24px;
+    }
+
+    .banner img {
+      max-height: 170px;
+    }
+
+    .content {
+      box-sizing: border-box;
+      max-width: 100%;
+      padding: 14px;
+      width: 100%;
+    }
+
+    .content:has(#chat:not([style*="display:none"])),
+    body.chat-active .content {
+      min-height: calc(100vh - 300px);
+      padding-bottom: 0;
+    }
+
+    .page-menu-toggle {
+      font-size: 24px;
+      padding: 13px 20px;
+    }
+
+    .page-menu button {
+      font-size: 20px;
+      padding: 13px 14px;
+    }
+
+    .hero {
+      margin: 1rem 0 0.9rem;
+    }
+
+    .hero h1 {
+      font-size: 1.8rem;
+    }
+
+    .hero p {
+      font-size: 0.95rem;
+    }
+
+    .events-grid {
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+
+    .event-card {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+
+    .event-card h2 {
+      font-size: 30px;
+    }
+
+    .event-card p,
+    .event-location {
+      font-size: 20px;
+    }
+
+    .calendar-button {
+      font-size: 24px;
+      padding: 16px;
+    }
+
+    .rules-card {
+      padding: 18px;
+    }
+
+    .rules-card h2 {
+      font-size: 34px;
+    }
+
+    .rules-card p,
+    .rules-list {
+      font-size: 22px;
+    }
+
+    .bonus-item {
+      grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    .bonus-item strong {
+      font-size: 24px;
+    }
+
+    .bonus-item p {
+      font-size: 20px;
+    }
+
+    .scorecard-header {
+      padding: 18px;
+    }
+
+    .scorecard th,
+    .scorecard td {
+      font-size: 20px;
+      padding: 13px 10px;
+    }
+
+    .leaderboard-table-wrap {
+      display: none;
+    }
+
+    .leaderboard-mobile {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .leaderboard-topbar {
+      padding: 16px;
+    }
+
+    .leaderboard-topbar strong {
+      font-size: 28px;
+    }
+
+    .broadcast-label {
+      font-size: 14px;
+    }
+
+    .chat-shell {
+      border-radius: 0;
+      min-height: calc(100vh - 300px);
+    }
+
+    .chat-sidebar {
+      width: min(86vw, 340px);
+    }
+
+    .chat-sidebar:not(.open) {
+      margin-left: -340px;
+    }
+
+    .chat-workspace {
+      font-size: 24px;
+    }
+
+    .channel-item {
+      font-size: 24px;
+      padding: 14px 14px;
+    }
+
+    .chat-header {
+      min-height: 84px;
+      padding: 16px 16px;
+    }
+
+    .chat-header-left {
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .chat-channel-name {
+      font-size: clamp(28px, 7vw, 34px);
+    }
+
+    .chat-header-sub {
+      font-size: 18px;
+    }
+
+    .chat-header button {
+      font-size: 22px;
+      padding: 14px 16px;
+    }
+
+    .chat-name-select,
+    .chat-messages,
+    .chat-input-bar {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .chat-name-select input,
+    .chat-input-bar input,
+    .chat-input-bar button {
+      font-size: 26px;
+    }
+
+    .chat-input-bar {
+      gap: 8px;
+    }
+
+    .chat-input-bar button {
+      flex: 0 0 auto;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .chat-message-row,
+    .chat-reply-row {
+      grid-template-columns: 50px minmax(0, 1fr);
+    }
+
+    .chat-avatar {
+      font-size: 18px;
+      height: 48px;
+      width: 48px;
+    }
+
+    .chat-user,
+    .chat-reply-user,
+    .chat-text,
+    .chat-reply-text {
+      font-size: 25px;
+    }
+
+    .chat-meta,
+    .chat-reply-meta,
+    .chat-reply-button {
+      font-size: 18px;
+    }
+
+    .chat-reply-block {
+      margin-left: 62px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .content:has(#chat:not([style*="display:none"])),
+    body.chat-active .content {
+      min-height: calc(100vh - 250px);
+      padding: 8px;
+      padding-bottom: 0;
+    }
+
+    .chat-page,
+    .chat-shell {
+      min-height: calc(100vh - 250px);
+    }
+
+    .chat-shell {
+      font-size: 15px;
+    }
+
+    .chat-sidebar {
+      padding: 10px 7px;
+      width: min(82vw, 238px);
+    }
+
+    .chat-sidebar:not(.open) {
+      margin-left: -238px;
+    }
+
+    .chat-workspace {
+      font-size: 17px;
+      padding: 3px 6px 10px;
+    }
+
+    .chat-sidebar-label {
+      font-size: 11px;
+      padding: 6px;
+    }
+
+    .channel-item {
+      border-radius: 5px;
+      font-size: 17px;
+      padding: 10px;
+    }
+
+    .chat-header {
+      min-height: 59px;
+      padding: 11px;
+    }
+
+    .chat-header-left {
+      gap: 7px;
+    }
+
+    .chat-channel-name {
+      font-size: clamp(20px, 5vw, 24px);
+    }
+
+    .chat-header-sub {
+      font-size: 13px;
+    }
+
+    .chat-header button {
+      border-radius: 6px;
+      font-size: 15px;
+      padding: 10px 11px;
+    }
+
+    .chat-name-select,
+    .chat-messages,
+    .chat-input-bar {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .chat-name-select {
+      padding-bottom: 7px;
+      padding-top: 7px;
+    }
+
+    .chat-name-select input,
+    .chat-input-bar input {
+      border-radius: 6px;
+      font-size: 18px;
+      padding: 13px;
+    }
+
+    .suggestions {
+      left: 10px;
+      max-height: 126px;
+      right: 10px;
+      top: 43px;
+    }
+
+    .suggestion {
+      font-size: 14px;
+      padding: 6px 9px;
+    }
+
+    .chat-messages {
+      padding-bottom: 10px;
+      padding-top: 10px;
+    }
+
+    .chat-message {
+      margin-bottom: 6px;
+    }
+
+    .chat-empty {
+      font-size: 17px;
+      padding: 8px 3px;
+    }
+
+    .chat-message-row,
+    .chat-reply-row {
+      gap: 8px;
+      grid-template-columns: 35px minmax(0, 1fr);
+      margin-bottom: 11px;
+    }
+
+    .chat-reply-row {
+      margin-top: 6px;
+    }
+
+    .chat-avatar {
+      border-radius: 5px;
+      font-size: 13px;
+      height: 34px;
+      width: 34px;
+    }
+
+    .chat-message-header {
+      gap: 6px;
+    }
+
+    .chat-user,
+    .chat-reply-user,
+    .chat-text,
+    .chat-reply-text {
+      font-size: 18px;
+    }
+
+    .chat-text,
+    .chat-reply-text {
+      line-height: 1.3;
+    }
+
+    .chat-meta,
+    .chat-reply-meta,
+    .chat-reply-button {
+      font-size: 13px;
+    }
+
+    .chat-reply-block {
+      margin-left: 43px;
+      margin-top: 4px;
+      padding-left: 7px;
+    }
+
+    .chat-input-bar {
+      gap: 7px;
+      padding-bottom: 8px;
+      padding-top: 8px;
+    }
+
+    .chat-input-bar button {
+      border-radius: 6px;
+      font-size: 18px;
+      padding: 13px 10px;
+    }
+
+    .channel-drawer {
+      font-size: 11px;
+      padding: 42px 6px 0;
+      width: 220px;
+    }
+
+    .drawer-title {
+      font-size: 11px;
+      padding: 0 6px 7px;
+    }
+
+    .booking-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .pricing-hero-card {
+      padding: 16px;
+    }
+
+    .pricing-hero-card small {
+      font-size: 14px;
+    }
+
+    .booking-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-card {
+      padding: 14px;
+    }
+
+    .booking-card h2 {
+      font-size: 22px;
+    }
+
+    .booking-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-update {
+      font-size: 16px;
+    }
+
+    .golfers-summary,
+    .golfers-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .golfer-card {
+      padding: 14px;
+    }
+
+    .golfer-card h2 {
+      font-size: 23px;
+    }
+
+    .golfer-commitment {
+      font-size: 12px;
+    }
+
+    .gallery-upload-panel {
+      padding: 14px;
+    }
+
+    .gallery-upload-form {
+      grid-template-columns: 1fr;
+    }
+
+    .gallery-grid {
+      column-count: 1;
+    }
+
+    .gallery-upload-panel h2 {
+      font-size: 24px;
+    }
+
+    .team-score-panel {
+      padding: 14px;
+    }
+
+    .team-score-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .team-score-summary strong {
+      font-size: 28px;
+    }
+
+    .team-score-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .team-score-hole {
+      padding: 8px;
+    }
+
+    .team-score-hole input {
+      font-size: 22px;
+      padding: 9px 6px;
+    }
+
+    .team-badge-toggle {
+      font-size: 10px;
+      padding: 6px 5px;
+    }
+
+    .team-score-actions button {
+      font-size: 19px;
+    }
+
+    .nav {
+      padding: 0.5rem 10px;
+    }
+
+    .page-menu-toggle {
+      font-size: 21px;
+      min-width: min(260px, 84vw);
+      padding: 11px 18px;
+    }
+
+    .page-menu {
+      max-width: min(300px, calc(100vw - 20px));
+    }
+
+    .page-menu button {
+      font-size: 18px;
+      padding: 12px;
+    }
+  }
+
+  @media (min-width: 1600px) {
+    .chat-shell {
+      grid-template-columns: 260px minmax(0, 1fr);
+    }
+
+    .chat-sidebar {
+      box-shadow: none;
+      position: static;
+      width: auto;
+      z-index: auto;
+    }
+
+    .chat-sidebar:not(.open) {
+      margin-left: -260px;
+    }
+  }
+</style>
+
+    <script>
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F/exec";
+
+      function callAppsScript(method, args) {
+        if (method === "uploadGalleryPhoto") {
+          return Promise.reject(new Error("Photo uploads are not available from the custom domain yet. Open the Apps Script version to upload photos."));
+        }
+
+        return new Promise((resolve, reject) => {
+          const callbackName = "ci_api_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+          const script = document.createElement("script");
+          const timeout = window.setTimeout(() => {
+            cleanup();
+            reject(new Error("Request timed out."));
+          }, 30000);
+
+          function cleanup() {
+            window.clearTimeout(timeout);
+            delete window[callbackName];
+            script.remove();
+          }
+
+          window[callbackName] = response => {
+            cleanup();
+            if (response && response.ok) {
+              resolve(response.data);
+            } else {
+              reject(new Error((response && response.error) || "Request failed."));
+            }
+          };
+
+          const params = new URLSearchParams({
+            api: "1",
+            method: method,
+            args: JSON.stringify(args || []),
+            callback: callbackName
+          });
+          script.onerror = () => {
+            cleanup();
+            reject(new Error("Could not reach Apps Script backend."));
+          };
+          script.src = APPS_SCRIPT_URL + "?" + params.toString();
+          document.head.appendChild(script);
+        });
       }
 
-      main {
-        padding: 24px;
-      }
+      window.google = {
+        script: {
+          run: new Proxy({}, {
+            get(target, property) {
+              if (property === "withSuccessHandler") {
+                return successHandler => new Proxy({}, {
+                  get(successTarget, successProperty) {
+                    if (successProperty === "withFailureHandler") {
+                      return failureHandler => new Proxy({}, {
+                        get(callTarget, method) {
+                          return (...args) => callAppsScript(method, args).then(successHandler).catch(failureHandler);
+                        }
+                      });
+                    }
+                    return (...args) => callAppsScript(successProperty, args).then(successHandler).catch(err => console.error(err));
+                  }
+                });
+              }
 
-      a {
-        color: #ffd700;
-        font-weight: 700;
-      }
-    </style>
+              if (property === "withFailureHandler") {
+                return failureHandler => new Proxy({}, {
+                  get(callTarget, method) {
+                    return (...args) => callAppsScript(method, args).catch(failureHandler);
+                  }
+                });
+              }
+
+              return (...args) => callAppsScript(property, args).catch(err => console.error(err));
+            }
+          })
+        }
+      };
+    </script>
+
   </head>
+
   <body>
-    <main>
-      <h1>Opening Cherokee Invitational...</h1>
-      <p>
-        If it does not open automatically,
-        <a href="https://script.google.com/macros/s/AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F/exec">open the app here</a>.
-      </p>
+
+    <!-- BANNER -->
+    <header class="banner">
+      <img
+        src="https://i.imgur.com/GVJiEI2.png"
+        alt="Cherokee Invitational Banner">
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="nav" id="page-nav">
+      <button
+        class="page-menu-toggle"
+        id="page-menu-toggle"
+        type="button"
+        onclick="togglePageMenu(event)"
+        aria-expanded="false"
+        aria-controls="page-menu">
+        <span id="page-menu-label">Events</span>
+        <span class="page-menu-caret">v</span>
+      </button>
+
+      <div class="page-menu" id="page-menu">
+        <button type="button" data-page="home" onclick="choosePage('home')">Events</button>
+        <button type="button" data-page="rules" onclick="choosePage('rules')">Rules</button>
+        <button type="button" data-page="register" onclick="choosePage('register')">Register</button>
+        <button type="button" data-page="golfers" onclick="choosePage('golfers')">Golfers</button>
+        <button type="button" data-page="gallery" onclick="choosePage('gallery')">Gallery</button>
+        <button type="button" data-page="chat" onclick="choosePage('chat')">Chat</button>
+        <button type="button" data-page="leaderboard" onclick="choosePage('leaderboard')">Leaderboard</button>
+        <button type="button" data-page="booking" onclick="choosePage('booking')">Pricing</button>
+      </div>
+    </nav>
+
+    <!-- CHANNEL DRAWER OVERLAY (ONLY USED IN CHAT) -->
+    <div class="channel-drawer-backdrop" id="channel-backdrop" onclick="closeChannelDrawer(event)">
+      <div class="channel-drawer" onclick="event.stopPropagation()">
+        <div class="drawer-title">Channels</div>
+        <div class="channel-list" id="channel-list"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+
+      <!-- HOME PAGE -->
+      <section id="home" class="page">
+        <section class="hero">
+          <h1>Events</h1>
+        <p>Welcome back to the third annual Cherokee Invitational.</p>
+        </section>
+
+        <section class="events-grid" id="events-grid">
+          <div class="events-loading">Loading events...</div>
+        </section>
+
+        <div class="trip-calendar-actions">
+          <a
+            class="calendar-button trip-calendar-button"
+            id="trip-calendar-button"
+            download="3rd-annual-cherokee-invitational-2026.ics"
+            href="#">
+            Add Entire Trip to Calendar
+          </a>
+        </div>
+      </section>
+
+      <!-- RULES PAGE -->
+      <section id="rules" class="page" style="display:none;">
+        <section class="hero">
+          <h1>Tournament Rules</h1>
+          <p>Buy-in, bonus jackpots, and scorecard for Cherokee Invitational '26.</p>
+        </section>
+
+        <section class="rules-layout">
+          <article class="rules-card rules-pot">
+            <div class="rules-kicker">Main Pot</div>
+            <h2>$50 / Person Buy-In</h2>
+            <p>Team with the lowest score splits the pot.</p>
+          </article>
+
+          <article class="rules-card">
+            <div class="rules-kicker">Bonus Jackpots</div>
+            <div class="bonus-list">
+              <div class="bonus-item bonus-blue">
+                <span>-5</span>
+                <div>
+                  <strong>Lowest Carded Score</strong>
+                  <p>Applied before bonuses.</p>
+                </div>
+              </div>
+
+              <div class="bonus-item bonus-green">
+                <span>-3</span>
+                <div>
+                  <strong>Hole 9 - Closest to Pin</strong>
+                  <p>Must settle on the green to count.</p>
+                </div>
+              </div>
+
+              <div class="bonus-item bonus-purple">
+                <span>-3</span>
+                <div>
+                  <strong>Hole 14 - Longest Drive</strong>
+                  <p>Must be in the fairway to count.</p>
+                </div>
+              </div>
+
+              <div class="bonus-item bonus-yellow">
+                <span>-3</span>
+                <div>
+                  <strong>Hole 18 - "Happy" Hole</strong>
+                  <p>Longest drive, in the fairway, while wearing the Gilmore jersey.</p>
+                </div>
+              </div>
+
+              <div class="bonus-item bonus-red">
+                <span>-1</span>
+                <div>
+                  <strong>Fireball Holes</strong>
+                  <p>Each qualifying Fireball hole earns one stroke.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="rules-card">
+            <div class="rules-kicker">Fine Print</div>
+            <ul class="rules-list">
+              <li>This tournament will be played as a scramble: every player tees off, the team selects the best shot, everyone moves within one club-length of that spot, and the process repeats for each shot until the ball is holed.</li>
+              <li>Fireball holes require a birdie. The player who sinks the birdie putt must take a shot of Fireball to claim the bonus.</li>
+              <li>Each team must use two different players' shots at least once per hole.</li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="rules-card scorecard-card">
+          <div class="scorecard-header">
+            <div>
+              <div class="rules-kicker">Scorecard</div>
+              <h2>Smoky Mountain Country Club</h2>
+            </div>
+            <div class="scorecard-legend">
+              <span class="legend-dot bonus-green"></span> 9 CTP
+              <span class="legend-dot bonus-purple"></span> 14 Long Drive
+              <span class="legend-dot bonus-yellow"></span> 18 Happy
+              <span class="legend-dot bonus-red"></span> Fireball
+            </div>
+          </div>
+
+          <div class="scorecard-scroll">
+            <table class="scorecard">
+              <thead>
+                <tr>
+                  <th>Tee</th>
+                  <th>1</th>
+                  <th>2</th>
+                  <th class="fireball-hole">3</th>
+                  <th>4</th>
+                  <th class="fireball-hole">5</th>
+                  <th>6</th>
+                  <th class="fireball-hole">7</th>
+                  <th>8</th>
+                  <th class="ctp-hole">9</th>
+                  <th>Out</th>
+                  <th class="fireball-hole">10</th>
+                  <th>11</th>
+                  <th class="fireball-hole">12</th>
+                  <th>13</th>
+                  <th class="long-drive-hole">14</th>
+                  <th>15</th>
+                  <th class="fireball-hole">16</th>
+                  <th>17</th>
+                  <th class="happy-hole">18</th>
+                  <th>In</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Black</th>
+                  <td>400</td>
+                  <td>325</td>
+                  <td>340</td>
+                  <td>340</td>
+                  <td>545</td>
+                  <td>483</td>
+                  <td>159</td>
+                  <td>611</td>
+                  <td>174</td>
+                  <td>3377</td>
+                  <td>183</td>
+                  <td>305</td>
+                  <td>277</td>
+                  <td>157</td>
+                  <td>552</td>
+                  <td>460</td>
+                  <td>250</td>
+                  <td>164</td>
+                  <td>425</td>
+                  <td>2773</td>
+                  <td>6150</td>
+                </tr>
+                <tr>
+                  <th>White</th>
+                  <td>377</td>
+                  <td>322</td>
+                  <td>320</td>
+                  <td>321</td>
+                  <td>480</td>
+                  <td>430</td>
+                  <td>148</td>
+                  <td>475</td>
+                  <td>170</td>
+                  <td>3043</td>
+                  <td>179</td>
+                  <td>282</td>
+                  <td>241</td>
+                  <td>152</td>
+                  <td>507</td>
+                  <td>417</td>
+                  <td>223</td>
+                  <td>130</td>
+                  <td>345</td>
+                  <td>2476</td>
+                  <td>5519</td>
+                </tr>
+                <tr>
+                  <th>Yellow</th>
+                  <td>286</td>
+                  <td>280</td>
+                  <td>316</td>
+                  <td>255</td>
+                  <td>415</td>
+                  <td>375</td>
+                  <td>143</td>
+                  <td>470</td>
+                  <td>140</td>
+                  <td>2680</td>
+                  <td>167</td>
+                  <td>279</td>
+                  <td>236</td>
+                  <td>133</td>
+                  <td>468</td>
+                  <td>357</td>
+                  <td>219</td>
+                  <td>126</td>
+                  <td>315</td>
+                  <td>2300</td>
+                  <td>4980</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- REGISTER PAGE -->
+      <section id="register" class="page" style="display:none;">
+        <div class="panel">
+          <h2>Register / Check In</h2>
+          <div class="entry-form">
+
+  <div class="form-row">
+    <label>Name</label>
+    <input id="entry-name" type="text" placeholder="Your name">
+  </div>
+
+  <div class="form-row">
+    <label>Email</label>
+    <input id="entry-email" type="email" placeholder="you@example.com">
+  </div>
+
+  <div class="form-row">
+    <label>Handicap (optional)</label>
+    <input id="entry-handicap" type="number" placeholder="e.g., 12">
+  </div>
+
+  <div class="form-section-title">Event Participation</div>
+
+  <div class="checkbox-grid">
+    <label class="checkbox-item">
+      <input id="entry-practice" type="checkbox" checked>
+      <span>Practice Round 9/25</span>
+    </label>
+
+    <label class="checkbox-item">
+      <input id="entry-tournament" type="checkbox" checked>
+      <span>Tournament 9/26</span>
+    </label>
+
+    <label class="checkbox-item">
+      <input id="entry-sportsbook" type="checkbox" checked>
+      <span>SportsBook 9/26</span>
+    </label>
+
+    <label class="checkbox-item">
+      <input id="entry-hotel" type="checkbox" checked>
+      <span>I will be staying at the hotel for 2 nights minimum</span>
+    </label>
+
+    <label class="checkbox-item">
+      <input id="entry-own-room" type="checkbox">
+      <span>I would like my own room</span>
+    </label>
+  </div>
+
+  <button class="submit-btn" onclick="submitEntry()">Enter Tournament</button>
+
+  <div id="entry-status"></div>
+
+</div>
+
+<script>
+  function submitEntry() {
+    const name = document.getElementById('entry-name').value.trim();
+    const email = document.getElementById('entry-email').value.trim();
+    const handicap = document.getElementById('entry-handicap').value.trim();
+
+    const practice = document.getElementById('entry-practice').checked ? "Yes" : "No";
+    const tournament = document.getElementById('entry-tournament').checked ? "Yes" : "No";
+    const sportsbook = document.getElementById('entry-sportsbook').checked ? "Yes" : "No";
+    const hotel = document.getElementById('entry-hotel').checked ? "Yes" : "No";
+    const ownRoom = document.getElementById('entry-own-room').checked ? "Yes" : "No";
+
+    const status = document.getElementById('entry-status');
+
+    if (!name || !email) {
+      status.textContent = "Name and email are required.";
+      status.style.color = "#ff6666";
+      return;
+    }
+
+    status.textContent = "Submitting...";
+    status.style.color = "#ffd700";
+
+    google.script.run
+      .withSuccessHandler(() => {
+        status.textContent = "You're in!";
+        status.style.color = "#00ff66";
+
+        document.getElementById('entry-name').value = "";
+        document.getElementById('entry-email').value = "";
+        document.getElementById('entry-handicap').value = "";
+        document.getElementById('entry-practice').checked = true;
+        document.getElementById('entry-tournament').checked = true;
+        document.getElementById('entry-sportsbook').checked = true;
+        document.getElementById('entry-hotel').checked = true;
+        document.getElementById('entry-own-room').checked = false;
+
+        if (typeof loadNames === "function") {
+          loadNames();
+        }
+      })
+      .withFailureHandler(err => {
+        status.textContent = "Error: " + err.message;
+        status.style.color = "#ff6666";
+      })
+      .saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom);
+  }
+</script>
+
+        </div>
+      </section>
+
+      <!-- GOLFERS PAGE -->
+      <section id="golfers" class="page" style="display:none;">
+        <section class="hero golfers-hero">
+          <h1>Golfers</h1>
+          <p>Committed players, handicaps, and event commitments.</p>
+        </section>
+
+        <section class="golfers-summary" id="golfers-summary">
+          <div class="golfers-loading">Loading golfers...</div>
+        </section>
+
+        <section class="golfers-grid" id="golfers-grid">
+          <div class="golfers-loading">Loading golfers...</div>
+        </section>
+      </section>
+
+      <!-- GALLERY PAGE -->
+      <section id="gallery" class="page" style="display:none;">
+        <section class="hero gallery-hero">
+          <h1>Gallery</h1>
+          <p>Previous years, new memories, and phone uploads from the group.</p>
+        </section>
+
+        <section class="gallery-upload-panel">
+          <div>
+            <div class="rules-kicker">Share a Photo</div>
+            <h2>Upload From Your Phone</h2>
+            <p>Photos are saved to the Cherokee Invitational gallery and may appear for everyone.</p>
+          </div>
+
+          <div class="gallery-upload-form">
+            <input id="gallery-name" type="text" placeholder="Your name">
+            <select id="gallery-year">
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+            </select>
+            <input id="gallery-caption" type="text" maxlength="160" placeholder="Caption optional">
+            <input id="gallery-file" type="file" accept="image/*">
+            <button onclick="uploadGalleryPhoto()">Upload Photo</button>
+          </div>
+
+          <div id="gallery-upload-status" class="gallery-upload-status"></div>
+        </section>
+
+        <section class="gallery-grid" id="gallery-grid">
+          <div class="gallery-loading">Loading gallery...</div>
+        </section>
+      </section>
+
+      <!-- CHAT PAGE -->
+      <section id="chat" class="page chat-page" style="display:none;">
+        <div class="chat-shell">
+
+          <aside class="chat-sidebar" id="chat-sidebar">
+            <div class="chat-workspace">Cherokee</div>
+            <div class="chat-sidebar-label">Channels</div>
+            <div class="chat-sidebar-list" id="desktop-channel-list"></div>
+          </aside>
+
+          <section class="chat-main">
+            <div class="chat-header">
+              <div class="chat-header-left">
+                <button class="channel-toggle" onclick="openChannelDrawer()">Channels</button>
+                <div>
+                  <div class="chat-channel-name" id="chat-channel-name">Practice Round</div>
+                  <div class="chat-header-sub">Cherokee Invitational Chat - build 2026-05-28</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-name-select">
+              <input id="chat-name" type="text" placeholder="Start typing your name...">
+              <div id="name-suggestions" class="suggestions"></div>
+            </div>
+
+            <div id="chat-messages" class="chat-messages"></div>
+
+            <div class="chat-input-bar">
+              <input id="chat-text" type="text" placeholder="Message #Practice Round">
+              <button onclick="sendMessage()">Send</button>
+            </div>
+          </section>
+
+        </div>
+      </section>
+
+      <!-- LEADERBOARD PAGE -->
+      <section id="leaderboard" class="page" style="display:none;">
+        <section class="hero leaderboard-hero">
+          <h1>Leaderboard</h1>
+          <p>Live tournament board with score, thru, strokes, and earned badges.</p>
+        </section>
+
+        <section class="leaderboard-broadcast" aria-live="polite">
+          <div class="leaderboard-topbar">
+            <div>
+              <span class="broadcast-label">Cherokee Invitational</span>
+              <strong>Team Standings</strong>
+            </div>
+            <div class="broadcast-live">Live</div>
+          </div>
+
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Team</th>
+                  <th>Total</th>
+                  <th>Thru</th>
+                  <th>Strokes</th>
+                  <th>Base</th>
+                  <th>Badges</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                <tr>
+                  <td colspan="7">Loading leaderboard...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="leaderboard-mobile" id="leaderboard-mobile"></div>
+        </section>
+      </section>
+
+      <!-- PRICING PAGE -->
+      <section id="booking" class="page" style="display:none;">
+        <section class="hero booking-hero">
+          <h1>Pricing</h1>
+          <p>Track group costs, deposits, contracts, and secured items.</p>
+        </section>
+
+        <section class="pricing-topline" id="pricing-topline">
+          <div class="booking-loading">Loading price per person...</div>
+        </section>
+
+        <section class="booking-summary" id="booking-summary">
+          <div class="booking-loading">Loading pricing progress...</div>
+        </section>
+
+        <section class="booking-grid" id="booking-grid">
+          <div class="booking-loading">Loading pricing items...</div>
+        </section>
+      </section>
+
+      <!-- TEAM SCORE PAGE -->
+      <section id="team-score" class="page" style="display:none;">
+        <section class="hero team-score-hero">
+          <h1 id="team-score-title">Team Score</h1>
+          <p>Enter hole-by-hole strokes for this team's round.</p>
+        </section>
+
+        <section class="team-score-panel">
+          <div class="team-score-summary">
+            <article>
+              <span>Thru</span>
+              <strong id="team-score-thru">0</strong>
+            </article>
+            <article>
+              <span>Strokes</span>
+              <strong id="team-score-strokes">0</strong>
+            </article>
+            <article>
+              <span>Last Saved</span>
+              <strong id="team-score-updated">-</strong>
+            </article>
+          </div>
+
+          <label class="team-score-scorer">
+            <span>Scorer Name</span>
+            <input id="team-score-updated-by" type="text" placeholder="Optional">
+          </label>
+
+          <div class="team-score-grid" id="team-score-grid"></div>
+
+          <div class="team-score-actions">
+            <button onclick="saveCurrentTeamScore()">Save Team Score</button>
+            <div id="team-score-status"></div>
+          </div>
+        </section>
+      </section>
+
     </main>
+
+    <!-- SCRIPT -->
+    <script>
+      const CHANNELS = [
+        "Practice Round",
+        "Tournament",
+        "Sportsbook",
+        "Casino",
+        "Ruth's Chris",
+        "Hotel",
+        "Driving",
+        "Shit Talk"
+      ];
+
+      let replyTo = null;
+      let selectedUser = null;
+      let currentChannel = CHANNELS[0];
+      let lastSeen = {};
+      let currentScoringTeam = "";
+      let teamScoreAutosaveTimer = null;
+      let teamScoreSaveInFlight = false;
+      let teamScoreSavePending = false;
+      window.entryNames = [];
+      const INITIAL_TEAM_NUMBER = new URLSearchParams(window.location.search).get("team") || "";
+
+      const DEFAULT_LEADERBOARD_ROWS = Array.from({ length: 12 }, (_, index) => ({
+        team: "Team " + (index + 1),
+        total: "",
+        thru: "",
+        strokes: "",
+        baseScore: "",
+        badgesOwned: ""
+      }));
+
+      const PAGE_LABELS = {
+        home: "Events",
+        rules: "Rules",
+        register: "Register",
+        golfers: "Golfers",
+        gallery: "Gallery",
+        chat: "Chat",
+        leaderboard: "Leaderboard",
+        booking: "Pricing",
+        "team-score": "Team Score"
+      };
+
+      const BONUS_BADGES = [
+        { key: "fireball3", label: "Fireball 3", hole: 3 },
+        { key: "fireball5", label: "Fireball 5", hole: 5 },
+        { key: "fireball7", label: "Fireball 7", hole: 7 },
+        { key: "ctp9", label: "9 CTP", hole: 9, yardagePrompt: "Enter closest-to-pin yardage for Hole 9:" },
+        { key: "fireball10", label: "Fireball 10", hole: 10 },
+        { key: "fireball12", label: "Fireball 12", hole: 12 },
+        { key: "longDrive14", label: "14 Long Drive", hole: 14, yardagePrompt: "Enter Long Drive yardage from the tee box for Hole 14:" },
+        { key: "fireball16", label: "Fireball 16", hole: 16 },
+        { key: "happy18", label: "18 Happy", hole: 18, yardagePrompt: "Enter Happy Hole drive yardage from the tee box for Hole 18:" }
+      ];
+
+      /* PAGE SWITCHING */
+      function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.getElementById(page).style.display = 'block';
+        document.body.classList.toggle("chat-active", page === "chat");
+        updatePageMenu(page);
+        closePageMenu();
+
+        const backdrop = document.getElementById('channel-backdrop');
+        if (page !== 'chat') {
+          backdrop.classList.remove('open');
+        } else {
+          if (isNarrowScreen()) {
+            document.getElementById('chat-sidebar').classList.remove('open');
+          }
+          loadChat(true);
+        }
+
+        if (page === 'leaderboard') {
+          loadLeaderboard();
+        }
+
+        if (page === 'booking') {
+          loadBookingProgress();
+        }
+
+        if (page === 'golfers') {
+          loadGolfers();
+        }
+
+        if (page === 'gallery') {
+          loadGallery();
+        }
+
+        if (page === 'team-score' && currentScoringTeam) {
+          loadTeamScore(currentScoringTeam);
+        }
+      }
+
+      function choosePage(page) {
+        showPage(page);
+      }
+
+      function togglePageMenu(event) {
+        event.stopPropagation();
+        const nav = document.getElementById("page-nav");
+        const toggle = document.getElementById("page-menu-toggle");
+        const isOpen = nav.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      }
+
+      function closePageMenu() {
+        const nav = document.getElementById("page-nav");
+        const toggle = document.getElementById("page-menu-toggle");
+        if (!nav || !toggle) return;
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+
+      function updatePageMenu(page) {
+        const label = document.getElementById("page-menu-label");
+        if (label) {
+          label.textContent = page === "team-score" && currentScoringTeam
+            ? "Team " + currentScoringTeam + " Score"
+            : PAGE_LABELS[page] || "Events";
+        }
+
+        document.querySelectorAll(".page-menu button").forEach(button => {
+          button.classList.toggle("active", button.dataset.page === page);
+        });
+      }
+
+      /* DRAWER */
+      function openChannelDrawer() {
+        document.getElementById('channel-backdrop').classList.add('open');
+        document.getElementById('chat-sidebar').classList.add('open');
+      }
+
+      function closeChannelDrawer(e) {
+        document.getElementById('channel-backdrop').classList.remove('open');
+        if (isNarrowScreen()) {
+          document.getElementById('chat-sidebar').classList.remove('open');
+        }
+      }
+
+      /* BUILD CHANNEL LIST */
+      function buildChannelDrawer() {
+        renderChannelList(document.getElementById("channel-list"));
+        renderChannelList(document.getElementById("desktop-channel-list"));
+      }
+
+      function renderChannelList(list) {
+        if (!list) return;
+        list.innerHTML = "";
+        CHANNELS.forEach(ch => {
+          const button = document.createElement("button");
+          button.className = "channel-item" + (ch === currentChannel ? " channel-active" : "");
+          button.dataset.channel = ch;
+          button.onclick = () => {
+            switchChannel(ch);
+            closeChannelDrawer();
+          };
+
+          const label = document.createElement("span");
+          label.textContent = "# " + ch;
+
+          const badge = document.createElement("span");
+          badge.id = "badge-" + badgeKey(ch);
+
+          button.appendChild(label);
+          button.appendChild(badge);
+          list.appendChild(button);
+        });
+      }
+
+      /* SWITCH CHANNEL */
+      function switchChannel(ch) {
+        currentChannel = ch;
+        replyTo = null;
+
+        document.getElementById('chat-channel-name').textContent = ch;
+        document.getElementById('chat-text').placeholder = "Message #" + ch;
+
+        document.querySelectorAll('.channel-item').forEach(el => {
+          el.classList.toggle('channel-active', el.dataset.channel === ch);
+        });
+
+        loadChat();
+        clearBadge(ch);
+      }
+
+      function clearBadge(ch) {
+        const badge = document.getElementById("badge-" + badgeKey(ch));
+        if (badge) badge.textContent = "";
+        lastSeen[ch] = new Date().toISOString();
+        localStorage.setItem("ci_lastSeen", JSON.stringify(lastSeen));
+      }
+
+      /* NAME AUTOCOMPLETE */
+      function loadNames() {
+        google.script.run
+          .withSuccessHandler(names => {
+            window.entryNames = names || [];
+          })
+          .withFailureHandler(err => showToast(err.message || "Could not load registered names."))
+          .getEntryNames();
+      }
+
+      function loadEvents() {
+        google.script.run
+          .withSuccessHandler(renderEvents)
+          .withFailureHandler(err => {
+            const grid = document.getElementById("events-grid");
+            grid.innerHTML = "";
+            const error = document.createElement("div");
+            error.className = "events-loading";
+            error.textContent = err.message || "Could not load events.";
+            grid.appendChild(error);
+          })
+          .getItineraryEvents();
+      }
+
+      function renderEvents(events) {
+        const grid = document.getElementById("events-grid");
+        grid.innerHTML = "";
+
+        if (!events || !events.length) {
+          const empty = document.createElement("div");
+          empty.className = "events-loading";
+          empty.textContent = "No itinerary events found yet.";
+          grid.appendChild(empty);
+          return;
+        }
+
+        events.forEach((event, index) => {
+          const card = document.createElement("article");
+          card.className = "event-card";
+
+          const imageWrap = document.createElement("div");
+          imageWrap.className = "event-image-wrap";
+
+          if (event.image) {
+            const image = document.createElement("img");
+            image.className = "event-image";
+            image.src = event.image;
+            image.alt = event.title || "Cherokee Invitational event";
+            image.onerror = () => imageWrap.classList.add("event-image-missing");
+            imageWrap.appendChild(image);
+          } else {
+            imageWrap.classList.add("event-image-missing");
+          }
+
+          const body = document.createElement("div");
+          body.className = "event-card-body";
+
+          const meta = document.createElement("div");
+          meta.className = "event-meta";
+          meta.textContent = [event.date, event.time].filter(Boolean).join(" / ");
+
+          const title = document.createElement("h2");
+          title.textContent = event.title || "Event";
+
+          const location = document.createElement("div");
+          location.className = "event-location";
+          location.textContent = event.location || "";
+
+          const notes = document.createElement("p");
+          notes.textContent = event.notes || "";
+
+          const type = document.createElement("span");
+          type.className = "event-type";
+          type.textContent = event.type || "event";
+
+          const actions = document.createElement("div");
+          actions.className = "event-actions";
+
+          const calendarLink = document.createElement("a");
+          calendarLink.className = "calendar-button";
+          calendarLink.href = buildCalendarDataUrl(event, index);
+          calendarLink.download = calendarFileName(event);
+          calendarLink.textContent = "Add to Calendar";
+          calendarLink.setAttribute("aria-label", "Add " + (event.title || "event") + " to calendar");
+
+          actions.appendChild(calendarLink);
+
+          body.appendChild(meta);
+          body.appendChild(title);
+          body.appendChild(location);
+          body.appendChild(notes);
+          body.appendChild(type);
+          body.appendChild(actions);
+          card.appendChild(imageWrap);
+          card.appendChild(body);
+          grid.appendChild(card);
+        });
+      }
+
+      function buildCalendarDataUrl(event, index) {
+        const ics = buildIcsEvent(event, index);
+        return "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+      }
+
+      function buildTripCalendarDataUrl() {
+        const title = "3rd Annual Cherokee Invitational - 2026";
+        const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+        const lines = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//Cherokee Invitational//Trip//EN",
+          "CALSCALE:GREGORIAN",
+          "METHOD:PUBLISH",
+          "BEGIN:VEVENT",
+          "UID:cherokee-invitational-2026-trip@cherokee-invitational",
+          "DTSTAMP:" + now,
+          "SUMMARY:" + escapeIcs(title),
+          "DTSTART;VALUE=DATE:20260925",
+          "DTEND;VALUE=DATE:20260928",
+          "END:VEVENT",
+          "END:VCALENDAR"
+        ];
+
+        return "data:text/calendar;charset=utf-8," + encodeURIComponent(lines.join("\r\n"));
+      }
+
+      function buildIcsEvent(event, index) {
+        const dateInfo = parseEventDate(event.date);
+        const timeInfo = parseEventTime(event.time);
+        const uid = "cherokee-invitational-" + index + "-" + slugify(event.title || "event") + "@cherokee-invitational";
+        const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+        const lines = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//Cherokee Invitational//Events//EN",
+          "CALSCALE:GREGORIAN",
+          "METHOD:PUBLISH",
+          "BEGIN:VEVENT",
+          "UID:" + uid,
+          "DTSTAMP:" + now,
+          "SUMMARY:" + escapeIcs(event.title || "Cherokee Invitational Event"),
+          "LOCATION:" + escapeIcs(event.location || ""),
+          "DESCRIPTION:" + escapeIcs(event.notes || "")
+        ];
+
+        if (dateInfo && timeInfo) {
+          const start = new Date(dateInfo.year, dateInfo.month - 1, dateInfo.day, timeInfo.hour, timeInfo.minute);
+          const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+          lines.push("DTSTART:" + formatIcsDateTime(start));
+          lines.push("DTEND:" + formatIcsDateTime(end));
+        } else if (dateInfo) {
+          lines.push("DTSTART;VALUE=DATE:" + formatIcsDate(dateInfo));
+          lines.push("DTEND;VALUE=DATE:" + formatIcsDate(addDays(dateInfo, 1)));
+        }
+
+        lines.push("END:VEVENT");
+        lines.push("END:VCALENDAR");
+        return lines.join("\r\n");
+      }
+
+      function parseEventDate(value) {
+        const match = String(value || "").match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (!match) return null;
+        return {
+          month: Number(match[1]),
+          day: Number(match[2]),
+          year: Number(match[3])
+        };
+      }
+
+      function parseEventTime(value) {
+        const text = String(value || "").trim();
+        if (!text || /^tbd$/i.test(text)) return null;
+
+        const firstTime = text.split(/\s*(-|to|until)\s*/i)[0].trim();
+        const match = firstTime.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+        if (!match) return null;
+
+        let hour = Number(match[1]);
+        const minute = Number(match[2] || 0);
+        const meridiem = (match[3] || "").toUpperCase();
+
+        if (meridiem === "PM" && hour < 12) hour += 12;
+        if (meridiem === "AM" && hour === 12) hour = 0;
+
+        return { hour, minute };
+      }
+
+      function formatIcsDate(dateInfo) {
+        return String(dateInfo.year) + pad2(dateInfo.month) + pad2(dateInfo.day);
+      }
+
+      function formatIcsDateTime(date) {
+        return date.getFullYear()
+          + pad2(date.getMonth() + 1)
+          + pad2(date.getDate())
+          + "T"
+          + pad2(date.getHours())
+          + pad2(date.getMinutes())
+          + "00";
+      }
+
+      function addDays(dateInfo, days) {
+        const date = new Date(dateInfo.year, dateInfo.month - 1, dateInfo.day + days);
+        return {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          day: date.getDate()
+        };
+      }
+
+      function escapeIcs(value) {
+        return String(value || "")
+          .replace(/\\/g, "\\\\")
+          .replace(/\n/g, "\\n")
+          .replace(/,/g, "\\,")
+          .replace(/;/g, "\\;");
+      }
+
+      function calendarFileName(event) {
+        return slugify(event.title || "cherokee-event") + ".ics";
+      }
+
+      function slugify(value) {
+        return String(value || "event")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 60) || "event";
+      }
+
+      function pad2(value) {
+        return String(value).padStart(2, "0");
+      }
+
+      function loadLeaderboard() {
+        google.script.run
+          .withSuccessHandler(renderLeaderboard)
+          .withFailureHandler(err => showToast(err.message || "Could not load leaderboard."))
+          .getLeaderboardRows();
+      }
+
+      function renderLeaderboard(rows) {
+        const sourceRows = mergeLeaderboardRows(rows);
+        const sortedRows = sourceRows.slice().sort(compareLeaderboardRows);
+        const tableBody = document.getElementById("leaderboard-body");
+        const mobileList = document.getElementById("leaderboard-mobile");
+        tableBody.innerHTML = "";
+        mobileList.innerHTML = "";
+
+        sortedRows.forEach((row, index) => {
+          const position = index + 1;
+          const tr = document.createElement("tr");
+          if (index === 0) tr.className = "leader-row";
+
+          appendLeaderboardCell(tr, "pos", position === 1 ? "1" : String(position));
+          appendLeaderboardCell(tr, "team", row.team || "Team " + position);
+          appendLeaderboardCell(tr, "total", formatLeaderboardTotal(row.total));
+          appendLeaderboardCell(tr, "thru", row.thru || "-");
+          appendLeaderboardCell(tr, "strokes", row.strokes || "-");
+          appendLeaderboardCell(tr, "base", row.baseScore || "-");
+
+          const badgesCell = document.createElement("td");
+          badgesCell.className = "badges-cell";
+          badgesCell.appendChild(createBadgeRail(row.badgesOwned));
+          tr.appendChild(badgesCell);
+          tableBody.appendChild(tr);
+
+          mobileList.appendChild(createLeaderboardCard(row, position));
+        });
+      }
+
+      function mergeLeaderboardRows(rows) {
+        const mergedRows = DEFAULT_LEADERBOARD_ROWS.map(row => ({ ...row }));
+        const rowMap = new Map(mergedRows.map(row => [teamSortNumber(row.team), row]));
+
+        (Array.isArray(rows) ? rows : []).forEach(row => {
+          const key = teamSortNumber(row.team);
+          if (key) {
+            rowMap.set(key, { ...(rowMap.get(key) || {}), ...row, team: row.team || "Team " + key });
+          } else if (row.team || row.total || row.thru || row.strokes || row.baseScore || row.badgesOwned) {
+            mergedRows.push(row);
+          }
+        });
+
+        return Array.from(rowMap.values()).concat(mergedRows.filter(row => !teamSortNumber(row.team)));
+      }
+
+      function appendLeaderboardCell(rowEl, className, text) {
+        const cell = document.createElement("td");
+        cell.className = className;
+        cell.textContent = text;
+        rowEl.appendChild(cell);
+      }
+
+      function createLeaderboardCard(row, position) {
+        const card = document.createElement("article");
+        card.className = "leaderboard-card" + (position === 1 ? " leader-card" : "");
+
+        const top = document.createElement("div");
+        top.className = "leaderboard-card-top";
+
+        const pos = document.createElement("div");
+        pos.className = "leaderboard-position";
+        pos.textContent = position;
+
+        const team = document.createElement("div");
+        team.className = "leaderboard-team";
+        team.textContent = row.team || "Team " + position;
+
+        const total = document.createElement("div");
+        total.className = "leaderboard-total";
+        total.textContent = formatLeaderboardTotal(row.total);
+
+        top.appendChild(pos);
+        top.appendChild(team);
+        top.appendChild(total);
+
+        const stats = document.createElement("div");
+        stats.className = "leaderboard-stats";
+        stats.appendChild(createStat("Thru", row.thru || "-"));
+        stats.appendChild(createStat("Strokes", row.strokes || "-"));
+        stats.appendChild(createStat("Base", row.baseScore || "-"));
+
+        const badges = document.createElement("div");
+        badges.className = "leaderboard-card-badges";
+        badges.appendChild(createBadgeRail(row.badgesOwned));
+
+        card.appendChild(top);
+        card.appendChild(stats);
+        card.appendChild(badges);
+        return card;
+      }
+
+      function createStat(label, value) {
+        const stat = document.createElement("div");
+        stat.className = "leaderboard-stat";
+
+        const statLabel = document.createElement("span");
+        statLabel.textContent = label;
+
+        const statValue = document.createElement("strong");
+        statValue.textContent = value;
+
+        stat.appendChild(statLabel);
+        stat.appendChild(statValue);
+        return stat;
+      }
+
+      function createBadgeRail(value) {
+        const rail = document.createElement("div");
+        rail.className = "badge-rail";
+        const badges = String(value || "")
+          .split(/[,|]/)
+          .map(part => part.trim())
+          .filter(Boolean);
+
+        if (!badges.length) {
+          const empty = document.createElement("span");
+          empty.className = "badge-pill empty-badge";
+          empty.textContent = "No badges";
+          rail.appendChild(empty);
+          return rail;
+        }
+
+        badges.forEach(badge => {
+          const pill = document.createElement("span");
+          pill.className = "badge-pill";
+          pill.textContent = badge;
+          rail.appendChild(pill);
+        });
+
+        return rail;
+      }
+
+      function compareLeaderboardRows(a, b) {
+        const aScore = leaderboardSortValue(a.total);
+        const bScore = leaderboardSortValue(b.total);
+        if (aScore !== bScore) return aScore - bScore;
+        const aTeamNumber = teamSortNumber(a.team);
+        const bTeamNumber = teamSortNumber(b.team);
+        if (aTeamNumber && bTeamNumber && aTeamNumber !== bTeamNumber) return aTeamNumber - bTeamNumber;
+        return String(a.team || "").localeCompare(String(b.team || ""), undefined, { numeric: true });
+      }
+
+      function teamSortNumber(value) {
+        const match = String(value || "").match(/\d+/);
+        return match ? Number(match[0]) : 0;
+      }
+
+      function leaderboardSortValue(value) {
+        const text = String(value || "").trim().toUpperCase();
+        if (!text) return 999;
+        if (text === "E" || text === "EVEN") return 0;
+        const numeric = Number(text.replace("+", ""));
+        return Number.isNaN(numeric) ? 999 : numeric;
+      }
+
+      function formatLeaderboardTotal(value) {
+        const text = String(value || "").trim();
+        if (!text) return "-";
+        if (/^even$/i.test(text)) return "E";
+        if (/^-/.test(text) || /^\+/.test(text) || /^e$/i.test(text)) return text.toUpperCase();
+        const numeric = Number(text);
+        if (Number.isNaN(numeric)) return text;
+        if (numeric === 0) return "E";
+        return String(numeric);
+      }
+
+      function loadBookingProgress() {
+        google.script.run
+          .withSuccessHandler(renderBookingProgress)
+          .withFailureHandler(err => showBookingError(err.message || "Could not load pricing progress."))
+          .getBookingRows();
+      }
+
+      function renderBookingProgress(data) {
+        const rows = data && Array.isArray(data.rows) ? data.rows : [];
+        const summary = data && data.summary ? data.summary : {};
+        renderPricingTopline(summary);
+        renderBookingSummary(rows, summary);
+        renderBookingCards(rows);
+      }
+
+      function renderPricingTopline(summary) {
+        const container = document.getElementById("pricing-topline");
+        container.innerHTML = "";
+
+        const card = document.createElement("article");
+        card.className = "pricing-hero-card";
+
+        const label = document.createElement("span");
+        label.textContent = "Price Per Person*";
+
+        const value = document.createElement("strong");
+        value.textContent = summary.pricePerPerson || "-";
+
+        const detail = document.createElement("small");
+        detail.textContent = "*Assumes you are splitting a room with one other person for two nights.";
+
+        card.appendChild(label);
+        card.appendChild(value);
+        card.appendChild(detail);
+        container.appendChild(card);
+      }
+
+      function renderBookingSummary(rows, summary) {
+        const container = document.getElementById("booking-summary");
+        container.innerHTML = "";
+
+        if (!rows.length) {
+          const empty = document.createElement("div");
+          empty.className = "booking-loading";
+          empty.textContent = "No pricing items found yet.";
+          container.appendChild(empty);
+          return;
+        }
+
+        const totalSteps = rows.length * BOOKING_STEPS.length;
+        const completedSteps = rows.reduce((sum, row) => {
+          return sum + BOOKING_STEPS.filter(step => row[step.key]).length;
+        }, 0);
+        const percent = totalSteps ? Math.round((completedSteps / totalSteps) * 100) : 0;
+
+        container.appendChild(createBookingStat("Overall", completedSteps + " / " + totalSteps, percent + "% complete"));
+        container.appendChild(createBookingStat("Secured", summary.secured || countBookingStep(rows, "secured") + " / " + rows.length, "items locked in"));
+        container.appendChild(createBookingStat("Deposits", summary.depositPaid || countBookingStep(rows, "depositPaid") + " / " + rows.length, "paid or placed"));
+        container.appendChild(createBookingStat("Liability", summary.totalLiability || "-", "total exposure"));
+      }
+
+      function renderBookingCards(rows) {
+        const grid = document.getElementById("booking-grid");
+        grid.innerHTML = "";
+
+        if (!rows.length) {
+          const empty = document.createElement("div");
+          empty.className = "booking-loading";
+          empty.textContent = "Add pricing rows to show progress here.";
+          grid.appendChild(empty);
+          return;
+        }
+
+        rows.forEach(row => {
+          const card = document.createElement("article");
+          card.className = "booking-card" + (row.secured ? " booking-card-secured" : "");
+
+          const header = document.createElement("div");
+          header.className = "booking-card-header";
+
+          const title = document.createElement("h2");
+          title.textContent = row.item || "Pricing item";
+
+          const percent = bookingCompletionPercent(row);
+          const meter = document.createElement("div");
+          meter.className = "booking-meter-label";
+          meter.textContent = percent + "%";
+
+          header.appendChild(title);
+          header.appendChild(meter);
+
+          const progress = document.createElement("div");
+          progress.className = "booking-progress";
+          const bar = document.createElement("span");
+          bar.style.width = percent + "%";
+          progress.appendChild(bar);
+
+          const chips = document.createElement("div");
+          chips.className = "booking-steps";
+          BOOKING_STEPS.forEach(step => {
+            const chip = document.createElement("span");
+            chip.className = "booking-step" + (row[step.key] ? " booking-step-complete" : "");
+            chip.textContent = (row[step.key] ? "Done: " : "") + step.label;
+            chips.appendChild(chip);
+          });
+
+          const update = document.createElement("p");
+          update.className = "booking-update";
+          update.textContent = row.latestUpdate || "No update yet.";
+
+          const meta = document.createElement("div");
+          meta.className = "booking-meta";
+          appendBookingMeta(meta, "Price / PP", row.pricePerPerson || "-");
+          appendBookingMeta(meta, "Cancel By", row.cancelBy || "-");
+          appendBookingMeta(meta, "Liability", row.totalLiability || "-");
+
+          card.appendChild(header);
+          card.appendChild(progress);
+          card.appendChild(chips);
+          card.appendChild(update);
+          card.appendChild(meta);
+
+          if (row.contractUrl) {
+            const link = document.createElement("a");
+            link.className = "booking-contract-link";
+            link.href = row.contractUrl;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.textContent = "View Contract";
+            card.appendChild(link);
+          }
+
+          grid.appendChild(card);
+        });
+      }
+
+      const BOOKING_STEPS = [
+        { key: "madeContact", label: "Contacted" },
+        { key: "confirmedAvailability", label: "Available" },
+        { key: "secured", label: "Secured" },
+        { key: "contractSigned", label: "Contract" },
+        { key: "depositPaid", label: "Deposit" }
+      ];
+
+      function bookingCompletionPercent(row) {
+        const complete = BOOKING_STEPS.filter(step => row[step.key]).length;
+        return Math.round((complete / BOOKING_STEPS.length) * 100);
+      }
+
+      function countBookingStep(rows, key) {
+        return rows.filter(row => row[key]).length;
+      }
+
+      function createBookingStat(label, value, detail) {
+        const stat = document.createElement("article");
+        stat.className = "booking-stat";
+
+        const statLabel = document.createElement("span");
+        statLabel.textContent = label;
+
+        const statValue = document.createElement("strong");
+        statValue.textContent = value;
+
+        const statDetail = document.createElement("small");
+        statDetail.textContent = detail;
+
+        stat.appendChild(statLabel);
+        stat.appendChild(statValue);
+        stat.appendChild(statDetail);
+        return stat;
+      }
+
+      function appendBookingMeta(container, label, value) {
+        const item = document.createElement("div");
+        const itemLabel = document.createElement("span");
+        const itemValue = document.createElement("strong");
+
+        itemLabel.textContent = label;
+        itemValue.textContent = value;
+        item.appendChild(itemLabel);
+        item.appendChild(itemValue);
+        container.appendChild(item);
+      }
+
+      function showBookingError(text) {
+        const pricing = document.getElementById("pricing-topline");
+        const summary = document.getElementById("booking-summary");
+        const grid = document.getElementById("booking-grid");
+        pricing.innerHTML = "";
+        summary.innerHTML = "";
+        grid.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "booking-loading";
+        error.textContent = text;
+        grid.appendChild(error);
+        showToast(text);
+      }
+
+      function loadGolfers() {
+        google.script.run
+          .withSuccessHandler(renderGolfers)
+          .withFailureHandler(err => showGolfersError(err.message || "Could not load golfers."))
+          .getGolfersRows();
+      }
+
+      function renderGolfers(rows) {
+        const golfers = Array.isArray(rows) ? rows : [];
+        renderGolfersSummary(golfers);
+        renderGolfersGrid(golfers);
+      }
+
+      function renderGolfersSummary(golfers) {
+        const container = document.getElementById("golfers-summary");
+        container.innerHTML = "";
+
+        if (!golfers.length) {
+          const empty = document.createElement("div");
+          empty.className = "golfers-loading";
+          empty.textContent = "No committed golfers found yet.";
+          container.appendChild(empty);
+          return;
+        }
+
+        container.appendChild(createGolferStat("Committed", String(golfers.length), "registered players"));
+        container.appendChild(createGolferStat("Tournament", String(countCommitment(golfers, "Tournament")), "playing Saturday"));
+        container.appendChild(createGolferStat("Practice", String(countCommitment(golfers, "Practice Round")), "playing Friday"));
+        container.appendChild(createGolferStat("SportsBook", String(countCommitment(golfers, "SportsBook")), "signed up"));
+        container.appendChild(createGolferStat("Hotel", String(countCommitment(golfers, "Hotel")), "staying onsite"));
+      }
+
+      function renderGolfersGrid(golfers) {
+        const grid = document.getElementById("golfers-grid");
+        grid.innerHTML = "";
+
+        if (!golfers.length) {
+          const empty = document.createElement("div");
+          empty.className = "golfers-loading";
+          empty.textContent = "Registration entries will show here once players sign up.";
+          grid.appendChild(empty);
+          return;
+        }
+
+        golfers
+          .slice()
+          .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")))
+          .forEach(golfer => {
+            const card = document.createElement("article");
+            card.className = "golfer-card";
+
+            const header = document.createElement("div");
+            header.className = "golfer-card-header";
+
+            const name = document.createElement("h2");
+            name.textContent = golfer.name || "Golfer";
+
+            const handicap = document.createElement("div");
+            handicap.className = "golfer-handicap";
+            handicap.innerHTML = "<span>HCP</span><strong></strong>";
+            handicap.querySelector("strong").textContent = golfer.handicap || "-";
+
+            header.appendChild(name);
+            header.appendChild(handicap);
+
+            const commitments = document.createElement("div");
+            commitments.className = "golfer-commitments";
+
+            const labels = golfer.commitments && golfer.commitments.length ? golfer.commitments : ["No commitments listed"];
+            labels.forEach(label => {
+              const chip = document.createElement("span");
+              chip.className = "golfer-commitment";
+              chip.textContent = label;
+              commitments.appendChild(chip);
+            });
+
+            card.appendChild(header);
+            card.appendChild(commitments);
+            grid.appendChild(card);
+          });
+      }
+
+      function createGolferStat(label, value, detail) {
+        const stat = document.createElement("article");
+        stat.className = "golfer-stat";
+
+        const statLabel = document.createElement("span");
+        statLabel.textContent = label;
+
+        const statValue = document.createElement("strong");
+        statValue.textContent = value;
+
+        const statDetail = document.createElement("small");
+        statDetail.textContent = detail;
+
+        stat.appendChild(statLabel);
+        stat.appendChild(statValue);
+        stat.appendChild(statDetail);
+        return stat;
+      }
+
+      function countCommitment(golfers, commitment) {
+        return golfers.filter(golfer => {
+          return Array.isArray(golfer.commitments) && golfer.commitments.includes(commitment);
+        }).length;
+      }
+
+      function showGolfersError(text) {
+        const summary = document.getElementById("golfers-summary");
+        const grid = document.getElementById("golfers-grid");
+        summary.innerHTML = "";
+        grid.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "golfers-loading";
+        error.textContent = text;
+        grid.appendChild(error);
+        showToast(text);
+      }
+
+      function loadGallery() {
+        google.script.run
+          .withSuccessHandler(renderGallery)
+          .withFailureHandler(err => showGalleryError(err.message || "Could not load gallery."))
+          .getGalleryPhotos();
+      }
+
+      function renderGallery(photos) {
+        const grid = document.getElementById("gallery-grid");
+        const rows = Array.isArray(photos) ? photos : [];
+        grid.innerHTML = "";
+
+        if (!rows.length) {
+          const empty = document.createElement("div");
+          empty.className = "gallery-loading";
+          empty.textContent = "No gallery photos yet. Add previous years in the Gallery sheet, or upload one here.";
+          grid.appendChild(empty);
+          return;
+        }
+
+        rows.forEach(photo => {
+          const card = document.createElement("article");
+          card.className = "gallery-card";
+
+          const image = document.createElement("img");
+          image.className = "gallery-photo";
+          image.src = photo.imageUrl;
+          image.alt = photo.caption || "Cherokee Invitational photo";
+          image.loading = "lazy";
+
+          const body = document.createElement("div");
+          body.className = "gallery-card-body";
+
+          const meta = document.createElement("div");
+          meta.className = "gallery-meta";
+          meta.textContent = [photo.year, photo.uploadedBy].filter(Boolean).join(" / ");
+
+          const caption = document.createElement("p");
+          caption.textContent = photo.caption || "Cherokee Invitational";
+
+          body.appendChild(meta);
+          body.appendChild(caption);
+          card.appendChild(image);
+          card.appendChild(body);
+          grid.appendChild(card);
+        });
+      }
+
+      function uploadGalleryPhoto() {
+        const name = document.getElementById("gallery-name").value.trim();
+        const year = document.getElementById("gallery-year").value;
+        const caption = document.getElementById("gallery-caption").value.trim();
+        const fileInput = document.getElementById("gallery-file");
+        const status = document.getElementById("gallery-upload-status");
+        const file = fileInput.files && fileInput.files[0];
+
+        if (!name) {
+          showGalleryUploadStatus("Add your name before uploading.", true);
+          return;
+        }
+        if (!file) {
+          showGalleryUploadStatus("Choose a photo first.", true);
+          return;
+        }
+        if (!/^image\//i.test(file.type)) {
+          showGalleryUploadStatus("Choose an image file.", true);
+          return;
+        }
+        if (file.size > 8 * 1024 * 1024) {
+          showGalleryUploadStatus("Photo is too large. Please upload an image under 8 MB.", true);
+          return;
+        }
+
+        status.classList.remove("error");
+        status.textContent = "Uploading...";
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          google.script.run
+            .withSuccessHandler(() => {
+              showGalleryUploadStatus("Photo uploaded. Refreshing gallery...", false);
+              document.getElementById("gallery-caption").value = "";
+              fileInput.value = "";
+              loadGallery();
+            })
+            .withFailureHandler(err => showGalleryUploadStatus(err.message || "Upload failed.", true))
+            .uploadGalleryPhoto({
+              uploadedBy: name,
+              year: year,
+              caption: caption,
+              dataUrl: reader.result
+            });
+        };
+        reader.onerror = () => showGalleryUploadStatus("Could not read that photo.", true);
+        reader.readAsDataURL(file);
+      }
+
+      function showGalleryUploadStatus(text, isError) {
+        const status = document.getElementById("gallery-upload-status");
+        status.textContent = text;
+        status.classList.toggle("error", Boolean(isError));
+      }
+
+      function showGalleryError(text) {
+        const grid = document.getElementById("gallery-grid");
+        grid.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "gallery-loading";
+        error.textContent = text;
+        grid.appendChild(error);
+        showToast(text);
+      }
+
+      function openTeamScore(teamNumber) {
+        currentScoringTeam = String(teamNumber || "").replace(/\D/g, "").slice(0, 2);
+        if (!currentScoringTeam) return;
+
+        document.getElementById("team-score-title").textContent = "Team " + currentScoringTeam + " Score";
+        buildTeamScoreGrid();
+        showPage("team-score");
+      }
+
+      function buildTeamScoreGrid() {
+        const grid = document.getElementById("team-score-grid");
+        if (grid.childElementCount) return;
+
+        for (let hole = 1; hole <= 18; hole++) {
+          const field = document.createElement("label");
+          field.className = "team-score-hole";
+
+          const label = document.createElement("span");
+          label.textContent = "Hole " + hole;
+
+          const input = document.createElement("input");
+          input.type = "number";
+          input.min = "1";
+          input.max = "20";
+          input.inputMode = "numeric";
+          input.id = "team-hole-" + hole;
+          input.addEventListener("input", () => {
+            updateTeamScoreSummary();
+            scheduleTeamScoreAutosave();
+          });
+
+          field.appendChild(label);
+          field.appendChild(input);
+
+          const badge = getBonusBadgeForHole(hole);
+          if (badge) {
+            field.classList.add("team-score-bonus-hole");
+
+            const badgeButton = document.createElement("button");
+            badgeButton.type = "button";
+            badgeButton.className = "team-badge-toggle";
+            badgeButton.dataset.badgeKey = badge.key;
+            badgeButton.dataset.badgeLabel = badge.label;
+            badgeButton.dataset.yardagePrompt = badge.yardagePrompt || "";
+            badgeButton.dataset.yardage = "";
+            badgeButton.textContent = "Badge: " + badge.label;
+            badgeButton.onclick = () => toggleTeamBadge(badgeButton);
+            field.appendChild(badgeButton);
+          }
+
+          grid.appendChild(field);
+        }
+      }
+
+      function loadTeamScore(teamNumber) {
+        const status = document.getElementById("team-score-status");
+        status.textContent = "Loading...";
+        status.classList.remove("error");
+
+        google.script.run
+          .withSuccessHandler(renderTeamScore)
+          .withFailureHandler(err => showTeamScoreStatus(err.message || "Could not load team score.", true))
+          .getTeamScore(teamNumber);
+      }
+
+      function renderTeamScore(data) {
+        const score = data || {};
+        currentScoringTeam = String(score.teamNumber || currentScoringTeam || "");
+        document.getElementById("team-score-title").textContent = "Team " + currentScoringTeam + " Score";
+        document.getElementById("team-score-updated-by").value = score.updatedBy || "";
+        document.getElementById("team-score-updated").textContent = score.updatedAt || "-";
+
+        const scores = Array.isArray(score.scores) ? score.scores : [];
+        for (let hole = 1; hole <= 18; hole++) {
+          const input = document.getElementById("team-hole-" + hole);
+          if (input) input.value = scores[hole - 1] || "";
+        }
+        setTeamBadgeValues(score.badges || {});
+
+        updateTeamScoreSummary();
+        showTeamScoreStatus("Ready.", false);
+      }
+
+      function saveCurrentTeamScore() {
+        clearTeamScoreAutosave();
+        persistTeamScore(false);
+      }
+
+      function scheduleTeamScoreAutosave() {
+        if (!currentScoringTeam) return;
+        clearTeamScoreAutosave();
+        showTeamScoreStatus("Unsaved changes...", false);
+        teamScoreAutosaveTimer = setTimeout(() => persistTeamScore(true), 900);
+      }
+
+      function clearTeamScoreAutosave() {
+        if (teamScoreAutosaveTimer) {
+          clearTimeout(teamScoreAutosaveTimer);
+          teamScoreAutosaveTimer = null;
+        }
+      }
+
+      function persistTeamScore(isAutosave) {
+        if (!currentScoringTeam) {
+          showTeamScoreStatus("No team number found.", true);
+          return;
+        }
+
+        if (teamScoreSaveInFlight) {
+          teamScoreSavePending = true;
+          return;
+        }
+
+        const scores = getTeamScoreInputValues();
+        const badges = getTeamBadgeValues();
+        const updatedBy = document.getElementById("team-score-updated-by").value.trim();
+        teamScoreSaveInFlight = true;
+        showTeamScoreStatus(isAutosave ? "Autosaving..." : "Saving...", false);
+
+        google.script.run
+          .withSuccessHandler(data => {
+            teamScoreSaveInFlight = false;
+            document.getElementById("team-score-updated").textContent = "Just now";
+            loadLeaderboard();
+            showTeamScoreStatus(isAutosave ? "Autosaved." : "Saved. Leaderboard updated.", false);
+            if (teamScoreSavePending) {
+              teamScoreSavePending = false;
+              teamScoreAutosaveTimer = setTimeout(() => persistTeamScore(true), 300);
+            }
+          })
+          .withFailureHandler(err => {
+            teamScoreSaveInFlight = false;
+            showTeamScoreStatus(err.message || "Could not save score.", true);
+            if (teamScoreSavePending) {
+              teamScoreSavePending = false;
+              scheduleTeamScoreAutosave();
+            }
+          })
+          .saveTeamScore(currentScoringTeam, scores, updatedBy, badges);
+      }
+
+      function getTeamScoreInputValues() {
+        return Array.from({ length: 18 }, (_, index) => {
+          const input = document.getElementById("team-hole-" + (index + 1));
+          return input ? input.value.trim() : "";
+        });
+      }
+
+      function updateTeamScoreSummary() {
+        const scores = getTeamScoreInputValues();
+        const numericScores = scores
+          .map(value => Number(value))
+          .filter(value => Number.isInteger(value) && value > 0);
+
+        document.getElementById("team-score-thru").textContent = String(numericScores.length);
+        document.getElementById("team-score-strokes").textContent = String(numericScores.reduce((sum, value) => sum + value, 0));
+      }
+
+      function getBonusBadgeForHole(hole) {
+        return BONUS_BADGES.find(badge => badge.hole === hole) || null;
+      }
+
+      function toggleTeamBadge(button) {
+        const willEarn = !button.classList.contains("earned");
+        let yardage = button.dataset.yardage || "";
+
+        if (willEarn && button.dataset.yardagePrompt) {
+          const entered = prompt(button.dataset.yardagePrompt, yardage);
+          if (entered === null) return;
+
+          yardage = normalizeYardageInput(entered);
+          if (!yardage) {
+            showTeamScoreStatus("Enter a valid yardage for " + button.dataset.badgeLabel + ".", true);
+            return;
+          }
+        }
+
+        button.dataset.yardage = willEarn ? yardage : "";
+        setTeamBadgeButtonState(button, willEarn);
+        scheduleTeamScoreAutosave();
+      }
+
+      function setTeamBadgeValues(badges) {
+        document.querySelectorAll(".team-badge-toggle").forEach(button => {
+          const value = badges[button.dataset.badgeKey];
+          const valueObject = value && typeof value === "object" ? value : {};
+          const isEarned = value === true || valueObject.earned === true;
+          button.dataset.yardage = valueObject.yardage || "";
+          setTeamBadgeButtonState(button, isEarned);
+        });
+      }
+
+      function getTeamBadgeValues() {
+        const badges = {};
+        document.querySelectorAll(".team-badge-toggle").forEach(button => {
+          badges[button.dataset.badgeKey] = {
+            earned: button.classList.contains("earned"),
+            yardage: button.dataset.yardage || ""
+          };
+        });
+        return badges;
+      }
+
+      function setTeamBadgeButtonState(button, isEarned) {
+        button.classList.toggle("earned", isEarned);
+        button.setAttribute("aria-pressed", isEarned ? "true" : "false");
+
+        const yardage = button.dataset.yardage || "";
+        const suffix = isEarned && yardage ? " (" + yardage + " yds)" : "";
+        button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel + suffix;
+      }
+
+      function normalizeYardageInput(value) {
+        const text = String(value || "").trim().replace(/yards?|yds?\.?/i, "").trim();
+        if (!text) return "";
+
+        const numeric = Number(text);
+        if (!Number.isFinite(numeric) || numeric < 0 || numeric > 700) return "";
+        return String(Math.round(numeric * 10) / 10);
+      }
+
+      function showTeamScoreStatus(text, isError) {
+        const status = document.getElementById("team-score-status");
+        status.textContent = text;
+        status.classList.toggle("error", Boolean(isError));
+      }
+
+      document.addEventListener("input", e => {
+        if (e.target.id !== "chat-name") return;
+
+        const val = e.target.value.toLowerCase();
+        const box = document.getElementById("name-suggestions");
+        box.innerHTML = "";
+        selectedUser = findRegisteredName(e.target.value);
+
+        if (!val || !window.entryNames) return;
+
+        const matches = window.entryNames
+          .filter(n => n.toLowerCase().includes(val))
+          .slice(0, 8);
+
+        matches.forEach(name => {
+          const div = document.createElement("div");
+          div.className = "suggestion";
+          div.textContent = name;
+          div.onclick = () => {
+            selectedUser = name;
+            document.getElementById("chat-name").value = name;
+            box.innerHTML = "";
+          };
+          box.appendChild(div);
+        });
+      });
+
+      document.addEventListener("keydown", e => {
+        if (e.target.id === "chat-text" && e.key === "Enter") {
+          e.preventDefault();
+          sendMessage();
+        }
+
+        if (e.key === "Escape") {
+          closePageMenu();
+        }
+      });
+
+      document.addEventListener("click", e => {
+        const nav = document.getElementById("page-nav");
+        if (nav && !nav.contains(e.target)) {
+          closePageMenu();
+        }
+      });
+
+      /* SEND MESSAGE */
+      function sendMessage() {
+        const text = document.getElementById('chat-text').value.trim();
+        const user = selectedUser || findRegisteredName(document.getElementById("chat-name").value);
+
+        if (!user) {
+          alert("Select a registered name first.");
+          return;
+        }
+        if (!text) return;
+
+        google.script.run
+          .withSuccessHandler(() => {
+            document.getElementById('chat-text').value = "";
+            replyTo = null;
+            loadChat();
+          })
+          .withFailureHandler(err => showToast(err.message || "Message could not be sent."))
+          .saveChatMessage(user, currentChannel, text, replyTo);
+      }
+
+      /* LOAD CHAT */
+      function loadChat() {
+        const requestedChannel = currentChannel;
+        renderLoading(false);
+
+        google.script.run
+          .withSuccessHandler(data => {
+            if (requestedChannel !== currentChannel) return;
+            renderChat(data);
+          })
+          .withFailureHandler(err => showChatError(err.message || "Could not load chat."))
+          .getChatData(requestedChannel);
+      }
+
+      /* RENDER CHAT */
+      function renderChat(data) {
+        if (data && Array.isArray(data.names)) {
+          window.entryNames = data.names;
+        }
+
+        const snapshotMessages = data && Array.isArray(data.messages) ? data.messages : [];
+        const messages = snapshotMessages.filter(Boolean);
+        const container = document.getElementById('chat-messages');
+        container.innerHTML = "";
+
+        if (!messages.length) {
+          const empty = document.createElement("div");
+          empty.className = "chat-empty";
+          empty.textContent = "No messages in this channel yet.";
+          container.appendChild(empty);
+          return;
+        }
+
+        const threads = messages.filter(m => !m.parent);
+        const visibleThreads = threads.length ? threads : messages;
+
+        visibleThreads.forEach(thread => {
+          const msgDiv = document.createElement('div');
+          msgDiv.className = "chat-message";
+          msgDiv.appendChild(createBubble(thread, false));
+
+          const replies = threads.length ? messages.filter(m => m.parent === thread.id) : [];
+          if (replies.length) {
+            const replyBlock = document.createElement('div');
+            replyBlock.className = "chat-reply-block";
+
+            replies.forEach(r => {
+              replyBlock.appendChild(createBubble(r, true));
+            });
+
+            msgDiv.appendChild(replyBlock);
+          }
+
+          container.appendChild(msgDiv);
+        });
+
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function createBubble(message, isReply) {
+        const row = document.createElement('div');
+        row.className = isReply ? "chat-reply-row" : "chat-message-row";
+
+        const avatar = document.createElement('div');
+        avatar.className = "chat-avatar";
+        avatar.textContent = initials(message.user);
+
+        const bubble = document.createElement('div');
+        bubble.className = isReply ? "chat-reply-bubble" : "chat-bubble";
+
+        const header = document.createElement('div');
+        header.className = "chat-message-header";
+
+        const user = document.createElement('span');
+        user.className = isReply ? "chat-reply-user" : "chat-user";
+        user.textContent = message.user || "Guest";
+
+        const meta = document.createElement('span');
+        meta.className = isReply ? "chat-reply-meta" : "chat-meta";
+        meta.textContent = formatTime(message.time);
+
+        const text = document.createElement('div');
+        text.className = isReply ? "chat-reply-text" : "chat-text";
+        text.textContent = message.text || "";
+
+        if (!isReply) {
+          const reply = document.createElement('span');
+          reply.className = "chat-reply-button";
+          reply.textContent = "Reply";
+          reply.onclick = () => setReply(message.id);
+          header.appendChild(user);
+          header.appendChild(meta);
+          header.appendChild(reply);
+        } else {
+          header.appendChild(user);
+          header.appendChild(meta);
+        }
+
+        bubble.appendChild(header);
+        bubble.appendChild(text);
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+
+        return row;
+      }
+
+      function setReply(id) {
+        replyTo = id;
+        const input = document.getElementById('chat-text');
+        input.placeholder = "Replying in #" + currentChannel;
+        input.focus();
+      }
+
+      function formatTime(t) {
+        try {
+          const d = new Date(t);
+          return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function showToast(text) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = text;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      function showChatError(text) {
+        const container = document.getElementById('chat-messages');
+        container.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "chat-empty";
+        error.textContent = text;
+        container.appendChild(error);
+
+        showToast(text);
+      }
+
+      function renderLoading(force) {
+        const container = document.getElementById('chat-messages');
+        if (!force && container.childElementCount) return;
+        container.innerHTML = "";
+
+        const loading = document.createElement("div");
+        loading.className = "chat-empty";
+        loading.textContent = "Loading messages...";
+        container.appendChild(loading);
+      }
+
+      function initState() {
+        const stored = localStorage.getItem("ci_lastSeen");
+        try {
+          lastSeen = stored ? JSON.parse(stored) : {};
+        } catch (e) {
+          lastSeen = {};
+        }
+      }
+
+      function findRegisteredName(value) {
+        const typed = value.trim().toLowerCase();
+        if (!typed || !window.entryNames) return null;
+        return window.entryNames.find(name => name.toLowerCase() === typed) || null;
+      }
+
+      function isChatVisible() {
+        return document.getElementById("chat").style.display !== "none";
+      }
+
+      function isNarrowScreen() {
+        return window.matchMedia("(max-width: 1599px)").matches;
+      }
+
+      function badgeKey(ch) {
+        return ch.replace(/\s+/g, "");
+      }
+
+      function initials(name) {
+        return String(name || "?")
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(part => part[0].toUpperCase())
+          .join("");
+      }
+
+      /* INIT */
+      initState();
+      document.getElementById("trip-calendar-button").href = buildTripCalendarDataUrl();
+      buildChannelDrawer();
+      loadEvents();
+      loadNames();
+      loadChat();
+      loadLeaderboard();
+      loadBookingProgress();
+      loadGolfers();
+      loadGallery();
+      if (INITIAL_TEAM_NUMBER) {
+        openTeamScore(INITIAL_TEAM_NUMBER);
+      } else {
+        updatePageMenu("home");
+      }
+      setInterval(() => {
+        if (isChatVisible()) loadChat();
+      }, 8000);
+      setInterval(() => {
+        if (document.getElementById("leaderboard").style.display !== "none") loadLeaderboard();
+      }, 15000);
+      setInterval(() => {
+        if (document.getElementById("booking").style.display !== "none") loadBookingProgress();
+      }, 30000);
+      setInterval(() => {
+        if (document.getElementById("golfers").style.display !== "none") loadGolfers();
+      }, 30000);
+      setInterval(() => {
+        if (document.getElementById("gallery").style.display !== "none") loadGallery();
+      }, 45000);
+    </script>
+
   </body>
 </html>

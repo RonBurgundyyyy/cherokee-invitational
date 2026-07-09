@@ -1,4 +1,8 @@
 function doGet(e) {
+  if (e && e.parameter && e.parameter.api === "1") {
+    return handleApiRequest_(e);
+  }
+
   const template = HtmlService.createTemplateFromFile('index');
   template.initialTeamNumber = cleanTeamNumber_(e && e.parameter ? e.parameter.team : "");
   return template
@@ -9,6 +13,59 @@ function doGet(e) {
 
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+const API_METHODS = {
+  getEntryNames: getEntryNames,
+  saveEntry: saveEntry,
+  getGolfersRows: getGolfersRows,
+  getItineraryEvents: getItineraryEvents,
+  getLeaderboardRows: getLeaderboardRows,
+  getTeamScore: getTeamScore,
+  saveTeamScore: saveTeamScore,
+  getBookingRows: getBookingRows,
+  getGalleryPhotos: getGalleryPhotos,
+  getChatData: getChatData,
+  saveChatMessage: saveChatMessage
+};
+
+function handleApiRequest_(e) {
+  const callback = cleanJsonpCallback_(e.parameter.callback);
+  const methodName = cleanText_(e.parameter.method, 80);
+  let payload;
+
+  try {
+    if (!callback) {
+      throw new Error("Missing callback.");
+    }
+    if (!API_METHODS[methodName]) {
+      throw new Error("Unknown API method.");
+    }
+
+    const args = e.parameter.args ? JSON.parse(e.parameter.args) : [];
+    if (!Array.isArray(args)) {
+      throw new Error("Invalid API arguments.");
+    }
+
+    payload = {
+      ok: true,
+      data: API_METHODS[methodName].apply(null, args)
+    };
+  } catch (error) {
+    payload = {
+      ok: false,
+      error: error && error.message ? error.message : "Request failed."
+    };
+  }
+
+  return ContentService
+    .createTextOutput(callback + "(" + JSON.stringify(payload) + ");")
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+function cleanJsonpCallback_(value) {
+  const text = cleanText_(value, 120);
+  return /^[A-Za-z_$][0-9A-Za-z_$]*(\.[A-Za-z_$][0-9A-Za-z_$]*)*$/.test(text) ? text : "";
 }
 
 const CHANNELS = [
