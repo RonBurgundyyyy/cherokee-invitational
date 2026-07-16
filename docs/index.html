@@ -1256,6 +1256,36 @@
     margin-top: 16px;
   }
 
+  .team-score-live-board {
+    margin-top: 18px;
+  }
+
+  .team-score-live-board .leaderboard-topbar {
+    padding: 16px 20px;
+  }
+
+  .team-score-live-board .leaderboard-table {
+    min-width: 820px;
+  }
+
+  .team-score-live-board .leaderboard-table th {
+    font-size: 15px;
+    padding: 9px 10px;
+  }
+
+  .team-score-live-board .leaderboard-table td {
+    font-size: 20px;
+    padding: 12px 10px;
+  }
+
+  .team-score-live-board .leaderboard-table .total {
+    font-size: 25px;
+  }
+
+  .team-score-live-board .leaderboard-card {
+    padding: 14px;
+  }
+
   .team-score-actions button {
     background: linear-gradient(90deg, var(--neon), var(--gold));
     border: 0;
@@ -3014,6 +3044,39 @@
             <div id="team-score-status"></div>
           </div>
         </section>
+
+        <section class="leaderboard-broadcast team-score-live-board" aria-live="polite">
+          <div class="leaderboard-topbar">
+            <div>
+              <span class="broadcast-label">Live Leaderboard</span>
+              <strong>Team Standings</strong>
+            </div>
+            <div class="broadcast-live">Live</div>
+          </div>
+
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Team</th>
+                  <th>Total</th>
+                  <th>Thru</th>
+                  <th>Strokes</th>
+                  <th>Base</th>
+                  <th>Badges</th>
+                </tr>
+              </thead>
+              <tbody id="team-score-leaderboard-body">
+                <tr>
+                  <td colspan="7">Loading leaderboard...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="leaderboard-mobile" id="team-score-leaderboard-mobile"></div>
+        </section>
       </section>
 
     </main>
@@ -3109,8 +3172,11 @@
           loadGallery();
         }
 
-        if (page === 'team-score' && currentScoringTeam) {
-          loadTeamScore(currentScoringTeam);
+        if (page === 'team-score') {
+          if (currentScoringTeam) {
+            loadTeamScore(currentScoringTeam);
+          }
+          loadLeaderboard();
         }
       }
 
@@ -3458,8 +3524,15 @@
       function renderLeaderboard(rows) {
         const sourceRows = mergeLeaderboardRows(rows);
         const sortedRows = sourceRows.slice().sort(compareLeaderboardRows);
-        const tableBody = document.getElementById("leaderboard-body");
-        const mobileList = document.getElementById("leaderboard-mobile");
+        renderLeaderboardInto(sortedRows, "leaderboard-body", "leaderboard-mobile");
+        renderLeaderboardInto(sortedRows, "team-score-leaderboard-body", "team-score-leaderboard-mobile");
+      }
+
+      function renderLeaderboardInto(sortedRows, tableBodyId, mobileListId) {
+        const tableBody = document.getElementById(tableBodyId);
+        const mobileList = document.getElementById(mobileListId);
+        if (!tableBody || !mobileList) return;
+
         tableBody.innerHTML = "";
         mobileList.innerHTML = "";
 
@@ -4557,7 +4630,9 @@
         if (isChatVisible()) loadChat();
       }, 8000);
       setInterval(() => {
-        if (document.getElementById("leaderboard").style.display !== "none") loadLeaderboard();
+        const leaderboardVisible = document.getElementById("leaderboard").style.display !== "none";
+        const teamScoreVisible = document.getElementById("team-score").style.display !== "none";
+        if (leaderboardVisible || teamScoreVisible) loadLeaderboard();
       }, 15000);
       setInterval(() => {
         if (document.getElementById("booking").style.display !== "none") loadBookingProgress();

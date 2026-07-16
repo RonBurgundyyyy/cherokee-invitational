@@ -3,6 +3,7 @@
   <head>
     <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cherokee Invitational</title>
     <link rel="icon" type="image/svg+xml" href="https://www.cherokee-invitational.com/favicon.svg">
     <?!= include('styles'); ?>
   </head>
@@ -456,6 +457,39 @@
             <div id="team-score-status"></div>
           </div>
         </section>
+
+        <section class="leaderboard-broadcast team-score-live-board" aria-live="polite">
+          <div class="leaderboard-topbar">
+            <div>
+              <span class="broadcast-label">Live Leaderboard</span>
+              <strong>Team Standings</strong>
+            </div>
+            <div class="broadcast-live">Live</div>
+          </div>
+
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Team</th>
+                  <th>Total</th>
+                  <th>Thru</th>
+                  <th>Strokes</th>
+                  <th>Base</th>
+                  <th>Badges</th>
+                </tr>
+              </thead>
+              <tbody id="team-score-leaderboard-body">
+                <tr>
+                  <td colspan="7">Loading leaderboard...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="leaderboard-mobile" id="team-score-leaderboard-mobile"></div>
+        </section>
       </section>
 
     </main>
@@ -551,8 +585,11 @@
           loadGallery();
         }
 
-        if (page === 'team-score' && currentScoringTeam) {
-          loadTeamScore(currentScoringTeam);
+        if (page === 'team-score') {
+          if (currentScoringTeam) {
+            loadTeamScore(currentScoringTeam);
+          }
+          loadLeaderboard();
         }
       }
 
@@ -900,8 +937,15 @@
       function renderLeaderboard(rows) {
         const sourceRows = mergeLeaderboardRows(rows);
         const sortedRows = sourceRows.slice().sort(compareLeaderboardRows);
-        const tableBody = document.getElementById("leaderboard-body");
-        const mobileList = document.getElementById("leaderboard-mobile");
+        renderLeaderboardInto(sortedRows, "leaderboard-body", "leaderboard-mobile");
+        renderLeaderboardInto(sortedRows, "team-score-leaderboard-body", "team-score-leaderboard-mobile");
+      }
+
+      function renderLeaderboardInto(sortedRows, tableBodyId, mobileListId) {
+        const tableBody = document.getElementById(tableBodyId);
+        const mobileList = document.getElementById(mobileListId);
+        if (!tableBody || !mobileList) return;
+
         tableBody.innerHTML = "";
         mobileList.innerHTML = "";
 
@@ -1999,7 +2043,9 @@
         if (isChatVisible()) loadChat();
       }, 8000);
       setInterval(() => {
-        if (document.getElementById("leaderboard").style.display !== "none") loadLeaderboard();
+        const leaderboardVisible = document.getElementById("leaderboard").style.display !== "none";
+        const teamScoreVisible = document.getElementById("team-score").style.display !== "none";
+        if (leaderboardVisible || teamScoreVisible) loadLeaderboard();
       }, 15000);
       setInterval(() => {
         if (document.getElementById("booking").style.display !== "none") loadBookingProgress();
