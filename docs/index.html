@@ -1199,6 +1199,27 @@
     text-transform: uppercase;
   }
 
+  .golfer-commitment-paid {
+    background: rgba(0, 255, 102, 0.18);
+    border-color: rgba(0, 255, 102, 0.62);
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.14);
+    color: var(--neon);
+  }
+
+  .golfer-commitment-unpaid {
+    background: rgba(255, 64, 64, 0.16);
+    border-color: rgba(255, 64, 64, 0.58);
+    box-shadow: 0 0 12px rgba(255, 64, 64, 0.12);
+    color: #ff6b6b;
+  }
+
+  .golfer-commitment-empty {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: none;
+    color: var(--chat-muted);
+  }
+
   .golfers-loading {
     background: #0d0d0d;
     border: 1px solid rgba(255, 215, 0, 0.22);
@@ -4232,8 +4253,15 @@
             const labels = golfer.commitments && golfer.commitments.length ? golfer.commitments : ["No commitments listed"];
             labels.forEach(label => {
               const chip = document.createElement("span");
-              chip.className = "golfer-commitment";
+              const paymentStatus = golfer.paymentStatuses && golfer.paymentStatuses[label];
+              chip.className = "golfer-commitment" + (paymentStatus ? " golfer-commitment-" + paymentStatus : "");
+              if (!paymentStatus) {
+                chip.classList.add("golfer-commitment-empty");
+              }
               chip.textContent = label;
+              if (paymentStatus) {
+                chip.title = paymentStatus === "paid" ? "Paid / booked" : "Unpaid";
+              }
               commitments.appendChild(chip);
             });
 

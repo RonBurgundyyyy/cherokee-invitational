@@ -192,6 +192,13 @@ const GALLERY_HEADERS = [
 const GALLERY_FOLDER_PROPERTY = "GALLERY_FOLDER_ID";
 const GALLERY_FOLDER_NAME = "Cherokee Invitational Gallery Uploads";
 const MAX_GALLERY_UPLOAD_BYTES = 8 * 1024 * 1024;
+const PAYMENT_SHEET_NAMES = ["PAYMENTS", "Payments", "payments"];
+const GOLFER_PAYMENT_COLUMN_MAP = {
+  "Practice Round": "SEQUOYAH",
+  "Tournament": "TOURNAMENT",
+  "SportsBook": "SPORTSBOOK",
+  "Hotel": "HOTEL"
+};
 
 function saveEntry(name, email, phone, handicap, practice, tournament, sportsbook, hotel, ownRoom) {
   if (arguments.length === 8) {
@@ -242,6 +249,7 @@ function getGolfersRows() {
   const sheet = getSheet_("Entries", ENTRY_HEADERS);
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
+  const paymentLookup = getPaymentLookup_();
 
   return sheet.getRange(2, 1, lastRow - 1, ENTRY_HEADERS.length)
     .getDisplayValues()
@@ -251,11 +259,19 @@ function getGolfersRows() {
       if (isYes_(row[5])) commitments.push("Tournament");
       if (isYes_(row[6])) commitments.push("SportsBook");
       if (isYes_(row[7])) commitments.push("Hotel");
+      const paymentRow = getPaymentRowForEntry_(paymentLookup, row);
+      const paymentStatuses = commitments.reduce((statuses, commitment) => {
+        const paymentHeader = GOLFER_PAYMENT_COLUMN_MAP[commitment];
+        const paymentValue = paymentRow && paymentHeader ? paymentRow[paymentHeader] : "";
+        statuses[commitment] = isPaidStatus_(paymentValue) ? "paid" : "unpaid";
+        return statuses;
+      }, {});
 
       return {
         name: cleanText_(row[1], 80),
         handicap: cleanText_(row[3], 20),
-        commitments: commitments
+        commitments: commitments,
+        paymentStatuses: paymentStatuses
       };
     })
     .filter(row => row.name);
@@ -627,6 +643,74 @@ function getSheet_(name, headers) {
   return sheet;
 }
 
+function getPaymentLookup_() {
+  const ss = SpreadsheetApp.getActive();
+  const sheet = PAYMENT_SHEET_NAMES
+    .map(name => ss.getSheetByName(name))
+    .find(Boolean);
+
+  const lookup = {
+    byEmail: {},
+    byName: {}
+  };
+
+  if (!sheet || sheet.getLastRow() < 2) {
+    return lookup;
+  }
+
+  const rows = sheet.getDataRange().getDisplayValues();
+  const headerRowIndex = rows.findIndex(row => {
+    const headers = row.map(normalizePaymentHeader_);
+    return headers.includes("NAME") && headers.includes("EMAIL");
+  });
+
+  if (headerRowIndex === -1) {
+    return lookup;
+  }
+
+  const headers = rows[headerRowIndex].map(normalizePaymentHeader_);
+  const nameIndex = headers.indexOf("NAME");
+  const emailIndex = headers.indexOf("EMAIL");
+
+  rows.slice(headerRowIndex + 1).forEach(row => {
+    const name = normalizeLookupKey_(row[nameIndex]);
+    const email = normalizeLookupKey_(row[emailIndex]);
+    if (!name && !email) return;
+
+    const paymentRow = headers.reduce((result, header, index) => {
+      if (header) {
+        result[header] = cleanText_(row[index], 120);
+      }
+      return result;
+    }, {});
+
+    if (email) lookup.byEmail[email] = paymentRow;
+    if (name) lookup.byName[name] = paymentRow;
+  });
+
+  return lookup;
+}
+
+function getPaymentRowForEntry_(lookup, entryRow) {
+  const email = normalizeLookupKey_(entryRow[2]);
+  const name = normalizeLookupKey_(entryRow[1]);
+  return lookup.byEmail[email] || lookup.byName[name] || null;
+}
+
+function normalizePaymentHeader_(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+function normalizeLookupKey_(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 function validateChannel_(channel) {
   const cleanChannel = cleanText_(channel, 80);
   if (!CHANNELS.includes(cleanChannel)) {
@@ -649,6 +733,11 @@ function isChecked_(value) {
 
 function isYes_(value) {
   return String(value || "").trim().toUpperCase() === "YES";
+}
+
+function isPaidStatus_(value) {
+  const status = String(value || "").trim().toUpperCase();
+  return status === "BOOKED" || status === "PAID";
 }
 
 function cleanTeamNumber_(value) {

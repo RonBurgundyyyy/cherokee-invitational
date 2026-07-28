@@ -1393,8 +1393,15 @@
             const labels = golfer.commitments && golfer.commitments.length ? golfer.commitments : ["No commitments listed"];
             labels.forEach(label => {
               const chip = document.createElement("span");
-              chip.className = "golfer-commitment";
+              const paymentStatus = golfer.paymentStatuses && golfer.paymentStatuses[label];
+              chip.className = "golfer-commitment" + (paymentStatus ? " golfer-commitment-" + paymentStatus : "");
+              if (!paymentStatus) {
+                chip.classList.add("golfer-commitment-empty");
+              }
               chip.textContent = label;
+              if (paymentStatus) {
+                chip.title = paymentStatus === "paid" ? "Paid / booked" : "Unpaid";
+              }
               commitments.appendChild(chip);
             });
 
