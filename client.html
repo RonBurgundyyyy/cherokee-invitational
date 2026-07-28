@@ -11,6 +11,11 @@
   </div>
 
   <div class="form-row">
+    <label>Phone (optional)</label>
+    <input id="entry-phone" type="tel" placeholder="(555) 123-4567">
+  </div>
+
+  <div class="form-row">
     <label>Handicap (optional)</label>
     <input id="entry-handicap" type="number" placeholder="e.g., 12">
   </div>
@@ -54,6 +59,7 @@
   function submitEntry() {
     const name = document.getElementById('entry-name').value.trim();
     const email = document.getElementById('entry-email').value.trim();
+    const phone = document.getElementById('entry-phone').value.trim();
     const handicap = document.getElementById('entry-handicap').value.trim();
 
     const practice = document.getElementById('entry-practice').checked ? "Yes" : "No";
@@ -80,6 +86,7 @@
 
         document.getElementById('entry-name').value = "";
         document.getElementById('entry-email').value = "";
+        document.getElementById('entry-phone').value = "";
         document.getElementById('entry-handicap').value = "";
         document.getElementById('entry-practice').checked = true;
         document.getElementById('entry-tournament').checked = true;
@@ -95,6 +102,6 @@
         status.textContent = "Error: " + err.message;
         status.style.color = "#ff6666";
       })
-      .saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom);
+      .saveEntry(name, email, phone, handicap, practice, tournament, sportsbook, hotel, ownRoom);
   }
 </script>

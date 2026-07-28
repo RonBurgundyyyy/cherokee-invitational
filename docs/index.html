@@ -869,6 +869,217 @@
     padding: 18px;
   }
 
+  .payments-hero {
+    margin-bottom: 1rem;
+  }
+
+  .payments-shell {
+    display: grid;
+    gap: 18px;
+  }
+
+  .payments-header {
+    background:
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.22), transparent 35%),
+      linear-gradient(135deg, rgba(0, 255, 102, 0.13), rgba(255, 215, 0, 0.07)),
+      #082012;
+    border: 1px solid rgba(255, 215, 0, 0.34);
+    border-radius: 16px;
+    box-shadow: 0 0 24px rgba(0, 255, 102, 0.16);
+    padding: 24px;
+    text-align: center;
+  }
+
+  .payments-header span,
+  .payment-kicker {
+    color: var(--gold);
+    display: block;
+    font-size: 16px;
+    font-weight: 950;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .payments-header strong {
+    color: #fff;
+    display: block;
+    font-size: clamp(34px, 7vw, 76px);
+    line-height: 0.95;
+    margin-top: 8px;
+    text-shadow: 0 0 16px rgba(255, 215, 0, 0.42);
+    text-transform: uppercase;
+  }
+
+  .payments-header p,
+  .payment-note {
+    color: #dce8de;
+    font-size: 19px;
+    line-height: 1.35;
+    margin: 12px 0 0;
+  }
+
+  .payments-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
+  }
+
+  .payment-card {
+    background:
+      linear-gradient(180deg, rgba(255, 215, 0, 0.06), rgba(0, 255, 102, 0.04)),
+      #101010;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 16px;
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.11);
+    padding: 22px;
+  }
+
+  .payment-card h2 {
+    color: #fff;
+    font-size: 34px;
+    line-height: 1.05;
+    margin: 8px 0 16px;
+    text-transform: uppercase;
+  }
+
+  .payment-facts {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .payment-facts div,
+  .payment-subtotal {
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .payment-facts span,
+  .payment-subtotal span {
+    color: var(--chat-muted);
+    display: block;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .payment-facts strong,
+  .payment-subtotal strong {
+    color: var(--gold);
+    display: block;
+    font-size: 25px;
+    line-height: 1.1;
+    margin-top: 6px;
+  }
+
+  .payment-facts small {
+    color: var(--neon);
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 5px;
+  }
+
+  .payment-button {
+    background: linear-gradient(90deg, var(--neon), var(--gold));
+    border-radius: 12px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.38);
+    color: #061006;
+    display: inline-flex;
+    font-size: 20px;
+    font-weight: 950;
+    justify-content: center;
+    margin-top: 18px;
+    padding: 14px 20px;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .venmo-button {
+    background: linear-gradient(90deg, #008cff, #00ff66);
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.24);
+  }
+
+  .payment-total-card {
+    align-content: center;
+    background:
+      radial-gradient(circle at top right, rgba(0, 255, 102, 0.2), transparent 42%),
+      #092011;
+    display: grid;
+    text-align: center;
+  }
+
+  .payment-total-card > strong {
+    color: #fff;
+    display: block;
+    font-size: clamp(48px, 7vw, 84px);
+    line-height: 0.95;
+    margin: 10px 0;
+    text-shadow: 0 0 18px rgba(0, 255, 102, 0.38);
+  }
+
+  .payment-total-card p {
+    color: #dce8de;
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .payment-cost-list {
+    border: 1px solid rgba(255, 215, 0, 0.18);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .payment-cost-list div {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto;
+    padding: 14px;
+  }
+
+  .payment-cost-list div:last-child {
+    border-bottom: 0;
+  }
+
+  .payment-cost-list span {
+    color: #fff;
+    font-size: 19px;
+    font-weight: 950;
+  }
+
+  .payment-cost-list small {
+    color: var(--chat-muted);
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .payment-cost-list strong {
+    color: var(--gold);
+    font-size: 21px;
+    white-space: nowrap;
+  }
+
+  .payment-subtotal {
+    border-color: rgba(255, 215, 0, 0.28);
+    margin-top: 16px;
+  }
+
+  .payment-note {
+    background: rgba(0, 255, 102, 0.07);
+    border-left: 5px solid var(--gold);
+    border-radius: 12px;
+    margin: 0;
+    padding: 16px 18px;
+  }
+
   .golfers-hero {
     margin-bottom: 1rem;
   }
@@ -2308,6 +2519,40 @@
       font-size: 16px;
     }
 
+    .payments-grid,
+    .payment-facts,
+    .payment-cost-list div {
+      grid-template-columns: 1fr;
+    }
+
+    .payments-header,
+    .payment-card {
+      padding: 16px;
+    }
+
+    .payments-header p,
+    .payment-note {
+      font-size: 16px;
+    }
+
+    .payment-card h2 {
+      font-size: 25px;
+    }
+
+    .payment-cost-list div {
+      gap: 5px;
+    }
+
+    .payment-cost-list strong {
+      font-size: 24px;
+    }
+
+    .payment-button {
+      box-sizing: border-box;
+      display: flex;
+      width: 100%;
+    }
+
     .golfers-summary,
     .golfers-grid {
       grid-template-columns: 1fr;
@@ -2523,19 +2768,11 @@
         <button type="button" data-page="register" onclick="choosePage('register')">Register</button>
         <button type="button" data-page="golfers" onclick="choosePage('golfers')">Golfers</button>
         <button type="button" data-page="gallery" onclick="choosePage('gallery')">Gallery</button>
-        <button type="button" data-page="chat" onclick="choosePage('chat')">Chat</button>
+        <button type="button" data-page="payments" onclick="choosePage('payments')">Payments</button>
         <button type="button" data-page="leaderboard" onclick="choosePage('leaderboard')">Leaderboard</button>
         <button type="button" data-page="booking" onclick="choosePage('booking')">Pricing</button>
       </div>
     </nav>
-
-    <!-- CHANNEL DRAWER OVERLAY (ONLY USED IN CHAT) -->
-    <div class="channel-drawer-backdrop" id="channel-backdrop" onclick="closeChannelDrawer(event)">
-      <div class="channel-drawer" onclick="event.stopPropagation()">
-        <div class="drawer-title">Channels</div>
-        <div class="channel-list" id="channel-list"></div>
-      </div>
-    </div>
 
     <!-- MAIN CONTENT -->
     <main class="content">
@@ -2769,6 +3006,11 @@
   </div>
 
   <div class="form-row">
+    <label>Phone (optional)</label>
+    <input id="entry-phone" type="tel" placeholder="(555) 123-4567">
+  </div>
+
+  <div class="form-row">
     <label>Handicap (optional)</label>
     <input id="entry-handicap" type="number" placeholder="e.g., 12">
   </div>
@@ -2812,6 +3054,7 @@
   function submitEntry() {
     const name = document.getElementById('entry-name').value.trim();
     const email = document.getElementById('entry-email').value.trim();
+    const phone = document.getElementById('entry-phone').value.trim();
     const handicap = document.getElementById('entry-handicap').value.trim();
 
     const practice = document.getElementById('entry-practice').checked ? "Yes" : "No";
@@ -2838,6 +3081,7 @@
 
         document.getElementById('entry-name').value = "";
         document.getElementById('entry-email').value = "";
+        document.getElementById('entry-phone').value = "";
         document.getElementById('entry-handicap').value = "";
         document.getElementById('entry-practice').checked = true;
         document.getElementById('entry-tournament').checked = true;
@@ -2853,7 +3097,7 @@
         status.textContent = "Error: " + err.message;
         status.style.color = "#ff6666";
       })
-      .saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom);
+      .saveEntry(name, email, phone, handicap, practice, tournament, sportsbook, hotel, ownRoom);
   }
 </script>
 
@@ -2911,41 +3155,75 @@
         </section>
       </section>
 
-      <!-- CHAT PAGE -->
-      <section id="chat" class="page chat-page" style="display:none;">
-        <div class="chat-shell">
+      <!-- PAYMENTS PAGE -->
+      <section id="payments" class="page" style="display:none;">
+        <section class="hero payments-hero">
+          <h1>Payments</h1>
+          <p>Hotel booking, tournament costs, and payment links for Cherokee 2026.</p>
+        </section>
 
-          <aside class="chat-sidebar" id="chat-sidebar">
-            <div class="chat-workspace">Cherokee</div>
-            <div class="chat-sidebar-label">Channels</div>
-            <div class="chat-sidebar-list" id="desktop-channel-list"></div>
-          </aside>
+        <section class="payments-shell">
+          <div class="payments-header">
+            <span>3rd Annual</span>
+            <strong>Cherokee Invitational</strong>
+            <p>Important booking and payment information</p>
+          </div>
 
-          <section class="chat-main">
-            <div class="chat-header">
-              <div class="chat-header-left">
-                <button class="channel-toggle" onclick="openChannelDrawer()">Channels</button>
+          <div class="payments-grid">
+            <article class="payment-card payment-card-feature">
+              <div class="payment-kicker">Hotel Booking</div>
+              <h2>Harrah's Cherokee</h2>
+              <div class="payment-facts">
                 <div>
-                  <div class="chat-channel-name" id="chat-channel-name">Practice Round</div>
-                  <div class="chat-header-sub">Cherokee Invitational Chat - build 2026-05-28</div>
+                  <span>Book By</span>
+                  <strong>August 26</strong>
+                </div>
+                <div>
+                  <span>Room Rate</span>
+                  <strong>$628 total</strong>
+                </div>
+                <div>
+                  <span>Includes</span>
+                  <strong>1 room / 2 nights</strong>
+                </div>
+                <div>
+                  <span>Per Person</span>
+                  <strong>$314</strong>
+                  <small>Assuming 2 people share a room</small>
                 </div>
               </div>
+              <a class="payment-button" href="https://book.passkey.com/go/cigt26" target="_blank" rel="noopener">Book the Hotel</a>
+            </article>
+
+            <article class="payment-card payment-total-card">
+              <div class="payment-kicker">Estimated Total</div>
+              <strong>$730.39</strong>
+              <p>Includes $314 hotel share plus all listed tournament and event items.</p>
+            </article>
+          </div>
+
+          <article class="payment-card">
+            <div class="payment-kicker">Tournament & Event Costs</div>
+            <h2>Per-person items</h2>
+            <div class="payment-cost-list">
+              <div><span>Sequoyah</span><small>Tee times 12:00 PM-1:20 PM</small><strong>$160.00</strong></div>
+              <div><span>Shuttle</span><small>Pickup 8:00 AM on 9/26</small><strong>$44.79</strong></div>
+              <div><span>Smoky Mountain Country Club</span><small>Tee times 9:10 AM-10:00 AM</small><strong>$75.77</strong></div>
+              <div><span>Tournament Buy-In + Swag</span><small>3rd Annual Cherokee Invitational</small><strong>$65.00</strong></div>
+              <div><span>Sportsbook</span><small>Reserved room 9/26, 11 AM-1 AM</small><strong>$20.83</strong></div>
+              <div><span>Guy Fieri Buffet</span><small>Reviewing buffet options per head</small><strong>$50.00</strong></div>
             </div>
 
-            <div class="chat-name-select">
-              <input id="chat-name" type="text" placeholder="Start typing your name...">
-              <div id="name-suggestions" class="suggestions"></div>
+            <div class="payment-subtotal">
+              <span>Tournament and event subtotal</span>
+              <strong>$416.39 per person</strong>
             </div>
 
-            <div id="chat-messages" class="chat-messages"></div>
+            <a class="payment-button venmo-button" href="https://venmo.com/code?user_id=1501525809561600425&amp;created=1785174994" target="_blank" rel="noopener">Pay Tournament Items on Venmo</a>
+          </article>
 
-            <div class="chat-input-bar">
-              <input id="chat-text" type="text" placeholder="Message #Practice Round">
-              <button onclick="sendMessage()">Send</button>
-            </div>
-          </section>
-
-        </div>
+          <p class="payment-note">Please review the details and complete the hotel booking and Venmo payment as soon as possible so reservations and headcount can be finalized. Individual totals may vary depending on participation.</p>
+        </section>
       </section>
 
       <!-- LEADERBOARD PAGE -->
@@ -3120,7 +3398,7 @@
         register: "Register",
         golfers: "Golfers",
         gallery: "Gallery",
-        chat: "Chat",
+        payments: "Payments",
         leaderboard: "Leaderboard",
         booking: "Pricing",
         "team-score": "Team Score"
@@ -3142,19 +3420,8 @@
       function showPage(page) {
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
         document.getElementById(page).style.display = 'block';
-        document.body.classList.toggle("chat-active", page === "chat");
         updatePageMenu(page);
         closePageMenu();
-
-        const backdrop = document.getElementById('channel-backdrop');
-        if (page !== 'chat') {
-          backdrop.classList.remove('open');
-        } else {
-          if (isNarrowScreen()) {
-            document.getElementById('chat-sidebar').classList.remove('open');
-          }
-          loadChat(true);
-        }
 
         if (page === 'leaderboard') {
           loadLeaderboard();
@@ -4613,10 +4880,8 @@
       /* INIT */
       initState();
       document.getElementById("trip-calendar-button").href = buildTripCalendarDataUrl();
-      buildChannelDrawer();
       loadEvents();
       loadNames();
-      loadChat();
       loadLeaderboard();
       loadBookingProgress();
       loadGolfers();
@@ -4626,9 +4891,6 @@
       } else {
         updatePageMenu("home");
       }
-      setInterval(() => {
-        if (isChatVisible()) loadChat();
-      }, 8000);
       setInterval(() => {
         const leaderboardVisible = document.getElementById("leaderboard").style.display !== "none";
         const teamScoreVisible = document.getElementById("team-score").style.display !== "none";

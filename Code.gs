@@ -91,7 +91,8 @@ const ENTRY_HEADERS = [
   "Own Room",
   "Team #",
   "Sequoyah Tee Time",
-  "Tourney Tee Time"
+  "Tourney Tee Time",
+  "Phone"
 ];
 
 const CHAT_HEADERS = [
@@ -192,7 +193,17 @@ const GALLERY_FOLDER_PROPERTY = "GALLERY_FOLDER_ID";
 const GALLERY_FOLDER_NAME = "Cherokee Invitational Gallery Uploads";
 const MAX_GALLERY_UPLOAD_BYTES = 8 * 1024 * 1024;
 
-function saveEntry(name, email, handicap, practice, tournament, sportsbook, hotel, ownRoom) {
+function saveEntry(name, email, phone, handicap, practice, tournament, sportsbook, hotel, ownRoom) {
+  if (arguments.length === 8) {
+    ownRoom = hotel;
+    hotel = sportsbook;
+    sportsbook = tournament;
+    tournament = practice;
+    practice = handicap;
+    handicap = phone;
+    phone = "";
+  }
+
   const sheet = getSheet_("Entries", ENTRY_HEADERS);
   const entryName = cleanText_(name, 80);
   const entryEmail = cleanText_(email, 120);
@@ -210,7 +221,11 @@ function saveEntry(name, email, handicap, practice, tournament, sportsbook, hote
     yesNo_(tournament),
     yesNo_(sportsbook),
     yesNo_(hotel),
-    yesNo_(ownRoom)
+    yesNo_(ownRoom),
+    "",
+    "",
+    "",
+    cleanText_(phone, 40)
   ]);
 }
 
