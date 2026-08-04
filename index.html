@@ -1490,12 +1490,16 @@
 
       function showSequoyahError(text) {
         const grid = document.getElementById("sequoyah-grid");
-        grid.innerHTML = "";
+        const hasRenderedSlots = Boolean(grid.querySelector(".sequoyah-card"));
 
-        const error = document.createElement("div");
-        error.className = "sequoyah-loading sequoyah-error";
-        error.textContent = text;
-        grid.appendChild(error);
+        if (!hasRenderedSlots) {
+          grid.innerHTML = "";
+
+          const error = document.createElement("div");
+          error.className = "sequoyah-loading sequoyah-error";
+          error.textContent = text;
+          grid.appendChild(error);
+        }
 
         showSequoyahStatus(text, true);
         showToast(text);

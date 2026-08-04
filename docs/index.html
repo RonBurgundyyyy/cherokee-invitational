@@ -2876,6 +2876,7 @@
 
     <script>
       const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaPxWqLRxyNk1rKkS8rCyYUZHHTlJByOn7XV96kSczZBbcp9xYIV80OYKvVDYohB6F/exec";
+      const APPS_SCRIPT_TIMEOUT_MS = 120000;
 
       function callAppsScript(method, args) {
         if (method === "uploadGalleryPhoto") {
@@ -2887,8 +2888,8 @@
           const script = document.createElement("script");
           const timeout = window.setTimeout(() => {
             cleanup();
-            reject(new Error("Request timed out."));
-          }, 30000);
+            reject(new Error("Request timed out. Please refresh and try again."));
+          }, APPS_SCRIPT_TIMEOUT_MS);
 
           function cleanup() {
             window.clearTimeout(timeout);
@@ -4545,12 +4546,16 @@
 
       function showSequoyahError(text) {
         const grid = document.getElementById("sequoyah-grid");
-        grid.innerHTML = "";
+        const hasRenderedSlots = Boolean(grid.querySelector(".sequoyah-card"));
 
-        const error = document.createElement("div");
-        error.className = "sequoyah-loading sequoyah-error";
-        error.textContent = text;
-        grid.appendChild(error);
+        if (!hasRenderedSlots) {
+          grid.innerHTML = "";
+
+          const error = document.createElement("div");
+          error.className = "sequoyah-loading sequoyah-error";
+          error.textContent = text;
+          grid.appendChild(error);
+        }
 
         showSequoyahStatus(text, true);
         showToast(text);
