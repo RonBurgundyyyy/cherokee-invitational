@@ -25,6 +25,8 @@ const API_METHODS = {
   saveTeamScore: saveTeamScore,
   getBookingRows: getBookingRows,
   getGalleryPhotos: getGalleryPhotos,
+  getSequoyahSlots: getSequoyahSlots,
+  saveSequoyahClaims: saveSequoyahClaims,
   getChatData: getChatData,
   saveChatMessage: saveChatMessage
 };
@@ -189,6 +191,20 @@ const GALLERY_HEADERS = [
   "Source"
 ];
 
+const SEQUOYAH_HEADERS = [
+  "Tee Times",
+  "Golfer",
+  "Phone#"
+];
+
+const DEFAULT_SEQUOYAH_TEE_TIMES = [
+  "12:00 PM",
+  "12:10 PM",
+  "12:20 PM",
+  "12:30 PM",
+  "12:40 PM"
+];
+
 const GALLERY_FOLDER_PROPERTY = "GALLERY_FOLDER_ID";
 const GALLERY_FOLDER_NAME = "Cherokee Invitational Gallery Uploads";
 const MAX_GALLERY_UPLOAD_BYTES = 8 * 1024 * 1024;
@@ -294,6 +310,89 @@ function getItineraryEvents() {
       image: cleanText_(row[6], 500)
     }))
     .filter(event => event.title);
+}
+
+function getSequoyahSlots() {
+  const sheet = getSheet_("Sequoyah", SEQUOYAH_HEADERS);
+  ensureSequoyahSlots_(sheet);
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  return sheet.getRange(2, 1, lastRow - 1, SEQUOYAH_HEADERS.length)
+    .getDisplayValues()
+    .map((row, index) => {
+      const golfer = cleanText_(row[1], 80);
+      const phone = cleanText_(row[2], 40);
+      return {
+        rowNumber: index + 2,
+        teeTime: cleanText_(row[0], 30),
+        golfer: golfer,
+        phone: phone,
+        claimed: Boolean(golfer || phone)
+      };
+    })
+    .filter(slot => slot.teeTime);
+}
+
+function saveSequoyahClaims(claims) {
+  const claimRows = (Array.isArray(claims) ? claims : [])
+    .map(claim => ({
+      rowNumber: Number(claim && claim.rowNumber),
+      name: cleanText_(claim && claim.name, 80),
+      phone: cleanText_(claim && claim.phone, 40)
+    }))
+    .filter(claim => claim.rowNumber || claim.name || claim.phone);
+
+  if (!claimRows.length) {
+    throw new Error("Add at least one golfer before saving.");
+  }
+
+  claimRows.forEach(claim => {
+    if (!Number.isInteger(claim.rowNumber) || claim.rowNumber < 2) {
+      throw new Error("Invalid tee time slot.");
+    }
+    if (!claim.name || !claim.phone) {
+      throw new Error("Each claimed tee time needs both a golfer name and phone number.");
+    }
+  });
+
+  const uniqueRows = new Set(claimRows.map(claim => claim.rowNumber));
+  if (uniqueRows.size !== claimRows.length) {
+    throw new Error("A tee time slot was submitted more than once.");
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getSheet_("Sequoyah", SEQUOYAH_HEADERS);
+    ensureSequoyahSlots_(sheet);
+    const lastRow = sheet.getLastRow();
+
+    claimRows.forEach(claim => {
+      if (claim.rowNumber > lastRow) {
+        throw new Error("That tee time slot no longer exists.");
+      }
+
+      const current = sheet.getRange(claim.rowNumber, 1, 1, SEQUOYAH_HEADERS.length).getDisplayValues()[0];
+      const teeTime = cleanText_(current[0], 30);
+      const existingGolfer = cleanText_(current[1], 80);
+      const existingPhone = cleanText_(current[2], 40);
+
+      if (!teeTime) {
+        throw new Error("That tee time slot is no longer available.");
+      }
+      if (existingGolfer || existingPhone) {
+        throw new Error(teeTime + " is already claimed by " + (existingGolfer || "another golfer") + ".");
+      }
+
+      sheet.getRange(claim.rowNumber, 2, 1, 2).setValues([[claim.name, claim.phone]]);
+    });
+
+    return getSequoyahSlots();
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function getLeaderboardRows() {
@@ -641,6 +740,19 @@ function getSheet_(name, headers) {
   }
 
   return sheet;
+}
+
+function ensureSequoyahSlots_(sheet) {
+  if (sheet.getLastRow() >= 2) return;
+
+  const rows = [];
+  DEFAULT_SEQUOYAH_TEE_TIMES.forEach(teeTime => {
+    for (let index = 0; index < 4; index++) {
+      rows.push([teeTime, "", ""]);
+    }
+  });
+
+  sheet.getRange(2, 1, rows.length, SEQUOYAH_HEADERS.length).setValues(rows);
 }
 
 function getPaymentLookup_() {

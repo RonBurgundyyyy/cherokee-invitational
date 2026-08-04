@@ -33,6 +33,7 @@
       <div class="page-menu" id="page-menu">
         <button type="button" data-page="home" onclick="choosePage('home')">Events</button>
         <button type="button" data-page="rules" onclick="choosePage('rules')">Rules</button>
+        <button type="button" data-page="sequoyah" onclick="choosePage('sequoyah')">Sequoyah</button>
         <button type="button" data-page="register" onclick="choosePage('register')">Register</button>
         <button type="button" data-page="golfers" onclick="choosePage('golfers')">Golfers</button>
         <button type="button" data-page="gallery" onclick="choosePage('gallery')">Gallery</button>
@@ -253,6 +254,30 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- SEQUOYAH PAGE -->
+      <section id="sequoyah" class="page" style="display:none;">
+        <section class="hero sequoyah-hero">
+          <h1>Sequoyah Tee Times</h1>
+          <p>Claim Friday practice-round spots. Add one or more golfers, with phone numbers required for every save.</p>
+        </section>
+
+        <section class="sequoyah-panel">
+          <div class="sequoyah-toolbar">
+            <div class="sequoyah-summary" id="sequoyah-summary">Loading tee times...</div>
+            <button type="button" class="sequoyah-refresh" onclick="loadSequoyahSlots()">Refresh Slots</button>
+          </div>
+
+          <div class="sequoyah-grid" id="sequoyah-grid">
+            <div class="sequoyah-loading">Loading Sequoyah tee times...</div>
+          </div>
+
+          <div class="sequoyah-actions">
+            <button type="button" onclick="saveSequoyahClaims()">Save Claimed Slots</button>
+            <div id="sequoyah-status"></div>
           </div>
         </section>
       </section>
@@ -556,6 +581,7 @@
       const PAGE_LABELS = {
         home: "Events",
         rules: "Rules",
+        sequoyah: "Sequoyah",
         register: "Register",
         golfers: "Golfers",
         gallery: "Gallery",
@@ -590,6 +616,10 @@
 
         if (page === 'booking') {
           loadBookingProgress();
+        }
+
+        if (page === 'sequoyah') {
+          loadSequoyahSlots();
         }
 
         if (page === 'golfers') {
@@ -1320,6 +1350,162 @@
         error.textContent = text;
         grid.appendChild(error);
         showToast(text);
+      }
+
+      function loadSequoyahSlots() {
+        showSequoyahStatus("Loading tee times...", false);
+        google.script.run
+          .withSuccessHandler(renderSequoyahSlots)
+          .withFailureHandler(err => showSequoyahError(err.message || "Could not load Sequoyah tee times."))
+          .getSequoyahSlots();
+      }
+
+      function renderSequoyahSlots(rows) {
+        const slots = Array.isArray(rows) ? rows : [];
+        const grid = document.getElementById("sequoyah-grid");
+        const summary = document.getElementById("sequoyah-summary");
+        grid.innerHTML = "";
+
+        if (!slots.length) {
+          summary.textContent = "No tee times found.";
+          const empty = document.createElement("div");
+          empty.className = "sequoyah-loading";
+          empty.textContent = "No Sequoyah tee times are available yet.";
+          grid.appendChild(empty);
+          showSequoyahStatus("", false);
+          return;
+        }
+
+        const claimedCount = slots.filter(slot => slot.claimed).length;
+        summary.textContent = claimedCount + " claimed / " + slots.length + " total slots";
+
+        groupSequoyahSlots(slots).forEach(group => {
+          const card = document.createElement("article");
+          card.className = "sequoyah-card";
+
+          const header = document.createElement("div");
+          header.className = "sequoyah-card-header";
+
+          const title = document.createElement("h2");
+          title.textContent = group.teeTime;
+
+          const count = document.createElement("span");
+          const groupClaimed = group.slots.filter(slot => slot.claimed).length;
+          count.textContent = groupClaimed + "/" + group.slots.length + " claimed";
+
+          header.appendChild(title);
+          header.appendChild(count);
+          card.appendChild(header);
+
+          group.slots.forEach(slot => {
+            card.appendChild(createSequoyahSlotRow(slot));
+          });
+
+          grid.appendChild(card);
+        });
+
+        showSequoyahStatus("", false);
+      }
+
+      function groupSequoyahSlots(slots) {
+        const groups = [];
+        const groupMap = new Map();
+        slots.forEach(slot => {
+          const teeTime = slot.teeTime || "Tee Time";
+          if (!groupMap.has(teeTime)) {
+            const group = { teeTime: teeTime, slots: [] };
+            groupMap.set(teeTime, group);
+            groups.push(group);
+          }
+          groupMap.get(teeTime).slots.push(slot);
+        });
+        return groups;
+      }
+
+      function createSequoyahSlotRow(slot) {
+        const row = document.createElement("div");
+        row.className = "sequoyah-slot" + (slot.claimed ? " sequoyah-slot-claimed" : " sequoyah-slot-open");
+        row.dataset.rowNumber = slot.rowNumber;
+
+        const slotLabel = document.createElement("div");
+        slotLabel.className = "sequoyah-slot-label";
+        slotLabel.textContent = slot.claimed ? "Claimed" : "Open Slot";
+        row.appendChild(slotLabel);
+
+        if (slot.claimed) {
+          const golfer = document.createElement("div");
+          golfer.className = "sequoyah-claimed-name";
+          golfer.textContent = slot.golfer || "Claimed";
+
+          const phone = document.createElement("div");
+          phone.className = "sequoyah-claimed-phone";
+          phone.textContent = slot.phone || "Phone not listed";
+
+          row.appendChild(golfer);
+          row.appendChild(phone);
+          return row;
+        }
+
+        const nameInput = document.createElement("input");
+        nameInput.className = "sequoyah-name-input";
+        nameInput.type = "text";
+        nameInput.placeholder = "Golfer name";
+
+        const phoneInput = document.createElement("input");
+        phoneInput.className = "sequoyah-phone-input";
+        phoneInput.type = "tel";
+        phoneInput.placeholder = "Phone number required";
+
+        row.appendChild(nameInput);
+        row.appendChild(phoneInput);
+        return row;
+      }
+
+      function saveSequoyahClaims() {
+        const claims = Array.from(document.querySelectorAll(".sequoyah-slot-open"))
+          .map(row => ({
+            rowNumber: Number(row.dataset.rowNumber),
+            name: row.querySelector(".sequoyah-name-input").value.trim(),
+            phone: row.querySelector(".sequoyah-phone-input").value.trim()
+          }))
+          .filter(claim => claim.name || claim.phone);
+
+        if (!claims.length) {
+          showSequoyahStatus("Add at least one golfer before saving.", true);
+          return;
+        }
+
+        const incomplete = claims.find(claim => !claim.name || !claim.phone);
+        if (incomplete) {
+          showSequoyahStatus("Every claimed slot needs both a golfer name and phone number.", true);
+          return;
+        }
+
+        showSequoyahStatus("Saving claimed slots...", false);
+        google.script.run
+          .withSuccessHandler(renderSequoyahSlots)
+          .withFailureHandler(err => showSequoyahError(err.message || "Could not save Sequoyah slots."))
+          .saveSequoyahClaims(claims);
+      }
+
+      function showSequoyahError(text) {
+        const grid = document.getElementById("sequoyah-grid");
+        grid.innerHTML = "";
+
+        const error = document.createElement("div");
+        error.className = "sequoyah-loading sequoyah-error";
+        error.textContent = text;
+        grid.appendChild(error);
+
+        showSequoyahStatus(text, true);
+        showToast(text);
+      }
+
+      function showSequoyahStatus(text, isError) {
+        const status = document.getElementById("sequoyah-status");
+        if (!status) return;
+        status.textContent = text;
+        status.classList.toggle("error", Boolean(isError));
       }
 
       function loadGolfers() {
