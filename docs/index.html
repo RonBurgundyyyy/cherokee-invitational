@@ -3078,7 +3078,6 @@
         }
       };
     </script>
-
   </head>
 
   <body>
@@ -3824,8 +3823,17 @@
       window.entryNames = [];
       const INITIAL_TEAM_NUMBER = new URLSearchParams(window.location.search).get("team") || "";
 
+      const TOURNAMENT_TEAM_NAMES = {
+        1: "Birdies & Bourbon",
+        2: "Fairway to Heaven",
+        3: "Grip It & Sip It",
+        4: "Fore Fathers",
+        5: "The Slice Is Right",
+        6: "Chili Dippers"
+      };
+
       const DEFAULT_LEADERBOARD_ROWS = Array.from({ length: 6 }, (_, index) => ({
-        team: "Team " + (index + 1),
+        team: formatTeamLabel(index + 1),
         total: "",
         thru: "",
         strokes: "",
@@ -3917,7 +3925,7 @@
         const label = document.getElementById("page-menu-label");
         if (label) {
           label.textContent = page === "team-score" && currentScoringTeam
-            ? "Team " + currentScoringTeam + " Score"
+            ? formatTeamScoreTitle(currentScoringTeam)
             : PAGE_LABELS[page] || "Events";
         }
 
@@ -4255,7 +4263,7 @@
           if (index === 0) tr.className = "leader-row";
 
           appendLeaderboardCell(tr, "pos", position === 1 ? "1" : String(position));
-          appendLeaderboardCell(tr, "team", row.team || "Team " + position);
+          appendLeaderboardCell(tr, "team", row.team || formatTeamLabel(position));
           appendLeaderboardCell(tr, "total", formatLeaderboardTotal(row.total));
           appendLeaderboardCell(tr, "thru", row.thru || "-");
           appendLeaderboardCell(tr, "strokes", row.strokes || "-");
@@ -4278,7 +4286,7 @@
         (Array.isArray(rows) ? rows : []).forEach(row => {
           const key = teamSortNumber(row.team);
           if (key) {
-            rowMap.set(key, { ...(rowMap.get(key) || {}), ...row, team: row.team || "Team " + key });
+            rowMap.set(key, { ...(rowMap.get(key) || {}), ...row, team: formatTeamLabel(key) });
           } else if (row.team || row.total || row.thru || row.strokes || row.baseScore || row.badgesOwned) {
             mergedRows.push(row);
           }
@@ -4307,7 +4315,7 @@
 
         const team = document.createElement("div");
         team.className = "leaderboard-team";
-        team.textContent = row.team || "Team " + position;
+        team.textContent = row.team || formatTeamLabel(position);
 
         const total = document.createElement("div");
         total.className = "leaderboard-total";
@@ -4387,6 +4395,18 @@
       function teamSortNumber(value) {
         const match = String(value || "").match(/\d+/);
         return match ? Number(match[0]) : 0;
+      }
+
+      function formatTeamLabel(value) {
+        const teamNumber = teamSortNumber(value);
+        if (!teamNumber) return String(value || "");
+        const teamName = TOURNAMENT_TEAM_NAMES[teamNumber];
+        return teamName ? teamName + " (" + teamNumber + ")" : "Team " + teamNumber;
+      }
+
+      function formatTeamScoreTitle(value) {
+        const label = formatTeamLabel(value);
+        return label ? label + " Score" : "Team Score";
       }
 
       function leaderboardSortValue(value) {
@@ -5012,7 +5032,7 @@
         currentScoringTeam = String(teamNumber || "").replace(/\D/g, "").slice(0, 2);
         if (!currentScoringTeam) return;
 
-        document.getElementById("team-score-title").textContent = "Team " + currentScoringTeam + " Score";
+        document.getElementById("team-score-title").textContent = formatTeamScoreTitle(currentScoringTeam);
         buildTeamScoreGrid();
         showPage("team-score");
       }
@@ -5076,7 +5096,7 @@
       function renderTeamScore(data) {
         const score = data || {};
         currentScoringTeam = String(score.teamNumber || currentScoringTeam || "");
-        document.getElementById("team-score-title").textContent = "Team " + currentScoringTeam + " Score";
+        document.getElementById("team-score-title").textContent = formatTeamScoreTitle(currentScoringTeam);
         document.getElementById("team-score-updated-by").value = score.updatedBy || "";
         document.getElementById("team-score-updated").textContent = score.updatedAt || "-";
 
