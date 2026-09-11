@@ -238,6 +238,118 @@
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   }
 
+  .tournament-teams-card {
+    background:
+      radial-gradient(circle at top center, rgba(255, 215, 0, 0.16), transparent 36%),
+      linear-gradient(180deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.04)),
+      #090d09;
+    border: 1px solid rgba(255, 215, 0, 0.32);
+    border-radius: 16px;
+    box-shadow:
+      0 0 28px rgba(0, 255, 102, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    margin-bottom: 18px;
+    overflow: hidden;
+    padding: 18px;
+  }
+
+  .tournament-teams-card h2 {
+    color: #fff;
+    font-size: 32px;
+    line-height: 1.05;
+    margin: 0;
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.28);
+    text-transform: uppercase;
+  }
+
+  .tournament-teams-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 18px;
+  }
+
+  .tournament-team-card {
+    background:
+      radial-gradient(circle at top left, rgba(0, 255, 102, 0.18), transparent 36%),
+      linear-gradient(180deg, rgba(255, 215, 0, 0.08), rgba(0, 0, 0, 0.08)),
+      #07140b;
+    border: 1px solid rgba(255, 215, 0, 0.42);
+    border-radius: 16px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.13);
+    min-height: 260px;
+    overflow: hidden;
+    padding: 58px 18px 18px;
+    position: relative;
+  }
+
+  .tournament-team-card::before {
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.72), rgba(255, 215, 0, 0.72));
+    content: "";
+    height: 3px;
+    inset: 0 0 auto;
+    position: absolute;
+  }
+
+  .team-number {
+    align-items: center;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.28), transparent 28%),
+      linear-gradient(135deg, #123d1f, #07140b);
+    border: 2px solid rgba(255, 215, 0, 0.72);
+    border-radius: 999px;
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.22);
+    color: var(--gold);
+    display: flex;
+    font-size: 38px;
+    font-weight: 950;
+    height: 72px;
+    justify-content: center;
+    left: 18px;
+    line-height: 1;
+    position: absolute;
+    top: 18px;
+    width: 72px;
+  }
+
+  .tournament-team-card h3 {
+    color: #fff;
+    font-size: 29px;
+    line-height: 1.05;
+    margin: 0 0 16px 88px;
+    min-height: 62px;
+    text-transform: uppercase;
+  }
+
+  .tournament-team-card ul {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tournament-team-card li {
+    color: #f8f8f8;
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.2;
+    padding-left: 22px;
+    position: relative;
+  }
+
+  .tournament-team-card li::before {
+    background: var(--gold);
+    border-radius: 999px;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.55);
+    content: "";
+    height: 8px;
+    left: 0;
+    position: absolute;
+    top: 0.42em;
+    width: 8px;
+  }
+
   .bonus-list {
     display: grid;
     gap: 14px;
@@ -2349,6 +2461,18 @@
     .rules-card p,
     .rules-list {
       font-size: 22px;
+    }
+
+    .tournament-teams-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tournament-team-card {
+      min-height: 0;
+    }
+
+    .tournament-team-card h3 {
+      font-size: 25px;
     }
 
     .bonus-item {

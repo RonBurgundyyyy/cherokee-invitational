@@ -244,6 +244,118 @@
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   }
 
+  .tournament-teams-card {
+    background:
+      radial-gradient(circle at top center, rgba(255, 215, 0, 0.16), transparent 36%),
+      linear-gradient(180deg, rgba(0, 255, 102, 0.08), rgba(255, 215, 0, 0.04)),
+      #090d09;
+    border: 1px solid rgba(255, 215, 0, 0.32);
+    border-radius: 16px;
+    box-shadow:
+      0 0 28px rgba(0, 255, 102, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    margin-bottom: 18px;
+    overflow: hidden;
+    padding: 18px;
+  }
+
+  .tournament-teams-card h2 {
+    color: #fff;
+    font-size: 32px;
+    line-height: 1.05;
+    margin: 0;
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.28);
+    text-transform: uppercase;
+  }
+
+  .tournament-teams-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 18px;
+  }
+
+  .tournament-team-card {
+    background:
+      radial-gradient(circle at top left, rgba(0, 255, 102, 0.18), transparent 36%),
+      linear-gradient(180deg, rgba(255, 215, 0, 0.08), rgba(0, 0, 0, 0.08)),
+      #07140b;
+    border: 1px solid rgba(255, 215, 0, 0.42);
+    border-radius: 16px;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.13);
+    min-height: 260px;
+    overflow: hidden;
+    padding: 58px 18px 18px;
+    position: relative;
+  }
+
+  .tournament-team-card::before {
+    background: linear-gradient(90deg, rgba(0, 255, 102, 0.72), rgba(255, 215, 0, 0.72));
+    content: "";
+    height: 3px;
+    inset: 0 0 auto;
+    position: absolute;
+  }
+
+  .team-number {
+    align-items: center;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.28), transparent 28%),
+      linear-gradient(135deg, #123d1f, #07140b);
+    border: 2px solid rgba(255, 215, 0, 0.72);
+    border-radius: 999px;
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.22);
+    color: var(--gold);
+    display: flex;
+    font-size: 38px;
+    font-weight: 950;
+    height: 72px;
+    justify-content: center;
+    left: 18px;
+    line-height: 1;
+    position: absolute;
+    top: 18px;
+    width: 72px;
+  }
+
+  .tournament-team-card h3 {
+    color: #fff;
+    font-size: 29px;
+    line-height: 1.05;
+    margin: 0 0 16px 88px;
+    min-height: 62px;
+    text-transform: uppercase;
+  }
+
+  .tournament-team-card ul {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tournament-team-card li {
+    color: #f8f8f8;
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.2;
+    padding-left: 22px;
+    position: relative;
+  }
+
+  .tournament-team-card li::before {
+    background: var(--gold);
+    border-radius: 999px;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.55);
+    content: "";
+    height: 8px;
+    left: 0;
+    position: absolute;
+    top: 0.42em;
+    width: 8px;
+  }
+
   .bonus-list {
     display: grid;
     gap: 14px;
@@ -2357,6 +2469,18 @@
       font-size: 22px;
     }
 
+    .tournament-teams-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tournament-team-card {
+      min-height: 0;
+    }
+
+    .tournament-team-card h3 {
+      font-size: 25px;
+    }
+
     .bonus-item {
       grid-template-columns: 64px minmax(0, 1fr);
     }
@@ -2981,7 +3105,7 @@
 
       <div class="page-menu" id="page-menu">
         <button type="button" data-page="home" onclick="choosePage('home')">Events</button>
-        <button type="button" data-page="rules" onclick="choosePage('rules')">Rules</button>
+        <button type="button" data-page="rules" onclick="choosePage('rules')">Tournament</button>
         <button type="button" data-page="sequoyah" onclick="choosePage('sequoyah')">Sequoyah</button>
         <button type="button" data-page="register" onclick="choosePage('register')">Register</button>
         <button type="button" data-page="golfers" onclick="choosePage('golfers')">Golfers</button>
@@ -3017,11 +3141,86 @@
         </div>
       </section>
 
-      <!-- RULES PAGE -->
+      <!-- TOURNAMENT PAGE -->
       <section id="rules" class="page" style="display:none;">
         <section class="hero">
-          <h1>Tournament Rules</h1>
-          <p>Buy-in, bonus jackpots, and scorecard for Cherokee Invitational '26.</p>
+          <h1>Tournament</h1>
+          <p>Teams, rules, bonus jackpots, and scorecard for Cherokee Invitational '26.</p>
+        </section>
+
+        <section class="tournament-teams-card">
+          <div class="scorecard-header">
+            <div>
+              <div class="rules-kicker">Tournament Teams</div>
+              <h2>Let the games begin.</h2>
+            </div>
+          </div>
+
+          <div class="tournament-teams-grid">
+            <article class="tournament-team-card">
+              <div class="team-number">1</div>
+              <h3>Birdies &amp; Bourbon</h3>
+              <ul>
+                <li>Austin Poole</li>
+                <li>Christopher Mahabir</li>
+                <li>Clint</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">2</div>
+              <h3>Fairway to Heaven</h3>
+              <ul>
+                <li>Jonn Bartine</li>
+                <li>Kent Henderson</li>
+                <li>Chris Arnett</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">3</div>
+              <h3>Grip It &amp; Sip It</h3>
+              <ul>
+                <li>Josh Abrahamson</li>
+                <li>Patrick Whitmore</li>
+                <li>Billy Tipton</li>
+                <li>Shane Brumbelow</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">4</div>
+              <h3>Fore Fathers</h3>
+              <ul>
+                <li>Zach Pitts</li>
+                <li>Jason Dodge</li>
+                <li>Curt Bokey</li>
+                <li>Josh Skiver</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">5</div>
+              <h3>The Slice Is Right</h3>
+              <ul>
+                <li>Mark Phelps</li>
+                <li>Todd</li>
+                <li>Brian Ammons</li>
+                <li>Derek Criswell</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">6</div>
+              <h3>Chili Dippers</h3>
+              <ul>
+                <li>Adam Abrahamson</li>
+                <li>Daniel Bick</li>
+                <li>Branden Griffin</li>
+                <li>Brandon Morris</li>
+              </ul>
+            </article>
+          </div>
         </section>
 
         <section class="rules-layout">
@@ -3636,7 +3835,7 @@
 
       const PAGE_LABELS = {
         home: "Events",
-        rules: "Rules",
+        rules: "Tournament",
         sequoyah: "Sequoyah",
         register: "Register",
         golfers: "Golfers",

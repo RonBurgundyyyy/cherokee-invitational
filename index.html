@@ -32,7 +32,7 @@
 
       <div class="page-menu" id="page-menu">
         <button type="button" data-page="home" onclick="choosePage('home')">Events</button>
-        <button type="button" data-page="rules" onclick="choosePage('rules')">Rules</button>
+        <button type="button" data-page="rules" onclick="choosePage('rules')">Tournament</button>
         <button type="button" data-page="sequoyah" onclick="choosePage('sequoyah')">Sequoyah</button>
         <button type="button" data-page="register" onclick="choosePage('register')">Register</button>
         <button type="button" data-page="golfers" onclick="choosePage('golfers')">Golfers</button>
@@ -68,11 +68,86 @@
         </div>
       </section>
 
-      <!-- RULES PAGE -->
+      <!-- TOURNAMENT PAGE -->
       <section id="rules" class="page" style="display:none;">
         <section class="hero">
-          <h1>Tournament Rules</h1>
-          <p>Buy-in, bonus jackpots, and scorecard for Cherokee Invitational '26.</p>
+          <h1>Tournament</h1>
+          <p>Teams, rules, bonus jackpots, and scorecard for Cherokee Invitational '26.</p>
+        </section>
+
+        <section class="tournament-teams-card">
+          <div class="scorecard-header">
+            <div>
+              <div class="rules-kicker">Tournament Teams</div>
+              <h2>Let the games begin.</h2>
+            </div>
+          </div>
+
+          <div class="tournament-teams-grid">
+            <article class="tournament-team-card">
+              <div class="team-number">1</div>
+              <h3>Birdies &amp; Bourbon</h3>
+              <ul>
+                <li>Austin Poole</li>
+                <li>Christopher Mahabir</li>
+                <li>Clint</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">2</div>
+              <h3>Fairway to Heaven</h3>
+              <ul>
+                <li>Jonn Bartine</li>
+                <li>Kent Henderson</li>
+                <li>Chris Arnett</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">3</div>
+              <h3>Grip It &amp; Sip It</h3>
+              <ul>
+                <li>Josh Abrahamson</li>
+                <li>Patrick Whitmore</li>
+                <li>Billy Tipton</li>
+                <li>Shane Brumbelow</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">4</div>
+              <h3>Fore Fathers</h3>
+              <ul>
+                <li>Zach Pitts</li>
+                <li>Jason Dodge</li>
+                <li>Curt Bokey</li>
+                <li>Josh Skiver</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">5</div>
+              <h3>The Slice Is Right</h3>
+              <ul>
+                <li>Mark Phelps</li>
+                <li>Todd</li>
+                <li>Brian Ammons</li>
+                <li>Derek Criswell</li>
+              </ul>
+            </article>
+
+            <article class="tournament-team-card">
+              <div class="team-number">6</div>
+              <h3>Chili Dippers</h3>
+              <ul>
+                <li>Adam Abrahamson</li>
+                <li>Daniel Bick</li>
+                <li>Branden Griffin</li>
+                <li>Brandon Morris</li>
+              </ul>
+            </article>
+          </div>
         </section>
 
         <section class="rules-layout">
@@ -580,7 +655,7 @@
 
       const PAGE_LABELS = {
         home: "Events",
-        rules: "Rules",
+        rules: "Tournament",
         sequoyah: "Sequoyah",
         register: "Register",
         golfers: "Golfers",
