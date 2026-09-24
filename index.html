@@ -552,7 +552,7 @@
       <section id="team-score" class="page" style="display:none;">
         <section class="hero team-score-hero">
           <h1 id="team-score-title">Team Score</h1>
-          <p>Enter hole-by-hole strokes for this team's round.</p>
+          <p>Smoky Mountain Country Club · White tees<br>Enter hole-by-hole strokes for this team's round.</p>
         </section>
 
         <section class="team-score-panel">
@@ -674,6 +674,16 @@
         booking: "Pricing",
         "team-score": "Team Score"
       };
+
+      // White tees and pars from https://smccgolf.com/course-details/ (published scorecard).
+      const TOURNAMENT_HOLES = [
+        { par: 4, yards: 377 }, { par: 4, yards: 322 }, { par: 4, yards: 320 },
+        { par: 4, yards: 321 }, { par: 5, yards: 480 }, { par: 5, yards: 430 },
+        { par: 3, yards: 148 }, { par: 5, yards: 475 }, { par: 3, yards: 170 },
+        { par: 3, yards: 179 }, { par: 4, yards: 282 }, { par: 4, yards: 241 },
+        { par: 3, yards: 152 }, { par: 5, yards: 507 }, { par: 5, yards: 417 },
+        { par: 3, yards: 223 }, { par: 3, yards: 130 }, { par: 4, yards: 345 }
+      ];
 
       const BONUS_BADGES = [
         { key: "fireball3", label: "Fireball 3", hole: 3 },
@@ -1911,18 +1921,31 @@
           const label = document.createElement("span");
           label.textContent = "Hole " + hole;
 
+          const holeDetails = TOURNAMENT_HOLES[hole - 1];
+          const details = document.createElement("span");
+          details.className = "team-score-hole-details";
+          details.id = "team-hole-details-" + hole;
+          const par = document.createElement("span");
+          par.textContent = "Par " + holeDetails.par;
+          const yardage = document.createElement("span");
+          yardage.textContent = holeDetails.yards + " yds";
+          details.append(par, yardage);
+
           const input = document.createElement("input");
           input.type = "number";
           input.min = "1";
           input.max = "20";
           input.inputMode = "numeric";
           input.id = "team-hole-" + hole;
+          input.setAttribute("aria-label", "Hole " + hole + " strokes");
+          input.setAttribute("aria-describedby", details.id);
           input.addEventListener("input", () => {
             updateTeamScoreSummary();
             scheduleTeamScoreAutosave();
           });
 
           field.appendChild(label);
+          field.appendChild(details);
           field.appendChild(input);
 
           const badge = getBonusBadgeForHole(hole);
