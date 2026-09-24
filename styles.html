@@ -588,7 +588,7 @@
     vertical-align: middle;
   }
 
-  .leaderboard-table tr:nth-child(even) td {
+  .leaderboard-table tr:nth-child(even) td:not(.total) {
     background: rgba(18, 28, 20, 0.96);
   }
 
@@ -625,10 +625,20 @@
 
   .leaderboard-table .thru,
   .leaderboard-table .strokes,
-  .leaderboard-table .base {
+  .leaderboard-table .base,
+  .leaderboard-table .to-par,
+  .leaderboard-table .bonus {
     color: #dce6dc;
     text-align: center;
     width: 110px;
+  }
+
+  .leaderboard-table .to-par {
+    color: var(--gold);
+  }
+
+  .leaderboard-table .bonus {
+    color: var(--neon);
   }
 
   .badges-cell {

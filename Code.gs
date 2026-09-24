@@ -139,6 +139,9 @@ const BONUS_BADGES = [
 
 const LOWEST_CARDED_SCORE_BONUS = 5;
 
+// Smoky Mountain Country Club pars, in hole order (37 out / 34 in).
+const TOURNAMENT_PARS = [4, 4, 4, 4, 5, 5, 3, 5, 3, 3, 4, 4, 3, 5, 5, 3, 3, 4];
+
 const TEAM_SCORE_HEADERS = [
   "Timestamp",
   "Team #",
@@ -400,6 +403,15 @@ function getLeaderboardRows() {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
 
+  const scoreSheet = getSheet_("Team Scores", TEAM_SCORE_HEADERS);
+  const scoreRowCount = scoreSheet.getLastRow() - 1;
+  const scoresByTeam = new Map();
+  if (scoreRowCount > 0) {
+    scoreSheet.getRange(2, 1, scoreRowCount, 21).getDisplayValues().forEach(row => {
+      scoresByTeam.set(cleanLeaderboardTeamNumber_(row[1]), row.slice(3, 21));
+    });
+  }
+
   return sheet.getRange(2, 1, lastRow - 1, LEADERBOARD_HEADERS.length)
     .getValues()
     .map(row => ({
@@ -408,9 +420,31 @@ function getLeaderboardRows() {
       thru: cleanText_(row[2], 20),
       strokes: cleanText_(row[3], 20),
       baseScore: cleanText_(row[4], 20),
-      badgesOwned: cleanText_(row[5], 200)
+      badgesOwned: cleanText_(row[5], 1000),
+      toPar: scoreToPar_(scoresByTeam.get(cleanLeaderboardTeamNumber_(row[0])) || []),
+      bonus: leaderboardBonusDeduction_(row[5])
     }))
     .filter(row => row.team || row.total || row.thru || row.strokes || row.baseScore || row.badgesOwned);
+}
+
+function scoreToPar_(scores) {
+  let toPar = 0;
+  let played = 0;
+  TOURNAMENT_PARS.forEach((par, index) => {
+    const score = Number(scores[index]);
+    if (!Number.isInteger(score) || score < 1 || score > 20) return;
+    played++;
+    toPar += score - par;
+  });
+  return played ? toPar : "";
+}
+
+function leaderboardBonusDeduction_(value) {
+  const labels = new Set(String(value || "").split(/[,|]/)
+    .map(label => label.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase()));
+  const bonus = BONUS_BADGES.reduce((sum, badge) =>
+    sum + (labels.has(badge.label.toLowerCase()) ? badge.bonus : 0), 0);
+  return -(bonus + (labels.has("lowest carded score") ? LOWEST_CARDED_SCORE_BONUS : 0));
 }
 
 function getTeamScore(teamNumber) {

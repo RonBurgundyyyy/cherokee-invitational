@@ -510,6 +510,8 @@
                   <th>Pos</th>
                   <th>Team</th>
                   <th>Total</th>
+                  <th title="Strokes relative to par for holes scored, before bonuses">To Par</th>
+                  <th title="Accumulated bonus stroke deductions">Bonus</th>
                   <th>Thru</th>
                   <th>Strokes</th>
                   <th>Base</th>
@@ -518,7 +520,7 @@
               </thead>
               <tbody id="leaderboard-body">
                 <tr>
-                  <td colspan="7">Loading leaderboard...</td>
+                  <td colspan="9">Loading leaderboard...</td>
                 </tr>
               </tbody>
             </table>
@@ -600,6 +602,8 @@
                   <th>Pos</th>
                   <th>Team</th>
                   <th>Total</th>
+                  <th title="Strokes relative to par for holes scored, before bonuses">To Par</th>
+                  <th title="Accumulated bonus stroke deductions">Bonus</th>
                   <th>Thru</th>
                   <th>Strokes</th>
                   <th>Base</th>
@@ -608,7 +612,7 @@
               </thead>
               <tbody id="team-score-leaderboard-body">
                 <tr>
-                  <td colspan="7">Loading leaderboard...</td>
+                  <td colspan="9">Loading leaderboard...</td>
                 </tr>
               </tbody>
             </table>
@@ -656,6 +660,8 @@
       const DEFAULT_LEADERBOARD_ROWS = Array.from({ length: 6 }, (_, index) => ({
         team: formatTeamLabel(index + 1),
         total: "",
+        toPar: "",
+        bonus: 0,
         thru: "",
         strokes: "",
         baseScore: "",
@@ -1096,6 +1102,8 @@
           appendLeaderboardCell(tr, "pos", position === 1 ? "1" : String(position));
           appendLeaderboardCell(tr, "team", row.team || formatTeamLabel(position));
           appendLeaderboardCell(tr, "total", formatLeaderboardTotal(row.total));
+          appendLeaderboardCell(tr, "to-par", formatScoreDifference(row.toPar));
+          appendLeaderboardCell(tr, "bonus", formatScoreDifference(row.bonus, "0"));
           appendLeaderboardCell(tr, "thru", row.thru || "-");
           appendLeaderboardCell(tr, "strokes", row.strokes || "-");
           appendLeaderboardCell(tr, "base", row.baseScore || "-");
@@ -1158,6 +1166,8 @@
 
         const stats = document.createElement("div");
         stats.className = "leaderboard-stats";
+        stats.appendChild(createStat("To Par", formatScoreDifference(row.toPar)));
+        stats.appendChild(createStat("Bonus", formatScoreDifference(row.bonus, "0")));
         stats.appendChild(createStat("Thru", row.thru || "-"));
         stats.appendChild(createStat("Strokes", row.strokes || "-"));
         stats.appendChild(createStat("Base", row.baseScore || "-"));
@@ -1288,6 +1298,14 @@
         if (text === "E" || text === "EVEN") return 0;
         const numeric = Number(text.replace("+", ""));
         return Number.isNaN(numeric) ? 999 : numeric;
+      }
+
+      function formatScoreDifference(value, evenLabel = "E") {
+        if (value === null || value === undefined || String(value).trim() === "") return "-";
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) return "-";
+        if (numeric === 0) return evenLabel;
+        return numeric > 0 ? "+" + numeric : String(numeric);
       }
 
       function formatLeaderboardTotal(value) {
