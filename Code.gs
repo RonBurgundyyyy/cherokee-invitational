@@ -414,16 +414,22 @@ function getLeaderboardRows() {
 
   return sheet.getRange(2, 1, lastRow - 1, LEADERBOARD_HEADERS.length)
     .getValues()
-    .map(row => ({
-      team: cleanText_(row[0], 80),
-      total: cleanText_(row[1], 20),
-      thru: cleanText_(row[2], 20),
-      strokes: cleanText_(row[3], 20),
-      baseScore: cleanText_(row[4], 20),
-      badgesOwned: cleanText_(row[5], 1000),
-      toPar: scoreToPar_(scoresByTeam.get(cleanLeaderboardTeamNumber_(row[0])) || []),
-      bonus: leaderboardBonusDeduction_(row[5])
-    }))
+    .map(row => {
+      const scores = scoresByTeam.get(cleanLeaderboardTeamNumber_(row[0])) || [];
+      const grossToPar = scoreToPar_(scores);
+      const bonus = leaderboardBonusDeduction_(row[5]);
+      return {
+        team: cleanText_(row[0], 80),
+        total: cleanText_(row[1], 20),
+        thru: cleanText_(row[2], 20),
+        strokes: cleanText_(row[3], 20),
+        baseScore: cleanText_(row[4], 20),
+        badgesOwned: cleanText_(row[5], 1000),
+        toPar: grossToPar === "" ? "" : grossToPar + bonus,
+        par: scorePar_(scores),
+        bonus: bonus
+      };
+    })
     .filter(row => row.team || row.total || row.thru || row.strokes || row.baseScore || row.badgesOwned);
 }
 
@@ -437,6 +443,13 @@ function scoreToPar_(scores) {
     toPar += score - par;
   });
   return played ? toPar : "";
+}
+
+function scorePar_(scores) {
+  return TOURNAMENT_PARS.reduce((total, par, index) => {
+    const score = Number(scores[index]);
+    return total + (Number.isInteger(score) && score >= 1 && score <= 20 ? par : 0);
+  }, 0);
 }
 
 function leaderboardBonusDeduction_(value) {
