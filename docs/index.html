@@ -644,7 +644,62 @@
   .badge-rail {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 3px;
+  }
+
+  .leaderboard-badge {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+    width: 54px;
+    vertical-align: middle;
+  }
+
+  .leaderboard-badge-icon {
+    display: block;
+    box-sizing: border-box;
+    width: 54px;
+    height: 54px;
+    padding: 5px;
+    border: 1px solid rgba(255, 215, 0, 0.45);
+    border-radius: 14px;
+    background: linear-gradient(145deg, #173d26, #08170e);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .leaderboard-badge-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .leaderboard-badge-hole {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 25px;
+    height: 25px;
+    border: 2px solid #102216;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #07140b;
+    font: 900 13px/1 "Segoe UI", sans-serif;
+  }
+
+  .leaderboard-badge-detail {
+    margin-top: 4px;
+    color: #fff5cf;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
   }
 
   .badge-pill {
@@ -4372,14 +4427,56 @@
           return rail;
         }
 
-        badges.forEach(badge => {
-          const pill = document.createElement("span");
-          pill.className = "badge-pill";
-          pill.textContent = badge;
-          rail.appendChild(pill);
-        });
+        badges.forEach(badge => rail.appendChild(createLeaderboardBadge(badge)));
 
         return rail;
+      }
+
+      function createLeaderboardBadge(label) {
+        const definition = BONUS_BADGES.find(badge =>
+          label.toLowerCase() === badge.label.toLowerCase() ||
+          label.toLowerCase().startsWith(badge.label.toLowerCase() + " (")
+        );
+        const kind = definition ? definition.key.replace(/\d+$/, "") :
+          (/^lowest carded score$/i.test(label) ? "trophy" : "");
+        // Fixed SVG artwork keeps the icons sharp without external image requests.
+        const artwork = {
+          fireball: '<path fill="#ff5a24" d="M33 4c4 15-9 17-3 27 3-2 5-6 5-10 10 8 15 16 11 26-3 8-10 12-18 12S12 54 11 45c-2-12 7-21 13-28-1 8 0 11 3 13 5-8-2-15 6-26Z"/><path fill="#ffd700" d="M29 32c1 8 8 10 8 17a9 9 0 0 1-18 0c0-5 4-9 6-12 0 6 2 7 3 8 3-4 2-8 1-13Z"/>',
+          ctp: '<ellipse cx="31" cy="49" rx="23" ry="10" fill="#00c85b"/><ellipse cx="25" cy="49" rx="8" ry="3" fill="#07371b"/><path d="M25 49V9" stroke="#fff5cf" stroke-width="4" stroke-linecap="round"/><path d="m27 10 24 10-24 10Z" fill="#ffd700"/><circle cx="47" cy="47" r="5" fill="#fff"/>',
+          longDrive: '<circle cx="34" cy="15" r="6" fill="#ffd700"/><path d="m29 24 12 2-5 16 7 15h-8l-7-14-7 14h-8l11-21Z" fill="#fff5cf"/><path d="m29 27-11-9 7-9m14 20L22 17" fill="none" stroke="#fff5cf" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 9 51 5" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><path d="m50 5 5 3" stroke="#ffd700" stroke-width="5" stroke-linecap="round"/><path d="M8 59h47" stroke="#00ff66" stroke-width="2"/>',
+          happy: '<circle cx="31" cy="16" r="6" fill="#ffd700"/><path d="m25 24 13 1 3 16-17 1Z" fill="#fff5cf"/><path d="m26 29-11-9 5-8m16 18L21 16" fill="none" stroke="#fff5cf" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="m26 41-8 16H9m27-16 9 16h9" fill="none" stroke="#ffd700" stroke-width="6" stroke-linecap="round"/><path d="m20 12 27-7 5 3" fill="none" stroke="#00ff66" stroke-width="3" stroke-linecap="round"/><circle cx="56" cy="52" r="3" fill="#fff"/><path d="M56 55v5" stroke="#fff" stroke-width="2"/>',
+          trophy: '<path d="M19 10h26v17c0 11-6 17-13 17s-13-6-13-17Z" fill="#ffd700"/><path d="M19 15H9v9c0 8 6 11 13 11m23-20h10v9c0 8-6 11-13 11" fill="none" stroke="#ffd700" stroke-width="4"/><path d="M32 42v11m-12 4h24" stroke="#fff5cf" stroke-width="5" stroke-linecap="round"/>'
+        };
+        const badge = document.createElement("span");
+        if (!artwork[kind]) {
+          badge.className = "badge-pill";
+          badge.textContent = label;
+          return badge;
+        }
+        badge.className = "leaderboard-badge";
+        badge.title = label;
+        badge.setAttribute("role", "img");
+        badge.setAttribute("aria-label", label);
+        const icon = document.createElement("span");
+        icon.className = "leaderboard-badge-icon";
+        icon.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">' + artwork[kind] + '</svg>';
+        badge.appendChild(icon);
+        if (definition) {
+          const hole = document.createElement("span");
+          hole.className = "leaderboard-badge-hole";
+          hole.textContent = definition.hole;
+          hole.setAttribute("aria-hidden", "true");
+          badge.appendChild(hole);
+        }
+        const yardage = label.match(/\(([^)]+)\)/);
+        if (yardage) {
+          const detail = document.createElement("span");
+          detail.className = "leaderboard-badge-detail";
+          detail.textContent = yardage[1];
+          detail.setAttribute("aria-hidden", "true");
+          badge.appendChild(detail);
+        }
+        return badge;
       }
 
       function compareLeaderboardRows(a, b) {
