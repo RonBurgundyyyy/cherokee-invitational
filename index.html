@@ -694,12 +694,12 @@
         { key: "fireball3", label: "Fireball 3", hole: 3 },
         { key: "fireball5", label: "Fireball 5", hole: 5 },
         { key: "fireball7", label: "Fireball 7", hole: 7 },
-        { key: "ctp9", label: "9 CTP", hole: 9, yardagePrompt: "Enter closest-to-pin yardage for Hole 9:" },
+        { key: "ctp9", label: "9 CTP", hole: 9, yardagePrompt: "Enter distance from the pin in yards for Hole 9 (lowest wins):" },
         { key: "fireball10", label: "Fireball 10", hole: 10 },
         { key: "fireball12", label: "Fireball 12", hole: 12 },
-        { key: "longDrive14", label: "14 Long Drive", hole: 14, yardagePrompt: "Enter Long Drive yardage from the tee box for Hole 14:" },
+        { key: "longDrive14", label: "14 Long Drive", hole: 14, yardagePrompt: "Enter Long Drive yardage from the tee box for Hole 14 (highest wins):" },
         { key: "fireball16", label: "Fireball 16", hole: 16 },
-        { key: "happy18", label: "18 Happy", hole: 18, yardagePrompt: "Enter Happy Hole drive yardage from the tee box for Hole 18:" }
+        { key: "happy18", label: "18 Happy", hole: 18, yardagePrompt: "Enter Happy Hole drive yardage from the tee box for Hole 18 (highest wins):" }
       ];
 
       /* PAGE SWITCHING */
@@ -1976,7 +1976,7 @@
             badgeButton.dataset.badgeLabel = badge.label;
             badgeButton.dataset.yardagePrompt = badge.yardagePrompt || "";
             badgeButton.dataset.yardage = "";
-            badgeButton.textContent = "Badge: " + badge.label;
+            badgeButton.textContent = (badge.yardagePrompt ? "Submit: " : "Badge: ") + badge.label;
             badgeButton.onclick = () => toggleTeamBadge(badgeButton);
             field.appendChild(badgeButton);
           }
@@ -2140,7 +2140,9 @@
 
         const yardage = button.dataset.yardage || "";
         const suffix = isEarned && yardage ? " (" + yardage + " yds)" : "";
-        button.textContent = (isEarned ? "Earned: " : "Badge: ") + button.dataset.badgeLabel + suffix;
+        const distanceContest = Boolean(button.dataset.yardagePrompt);
+        const prefix = distanceContest ? (isEarned ? "Submitted: " : "Submit: ") : (isEarned ? "Earned: " : "Badge: ");
+        button.textContent = prefix + button.dataset.badgeLabel + suffix;
       }
 
       function normalizeYardageInput(value) {

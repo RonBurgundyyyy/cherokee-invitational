@@ -167,7 +167,8 @@ const TEAM_SCORE_HEADERS = [
   "Thru",
   "Strokes",
   ...BONUS_BADGES.map(badge => badge.label),
-  ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => badge.detailHeader)
+  ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => badge.detailHeader),
+  ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => badge.label + " Submitted At")
 ];
 
 const BOOKING_HEADERS = [
@@ -405,18 +406,17 @@ function getLeaderboardRows() {
 
   const scoreSheet = getSheet_("Team Scores", TEAM_SCORE_HEADERS);
   const scoreRowCount = scoreSheet.getLastRow() - 1;
-  const scoresByTeam = new Map();
+  let calculatedRows = [];
   if (scoreRowCount > 0) {
-    scoreSheet.getRange(2, 1, scoreRowCount, 21).getDisplayValues().forEach(row => {
-      scoresByTeam.set(cleanLeaderboardTeamNumber_(row[1]), row.slice(3, 21));
-    });
+    calculatedRows = calculateTeamLeaderboard_(scoreSheet.getRange(2, 1, scoreRowCount, TEAM_SCORE_HEADERS.length).getValues());
   }
+  const calculatedByTeam = new Map(calculatedRows.map(row => [row.teamNumber, row]));
 
   return sheet.getRange(2, 1, lastRow - 1, LEADERBOARD_HEADERS.length)
     .getValues()
     .map(row => {
-      const scores = scoresByTeam.get(cleanLeaderboardTeamNumber_(row[0])) || [];
-      const grossToPar = scoreToPar_(scores);
+      const calculated = calculatedByTeam.get(cleanLeaderboardTeamNumber_(row[0]));
+      if (calculated) return { ...calculated, team: cleanText_(row[0], 80) };
       const bonus = leaderboardBonusDeduction_(row[5]);
       return {
         team: cleanText_(row[0], 80),
@@ -425,8 +425,8 @@ function getLeaderboardRows() {
         strokes: cleanText_(row[3], 20),
         baseScore: cleanText_(row[4], 20),
         badgesOwned: cleanText_(row[5], 1000),
-        toPar: grossToPar === "" ? "" : grossToPar + bonus,
-        par: scorePar_(scores),
+        toPar: "",
+        par: 0,
         bonus: bonus
       };
     })
@@ -508,6 +508,9 @@ function saveTeamScore(teamNumber, scores, updatedBy, badges) {
   lock.waitLock(10000);
   try {
     const scoreSheet = getSheet_("Team Scores", TEAM_SCORE_HEADERS);
+    const rowIndex = findTeamScoreRow_(scoreSheet, cleanTeamNumber);
+    const previousRow = rowIndex ? scoreSheet.getRange(rowIndex, 1, 1, TEAM_SCORE_HEADERS.length).getValues()[0] : [];
+    const submittedAt = badgeSubmissionTimes_(previousRow, cleanBadges, Date.now());
     const scoreRow = [
       new Date(),
       cleanTeamNumber,
@@ -516,9 +519,9 @@ function saveTeamScore(teamNumber, scores, updatedBy, badges) {
       thru,
       strokes,
       ...BONUS_BADGES.map(badge => cleanBadges[badge.key].earned ? "Yes" : ""),
-      ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => cleanBadges[badge.key].yardage)
+      ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => cleanBadges[badge.key].yardage),
+      ...BONUS_BADGES.filter(badge => badge.detailHeader).map(badge => submittedAt[badge.key])
     ];
-    const rowIndex = findTeamScoreRow_(scoreSheet, cleanTeamNumber);
 
     if (rowIndex) {
       scoreSheet.getRange(rowIndex, 1, 1, TEAM_SCORE_HEADERS.length).setValues([scoreRow]);
@@ -775,6 +778,10 @@ function getSheet_(name, headers) {
     sheet = ss.insertSheet(name);
   }
 
+  if (sheet.getMaxColumns() < headers.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+  }
+
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
   } else {
@@ -923,7 +930,7 @@ function normalizeScores_(scores) {
 }
 
 function cleanYardage_(value) {
-  const text = String(value || "").trim().replace(/yards?|yds?\.?/i, "").trim();
+  const text = String(value ?? "").trim().replace(/yards?|yds?\.?/i, "").trim();
   if (!text) return "";
 
   const numeric = Number(text);
@@ -944,6 +951,9 @@ function normalizeBadges_(badges) {
       earned: earned,
       yardage: badge.detailHeader && earned ? cleanYardage_(valueObject.yardage) : ""
     };
+    if (badge.detailHeader && earned && result[badge.key].yardage === "") {
+      throw new Error("Enter a yardage for " + badge.label + ".");
+    }
     return result;
   }, {});
 }
@@ -954,7 +964,7 @@ function readBadgeValues_(row) {
     const detailIndex = detailBadges.findIndex(detailBadge => detailBadge.key === badge.key);
     result[badge.key] = {
       earned: isYes_(row[23 + index]),
-      yardage: detailIndex === -1 ? "" : cleanText_(row[23 + BONUS_BADGES.length + detailIndex], 20)
+      yardage: detailIndex === -1 ? "" : String(row[23 + BONUS_BADGES.length + detailIndex] ?? "").trim().slice(0, 20)
     };
     return result;
   }, {});
@@ -989,18 +999,28 @@ function recalculateLeaderboardScores_() {
   const lastRow = scoreSheet.getLastRow();
   if (lastRow < 2) return;
 
-  const rows = scoreSheet.getRange(2, 1, lastRow - 1, TEAM_SCORE_HEADERS.length).getDisplayValues();
+  const rows = scoreSheet.getRange(2, 1, lastRow - 1, TEAM_SCORE_HEADERS.length).getValues();
+  calculateTeamLeaderboard_(rows).forEach(row => {
+    updateLeaderboardScore_(row.teamNumber, row.total, row.thru, row.strokes, row.badgesOwned);
+  });
+}
+
+function calculateTeamLeaderboard_(rows) {
   const teamScores = rows
     .map(row => {
       const teamNumber = cleanTeamNumber_(row[1]);
-      const thru = Number(row[21] || 0);
-      const strokes = Number(row[22] || 0);
+      const scores = row.slice(3, 21);
+      const validScores = scores.map(Number).filter(score => Number.isInteger(score) && score >= 1 && score <= 20);
+      const thru = validScores.length;
+      const strokes = validScores.reduce((sum, score) => sum + score, 0);
       const badges = readBadgeValues_(row);
 
       return {
         teamNumber: teamNumber,
         thru: Number.isFinite(thru) ? thru : 0,
         strokes: Number.isFinite(strokes) ? strokes : 0,
+        scores: scores,
+        submittedAt: readBadgeSubmissionTimes_(row),
         badges: badges
       };
     })
@@ -1010,15 +1030,76 @@ function recalculateLeaderboardScores_() {
     .filter(row => row.thru === 18)
     .map(row => row.strokes);
   const lowestCompletedScore = completedScores.length ? Math.min(...completedScores) : null;
+  const winners = exclusiveBadgeWinners_(teamScores);
 
-  teamScores.forEach(row => {
+  return teamScores.map(row => {
+    const awardedBadges = BONUS_BADGES.reduce((result, badge) => {
+      result[badge.key] = {
+        ...row.badges[badge.key],
+        earned: badge.detailHeader ? winners[badge.key] === row.teamNumber : row.badges[badge.key].earned
+      };
+      return result;
+    }, {});
     const hasLowestCardedScoreBonus = lowestCompletedScore !== null && row.thru === 18 && row.strokes === lowestCompletedScore;
-    const bonusStrokes = badgeBonusStrokes_(row.badges) + (hasLowestCardedScoreBonus ? LOWEST_CARDED_SCORE_BONUS : 0);
+    const bonusStrokes = badgeBonusStrokes_(awardedBadges) + (hasLowestCardedScoreBonus ? LOWEST_CARDED_SCORE_BONUS : 0);
     const adjustedScore = row.strokes > 0 ? row.strokes - bonusStrokes : "";
-    const badgesOwned = badgeLabels_(row.badges, hasLowestCardedScoreBonus).join(", ");
-
-    updateLeaderboardScore_(row.teamNumber, adjustedScore, row.thru, row.strokes, badgesOwned);
+    const badgesOwned = badgeLabels_(awardedBadges, hasLowestCardedScoreBonus).join(", ");
+    return {
+      teamNumber: row.teamNumber,
+      total: adjustedScore,
+      thru: row.thru,
+      strokes: row.strokes,
+      baseScore: row.strokes,
+      toPar: row.thru ? scoreToPar_(row.scores) - bonusStrokes : "",
+      par: scorePar_(row.scores),
+      bonus: -bonusStrokes,
+      badgesOwned: badgesOwned
+    };
   });
+}
+
+function readBadgeSubmissionTimes_(row) {
+  const distanceBadges = BONUS_BADGES.filter(badge => badge.detailHeader);
+  const offset = 23 + BONUS_BADGES.length + distanceBadges.length;
+  return distanceBadges.reduce((result, badge, index) => {
+    const saved = Number(row[offset + index]);
+    // Old entries have no contest timestamp; use their last saved score time.
+    const legacy = row[0] instanceof Date ? row[0].getTime() : Date.parse(row[0]);
+    result[badge.key] = saved > 0 ? saved : (Number.isFinite(legacy) ? legacy : 0);
+    return result;
+  }, {});
+}
+
+function badgeSubmissionTimes_(previousRow, badges, now) {
+  const previousBadges = readBadgeValues_(previousRow);
+  const previousTimes = readBadgeSubmissionTimes_(previousRow);
+  return BONUS_BADGES.filter(badge => badge.detailHeader).reduce((result, badge) => {
+    const value = badges[badge.key];
+    const previous = previousBadges[badge.key];
+    const unchanged = previous.earned && Number(previous.yardage) === Number(value.yardage) && previous.yardage !== "";
+    result[badge.key] = value.earned && value.yardage !== ""
+      ? (unchanged && previousTimes[badge.key] ? previousTimes[badge.key] : now) : "";
+    return result;
+  }, {});
+}
+
+function exclusiveBadgeWinners_(teams) {
+  return BONUS_BADGES.filter(badge => badge.detailHeader).reduce((winners, badge) => {
+    const candidates = teams.filter(team => {
+      const entry = team.badges[badge.key];
+      const distance = Number(entry.yardage);
+      return entry.earned && entry.yardage !== "" && Number.isFinite(distance) && distance >= 0 && distance <= 700;
+    });
+    candidates.sort((a, b) => {
+      const distanceDifference = Number(a.badges[badge.key].yardage) - Number(b.badges[badge.key].yardage);
+      if (distanceDifference) return badge.key === "ctp9" ? distanceDifference : -distanceDifference;
+      const firstTime = a.submittedAt[badge.key] || Number.MAX_SAFE_INTEGER;
+      const secondTime = b.submittedAt[badge.key] || Number.MAX_SAFE_INTEGER;
+      return firstTime - secondTime || Number(a.teamNumber) - Number(b.teamNumber);
+    });
+    if (candidates.length) winners[badge.key] = candidates[0].teamNumber;
+    return winners;
+  }, {});
 }
 
 function badgeBonusStrokes_(badges) {
